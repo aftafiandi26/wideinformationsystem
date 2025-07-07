@@ -207,15 +207,6 @@ class AllEmployes_AttendanceController extends Controller
 
     public function feels($object)
     {
-        // $array = [
-        //     '1' => 'Distressed',
-        //     '2' => 'Unhappy',
-        //     '3' => 'Neutral',
-        //     '4' => 'Happy',
-        //     '5' => 'Very Happy'
-        // ];
-        // update 18-06-2025
-
         $array = [
             '1' => 'Very Unpleasant',
             '2' => 'Unpleasant',
@@ -224,23 +215,16 @@ class AllEmployes_AttendanceController extends Controller
             '5' => 'Very Pleasant'
         ];
 
-        // Memeriksa apakah $object ada dalam array dan mengembalikan nilainya
+       
         if (array_key_exists($object, $array)) {
-            return $array[$object]; // Mengembalikan value sesuai dengan key
+            return $array[$object];
         }
 
-        return "**********"; // Mengembalikan null jika key tidak ditemukan
+        return "**********"; 
     }
 
     public function health($object)
     {
-        // $array = [
-        //     1 => "Severely Unhealthy",
-        //     2 => "Not Feeling Well",
-        //     3 => "Healthy"
-        // ];
-        // update 18-06-2025
-
         $array = [
             1 => "Very Poor",
             2 => "Poor",
@@ -265,25 +249,29 @@ class AllEmployes_AttendanceController extends Controller
         $attendance = Attendance::where('user_id', auth()->user()->id)->where('in', 1)->whereDATE('start', date('Y-m-d'))->latest()->first();
 
         $feeled = Attendance::with('relationsQuest')->where('user_id', auth()->user()->id)->orderBy('start', 'desc')->first();
-
-        if ($feeled->relationsQuest) {
-            $Q1 = $feeled->relationsQuest->Q1;
-            $noteQ1 = false;
-            $Q2 = $feeled->relationsQuest->Q2;
-            $noteQ2 = false;
-
-            if ($Q1 <= 2) {
-                $noteQ1 = true;
-            }
-
-            if ($Q2 <= 2) {
-                $noteQ2 = true;
+        if ($feeled) {
+            if ($feeled->relationsQuest) {
+                $Q1 = $feeled->relationsQuest->Q1;
+                $noteQ1 = false;
+                $Q2 = $feeled->relationsQuest->Q2;
+                $noteQ2 = false;
+        
+                if ($Q1 <= 2) {
+                    $noteQ1 = true;
+                }
+        
+                if ($Q2 <= 2) {
+                    $noteQ2 = true;
+                }
+            } else {
+                 $noteQ1 = false;
+                 $noteQ2 = false;
             }
         } else {
             $noteQ1 = false;
             $noteQ2 = false;
         }
-
+        
         $hidden = "hidden";
         return view('all_employee.Absensi.indexAttendance', compact(['date', 'header', 'hidden', 'attendance', 'endOfDay', 'noteQ1', 'noteQ2']));
     }
@@ -332,37 +320,37 @@ class AllEmployes_AttendanceController extends Controller
         $attendance = Attendance::whereDATE('start', date('Y-m-d'))->where('user_id', auth()->user()->id)->first();
 
         if (empty($request->input('value_work'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, your data cannot be recorded']));
-            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Please, attention to the form you will send']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Data cannot be recorded.']));
+            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Use the correct form.']));
             return redirect()->route('attendance/index');
         }
 
         if ($attendance) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, attendance already exists']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Attendance exists.']));
             return redirect()->route('attendance/index');
         }
 
         if (empty($request->input('feel'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, Choose how you are feeling right now !!']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Please indicate how you are currently feeling.!!']));
             return redirect()->route('attendance/index');
         }
 
         if (empty($request->input('health'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, choose your current health status !!']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Please indicate your current health status.']));
             return redirect()->route('attendance/index');
         }
 
         if (empty($request->input('project'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, your project is empty!']));
-            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Please check your project.']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Unfortunately, your project is empty.']));
+            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Please verify your project details.']));
             return redirect()->route('attendance/index');
         }
 
         $project = ProjectGroup::find($request->input('project'));
 
         if ($project->active == false) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, ' . $project->group_name . ' has been completed, you cannot choose this project']));
-            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'If you want choose this project, please contact administrator']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'The ' . $project->group_name . ' project is complete. It is no longer available.']));
+            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Contact the administrator for this project..']));
             return redirect()->route('attendance/index');
         }
 
@@ -388,7 +376,7 @@ class AllEmployes_AttendanceController extends Controller
 
         Attendance::create($data);
         Mail::to('dede.aftafiandi@infinitestudios.id')->send(new NoticeAttendanceMails($data));
-        Session::flash('message', lang::get('messages.data_custom', ['data' => "Attendance data has been recorded."]));
+        Session::flash('message', lang::get('messages.data_custom', ['data' => "Please be advised that attendance data has been recorded."]));
         return redirect()->route('attendance/index');
     }
 
@@ -415,7 +403,7 @@ class AllEmployes_AttendanceController extends Controller
         $datetime = Carbon::now();
 
         if (empty($request->input('value_work'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Please selecct a work option']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Please indicate your preferred work option']));
             return redirect()->route('attendance/index');
         }
 
@@ -533,44 +521,44 @@ class AllEmployes_AttendanceController extends Controller
         $attendance = Attendance::whereDATE('start', date('Y-m-d'))->where('user_id', auth()->user()->id)->first();
 
         if (empty($request->input('value_work'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, your data cannot be recorded']));
-            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Please, attention to the form you will send']));
+           Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Data cannot be recorded.']));
+            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Use the correct form.']));
             return redirect()->route('attendance/index');
         }
 
         if ($attendance) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, attendance already exists']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Attendance exists.']));
             return redirect()->route('attendance/index');
         }
 
         if (empty($request->input('feel'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, Choose how you are feeling right now !!']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Please indicate how you are currently feeling.!!']));
             return redirect()->route('attendance/index');
         }
 
         if (empty($request->input('health'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, choose your current health status !!']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Please indicate your current health status.']));
             return redirect()->route('attendance/index');
         }
 
         if (empty($request->input('project'))) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, your project is empty!']));
-            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Please check your project.']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Unfortunately, your project is empty.']));
+            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Please verify your project details.']));
             return redirect()->route('attendance/index');
         }
 
         $project = ProjectGroup::find($request->input('project'));
 
         if ($project->active == false) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, ' . $project->group_name . ' has been completed, you cannot choose this project']));
-            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'If you want choose this project, please contact administrator']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'The ' . $project->group_name . ' project is complete. It is no longer available.']));
+            Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Contact the administrator for this project..']));
             return redirect()->route('attendance/index');
         }
 
         $qeu = [
             'user_id'   => auth()->user()->id,
             'Q1'        => 2 + $request->input('feel'),
-            'Q2'        => 2 + $request->input('health'),
+            'Q2'        => $request->input('health'),
             'group'     => $project->id,
             'will_do'   => $request->input('being')
         ];
@@ -639,12 +627,12 @@ class AllEmployes_AttendanceController extends Controller
         $health = $_COOKIE['health'];
 
         if ($project == "") {
-            Session::flash('getError', lang::get('messages.data_custom', ['data' => "Please check your selected."]));
+            Session::flash('getError', lang::get('messages.data_custom', ['data' => "Check your selection."]));
             return redirect()->route('attendance/index');
         }
 
         if ($status_in == "") {
-            Session::flash('getError', lang::get('messages.data_custom', ['data' => "Please check your work status again."]));
+            Session::flash('getError', lang::get('messages.data_custom', ['data' => "Check your work status.."]));
             return redirect()->route('attendance/index');
         }
 
@@ -657,7 +645,7 @@ class AllEmployes_AttendanceController extends Controller
         $attendance = Attendance::whereDATE('start', date('Y-m-d'))->where('user_id', auth()->user()->id)->first();
 
         if ($attendance) {
-            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, attendance already exists']));
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Attendance already exists.']));
             return redirect()->route('attendance/index');
         }
 
@@ -669,7 +657,7 @@ class AllEmployes_AttendanceController extends Controller
             'will_do'   => $request->input('textArea')
         ];
 
-        // Attendance_Questions::create($qeu);
+        Attendance_Questions::create($qeu);
 
         $question = Attendance_Questions::where('user_id', auth()->user()->id)->latest()->first();
 
@@ -681,7 +669,7 @@ class AllEmployes_AttendanceController extends Controller
             'quest_id'     => $question->id,
         ];
 
-        // Attendance::create($data);
+        Attendance::create($data);
         $bitFeel = $request->input('bitFeel');
 
         if ($bitFeel == "feel") {
@@ -692,20 +680,20 @@ class AllEmployes_AttendanceController extends Controller
             $deArray = $de->toArray();
             $deArray = count($deArray);
             if ($deArray >= 3) {
-                Mail::to("dede.aftafiandi@infinitestudios.id")->send(new feedbackFeelMail());
+                Mail::to("hrd@infinitestudios.id")->send(new feedbackFeelMail());
             }
         } else if ($bitFeel == "health") {
-            $yiu = Attendance_Questions::where('user_id', auth()->user()->id)->latest()->limit(3)->pluck('Q1');
+            $yiu = Attendance_Questions::where('user_id', auth()->user()->id)->latest()->limit(3)->pluck('Q2');
             $de = $yiu->filter(function ($value) {
                 return $value < 3;
             });
             $deArray = $de->toArray();
             $deArray = count($deArray);
             if ($deArray >= 3) {
-                Mail::to("dede.aftafiandi@infinitestudios.id")->send(new feedbackFeelMail());
+                Mail::to("hrd@infinitestudios.id")->send(new feedbackFeelMail());
             }
         }
-        // Mail::to('dede.aftafiandi@infinitestudios.id')->send(new NoticeAttendanceMails($data));
+        Mail::to('dede.aftafiandi@infinitestudios.id')->send(new NoticeAttendanceMails($data));
         Session::flash('message', lang::get('messages.data_custom', ['data' => "Attendance data has been recorded."]));
         return redirect()->route('attendance/index');
     }

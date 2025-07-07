@@ -1,4 +1,4 @@
-<p align="center"><img src="https://wis.infinitestudios.id/assets/Graphic2.png" width="5%"></p>
+<p align="center"><img src="https://wis.infinitestudios.id/assets/Graphic2.png" width="15%"></p>
 
 <p align="center">
 <a href="">Wide Informations System</a>

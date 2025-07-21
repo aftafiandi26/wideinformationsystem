@@ -7042,7 +7042,6 @@
     "dev": true,
     "dev-package-names": [
         "doctrine/instantiator",
-        "fzaninotto/faker",
         "hamcrest/hamcrest-php",
         "mockery/mockery",
         "myclabs/deep-copy",

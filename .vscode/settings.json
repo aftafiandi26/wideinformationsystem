@@ -5,5 +5,12 @@
             "path": "C:\\Program Files\\Git\\bin\\bash.exe",
             "args": ["--login", "-i"]
         }
+    },
+    "editor.formatOnSave": true,
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[blade]": {
+      "editor.defaultFormatter": "shufo.vscode-blade-formatter"
     }
 }

@@ -1911,3 +1911,31 @@ Route::get('hbd', 'ZController@index')->name('ZController/index');
 
 Route::get('esignature', 'EmailSignatureController@index')->name('esignature');
 Route::get('esignature/layout', 'EmailSignatureController@lay')->name('esignature/layout');
+
+Route::prefix('event')->group(function () {
+    Route::get('infinite-virtual-run', 'Event\\InfiniteRunController@index')->name('infiniteVirRun/index');
+    Route::get('infinite-virtual-run/register', 'Event\\InfiniteRunController@register')->name('infiniteVirRun/register');
+    Route::post('infinite-virtual-run/register/post', 'Event\\InfiniteRunController@postRegister')->name('infiniteVirRun/register/post');
+    Route::get('infinite-virtual-run/submission', 'Event\\InfiniteRunController@submission')->name('infiniteVirRun/submission');
+    Route::post('infinite-virtual-run/submission/post', 'Event\\InfiniteRunController@postSubmssion')->name('infiniteVirRun/submission/post');
+    Route::get('infinite-virtual-run/submission/list', 'Event\\InfiniteRunController@listedSubmission')->name('infiniteVirRun/submission/list');    
+    Route::get('infinite-virtual-run/submission/list/data', 'Event\\InfiniteRunController@datatablesListedSubmission')->name('infiniteVirRun/submission/list/data');    
+    Route::get('infinite-virtual-run/data/male', 'Event\\InfiniteRunController@dataTablesMale')->name('infiniteVirRun/data/male');          
+    Route::get('infinite-virtual-run/data/female', 'Event\\InfiniteRunController@dataTablesFemale')->name('infiniteVirRun/data/female');          
+});
+
+Route::prefix('event-admin')->group(function () {
+    Route::get('infinite-virtual-run', 'Event\\AdminInfVirRunController@pageVerify')->name('admin/infinite-virtual-run/verify');
+    Route::get('infinite-virtual-run/data', 'Event\\AdminInfVirRunController@datatablesPageVerify')->name('admin/infinite-virtual-run/verify/data');
+    Route::get('infinite-virtual-run/verify/{verified}', 'Event\\AdminInfVirRunController@getVerify')->name('admin/infinite-virtual-run/verify/verified');
+    Route::post('infinite-virtual-run/approve/{id}', 'Event\\AdminInfVirRunController@approve')->name('admin/infinite-virtual-run/approve');
+    Route::post('infinite-virtual-run/disapprove/{id}', 'Event\\AdminInfVirRunController@disapprove')->name('admin/infinite-virtual-run/disapprove');
+    Route::post('infinite-virtual-run/delete/{id}', 'Event\\AdminInfVirRunController@delete')->name('admin/infinite-virtual-run/delete');
+    Route::get('infinite-virtual-run/participant', 'Event\\AdminInfVirRunController@participant')->name('admin/infinite-virtual-run/participant');
+    Route::get('infinite-virtual-run/participant/data', 'Event\\AdminInfVirRunController@datatablesParticipant')->name('admin/infinite-virtual-run/participant/data');
+    Route::get('infinite-virtual-run/participant/{id}', 'Event\\AdminInfVirRunController@editProfileParticipant')->name('admin/infinite-virtual-run/participant/edit');
+    Route::post('infinite-virtual-run/participant/post/{id}', 'Event\\AdminInfVirRunController@updateProfileParticipant')->name('admin/infinite-virtual-run/participant/edit/post');
+    Route::get('infinite-virtual-run/history', 'Event\\AdminInfVirRunController@history')->name('admin/infinite-virtual-run/history');
+    Route::get('infinite-virtual-run/history/data', 'Event\\AdminInfVirRunController@dataTablesHistory')->name('admin/infinite-virtual-run/history/data');
+    Route::post('infinite-virtual-run/disqualified/{id}', 'Event\\AdminInfVirRunController@kickOut')->name('admin/infinite-virtual-run/disqualified');
+});

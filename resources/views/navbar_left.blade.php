@@ -1263,6 +1263,22 @@
         </li>
         <?php endif ?>
 
+        <li>
+            <a class="{!! $c63 or '' !!}" href="#"><i class="fa fa-fw fa fa-flag-checkered"></i>
+                Event<span class="fa arrow"></span></a>
+            <ul class="nav nav-second-level {!! $c1u or '' !!}">
+                <li>
+                    <a class="{!! $c63 or '' !!}" href="#"><i class="fa fa-fw fa fa-certificate"></i>
+                        Infinite VIrtual Run<span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level {!! $c1u or '' !!}">
+                        <a class="{!! $c1994 or '' !!}" href="{{ route('infiniteVirRun/index') }}">
+                            <i class="fa fa-fw fa fa-genderless"></i> 2025</a>
+                    </ul>
+                </li>
+
+            </ul>
+        </li>
+
         {{-- yg dibawh jgn di hapus --}}
         </ul>
 

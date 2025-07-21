@@ -109,8 +109,9 @@ class HRDLevelAccess extends Controller
         $select = NewUser::joinDeptCategory()->JoinLeaveView()->select(['users.id', 'users.join_date', 'users.end_date', 'users.nik', 'users.first_name', 'users.last_name', 'users.gender', 'dept_category.dept_category_name', 'users.pob', 'users.dob', 'users.position', 'users.education', 'users.education_institution', 'users.emp_status', 'users.phone', 'users.religion', 'all_leave_entitled.annual_leave_balance', 'all_leave_entitled.day_off_balance', 'users.active', 'users.address', 'users.bpjs_kesehatan', 'users.bpjs_ketenagakerjaan'])
             ->whereNotIn('users.username', ['admin', 'hr', 'wis_system'])
             ->whereNotIn('users.nik', ["", "123456789"])
-            ->where('users.active', 1)
-            ->where('users.id', 226)
+            ->where('users.active', 1)            
+            ->whereIn('users.id', [226, 130])
+            ->orderBy('users.first_name', 'asc')
             ->get();
 
         return Datatables::of($select)
@@ -137,7 +138,9 @@ class HRDLevelAccess extends Controller
                     . Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'detail/Employee\', [$id]) }}', 'class' => 'file'])
             )
             ->setRowClass('@if ($active === 0){{ "danger" }}@endif')
-            ->make();
+            ->rawColumns(['actions'])
+            ->addIndexColumn()
+            ->make(true);
     }
 
     public function detailEmployee($id)

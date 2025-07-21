@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '71608527ff3b7287bf6177f99661d57e4f036dc0',
+        'reference' => 'c81f68423ac1aa4ec2d3224376c4c0bd265dc540',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -110,7 +110,7 @@
             'install_path' => __DIR__ . '/../fzaninotto/faker',
             'aliases' => array(),
             'reference' => '848d8125239d7dbf8ab25cb7f054f1a630e68c2e',
-            'dev_requirement' => true,
+            'dev_requirement' => false,
         ),
         'google/apiclient' => array(
             'pretty_version' => 'v2.14.0',
@@ -448,12 +448,12 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '71608527ff3b7287bf6177f99661d57e4f036dc0',
+            'reference' => 'c81f68423ac1aa4ec2d3224376c4c0bd265dc540',
             'dev_requirement' => false,
         ),
         'laravel/tinker' => array(

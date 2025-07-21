@@ -1,3 +1,6 @@
 {
-  "recommendations": ["amiralizadeh9480.laravel-extra-intellisense"]
+  "recommendations": [
+    "amiralizadeh9480.laravel-extra-intellisense",
+    "shufo.vscode-blade-formatter"
+  ]
 }

@@ -60,6 +60,7 @@
                                 <th>Rank</th>
                                 <th>Name</th>
                                 <th>EBIB</th>
+                                <th>Entity</th>
                                 <th>Distance <sup>(Km)</sup> </th>
                                 <th>Duration</th>
                                 <th>Total Activities</th>
@@ -84,6 +85,7 @@
                                 <th>Rank</th>
                                 <th>Name</th>
                                 <th>EBIB</th>
+                                <th>Entity</th>
                                 <th>Distance <sup>(Km)</sup> </th>
                                 <th>Duration</th>
                                 <th>Total Activities</th>
@@ -150,6 +152,8 @@
                     }, {
                         data: 'ebib'
                     }, {
+                        data: 'entity'
+                    }, {
                         data: 'distance_temp'
                     }, {
                         data: 'duration'
@@ -190,6 +194,8 @@
                         data: 'fullname'
                     }, {
                         data: 'ebib'
+                    }, {
+                        data: 'entity'
                     }, {
                         data: 'distance_temp'
                     }, {

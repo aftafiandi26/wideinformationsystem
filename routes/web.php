@@ -1921,7 +1921,17 @@ Route::prefix('event')->group(function () {
     Route::get('infinite-virtual-run/submission/list', 'Event\\InfiniteRunController@listedSubmission')->name('infiniteVirRun/submission/list');    
     Route::get('infinite-virtual-run/submission/list/data', 'Event\\InfiniteRunController@datatablesListedSubmission')->name('infiniteVirRun/submission/list/data');    
     Route::get('infinite-virtual-run/data/male', 'Event\\InfiniteRunController@dataTablesMale')->name('infiniteVirRun/data/male');          
-    Route::get('infinite-virtual-run/data/female', 'Event\\InfiniteRunController@dataTablesFemale')->name('infiniteVirRun/data/female');          
+    Route::get('infinite-virtual-run/data/female', 'Event\\InfiniteRunController@dataTablesFemale')->name('infiniteVirRun/data/female');  
+    
+    //Outsider People coming
+    Route::get('virtual-run/registration', 'Event\\Outsider_InfiVirRunController@adminRegistration')->name('outsider/infiniteVirRun/run/adminRegistration');
+    Route::get('virtual-run/registration/create', 'Event\\Outsider_InfiVirRunController@modalRegistration')->name('outsider/infiniteVirRun/run/adminRegistration/create');
+    Route::post('virtual-run/registration/store', 'Event\\Outsider_InfiVirRunController@storeRegister')->name('outsider/infiniteVirRun/run/adminRegistration/store');
+    Route::get('virtual-run/registration/data', 'Event\\Outsider_InfiVirRunController@datatabalesRegister')->name('outsider/infiniteVirRun/run/adminRegistration/data');
+    Route::get('virtual-run/registration/edit/{id}', 'Event\\Outsider_InfiVirRunController@editAccount')->name('outsider/infiniteVirRun/run/adminRegistration/edit');
+    Route::post('virtual-run/registration/update/{id}', 'Event\\Outsider_InfiVirRunController@updateAccount')->name('outsider/infiniteVirRun/run/adminRegistration/post');
+    Route::get('virtual-run/registration/delete/{id}', 'Event\\Outsider_InfiVirRunController@delete')->name('outsider/infiniteVirRun/run/adminRegistration/delete');
+    Route::post('virtual-run/registration/destroy/{id}', 'Event\\Outsider_InfiVirRunController@destroy')->name('outsider/infiniteVirRun/run/adminRegistration/destroy');
 });
 
 Route::prefix('event-admin')->group(function () {
@@ -1938,4 +1948,11 @@ Route::prefix('event-admin')->group(function () {
     Route::get('infinite-virtual-run/history', 'Event\\AdminInfVirRunController@history')->name('admin/infinite-virtual-run/history');
     Route::get('infinite-virtual-run/history/data', 'Event\\AdminInfVirRunController@dataTablesHistory')->name('admin/infinite-virtual-run/history/data');
     Route::post('infinite-virtual-run/disqualified/{id}', 'Event\\AdminInfVirRunController@kickOut')->name('admin/infinite-virtual-run/disqualified');
+
+    Route::get('infinite-virtual-run/annoucement/external', 'Event\\AdminInfVirRunController@announcement')->name('admin/infinite-virtual-run/announcement/external');
+});
+
+// Productin Technology
+Route::prefix('production-tech')->group(function () {
+    Route::get('vpn-list', 'ProductionTech\\VPNEmployeList_Controller@index')->name('prodTech/manage/vpn/list');
 });

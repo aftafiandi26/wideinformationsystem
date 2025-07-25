@@ -89,6 +89,7 @@ class HRController extends Controller
             ->where('users.username', '!=', 'admin')
             ->where('users.username', '!=', 'hr')
             ->where('users.nik', '!=', 123456789)
+            ->whereNotIn('users.dept_category_id', [Null])
             ->get();
 
         return Datatables::of($select)

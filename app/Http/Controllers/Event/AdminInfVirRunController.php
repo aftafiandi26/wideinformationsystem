@@ -45,8 +45,9 @@ class AdminInfVirRunController extends Controller
                 $result = $event->EventRegister()->getUser()->getFullName();
                 return $result;
             })
-            ->addColumn('stravaURL', function (EventVirRun $event) {                
-                return "<a href=" .$event->url." target='_blank' rel='noopener noreferrer'>".$event->url."</a>";
+            ->addColumn('stravaURL', function (EventVirRun $event) {                                
+                $result = "<a href='".$event->url."' class='btn btn-xs btn-info' title='strava profile' target='_blank' rel='noopener noreferrer' >Strava Link</a>";
+                return $result;
             })
             ->addColumn('actions', 'all_employee.Event.Admin.InfVirRun.actions')
             ->rawColumns(['actions'])
@@ -164,8 +165,9 @@ class AdminInfVirRunController extends Controller
                          <div style="font-weight: 500; color: #777;">'.$lastName.'</div>
                         </div>';
             })
-            ->addColumn('stravaURL', function (EventVirRunREG $event) {                
-                return "<a href=" .$event->profileUrl." target='_blank' rel='noopener noreferrer'>".$event->profileUrl."</a>";
+            ->addColumn('stravaURL', function (EventVirRunREG $event) {                                
+                $result = "<a href='".$event->profileUrl."' class='btn btn-xs btn-info' title='strava profile' target='_blank' rel='noopener noreferrer' >Strava Profile</a>";
+                return $result;
             })           
             ->addColumn('actions', 'all_employee.Event.Admin.InfVirRun.actionsParticipants')
             ->rawColumns(['getFullname', 'stravaURL', 'actions', 'active'])
@@ -250,8 +252,10 @@ class AdminInfVirRunController extends Controller
                          <div style="font-weight: 500; color: #777;">'.$lastName.'</div>
                         </div>';
             })
-            ->addColumn('stravaURL', function (EventVirRun $event) {                
-                return "<a href=" .$event->url." target='_blank' rel='noopener noreferrer'>".$event->url."</a>";
+            ->addColumn('stravaURL', function (EventVirRun $event) {                                
+                $result = "<a href='".$event->url."' class='btn btn-xs btn-info' title='strava profile' target='_blank' rel='noopener noreferrer' >Strava Link</a>";
+                return $result;
+                
             })
             ->rawColumns(['staravaURL', 'fullname'])
             ->editColumn('verify', function (EventVirRun $event) {
@@ -276,6 +280,11 @@ class AdminInfVirRunController extends Controller
 
         Session::flash('success', Lang::get('messages.data_custom', ['data' => $event->getUser()->getFullName()." has been disqualified from the competition."])); 
         return redirect()->route('admin/infinite-virtual-run/participant');
+    }
+
+    public function announcement()
+    {
+        return view('all_employee.Event.Outsider.Email.announcement');
     }
   
 }

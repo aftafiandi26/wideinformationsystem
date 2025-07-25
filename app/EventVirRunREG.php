@@ -19,4 +19,9 @@ class EventVirRunREG extends Model
         return EventVirRun::where('ebib', $this->ebib)->get();
     }
 
+    public function getEventOutsider()
+    {
+        return EventOutsider::where('ebib', $this->ebib)->where('user_id', $this->user_id)->first();
+    }
+
 }

@@ -166,8 +166,9 @@ class InfiniteRunController extends Controller
 
         return Datatables::of($query)
             ->addIndexColumn()
-            ->addColumn('stravaURL', function (EventVirRun $event) {                
-                return "<a href=" .$event->url." target='_blank' rel='noopener noreferrer'>".$event->url."</a>";
+            ->addColumn('stravaURL', function (EventVirRun $event) {                                
+                $result = "<a href='".$event->url."' class='btn btn-xs btn-info' title='strava profile' target='_blank' rel='noopener noreferrer' >Strava Link</a>";
+                return $result;
             })
             ->rawColumns(['staravaURL'])
             ->editColumn('verify', function (EventVirRun $event) {
@@ -204,7 +205,7 @@ class InfiniteRunController extends Controller
     
         return Datatables::of($sorted)
             ->addIndexColumn()
-            ->addColumn('fullname', function(EventVirRunREG $event) {           
+            ->addColumn('fullname', function(EventVirRunREG $event) {          
 
                 $fullname = $event->getUser()->getFullName();
                 $names = explode(' ', $fullname);
@@ -269,12 +270,22 @@ class InfiniteRunController extends Controller
             ->addColumn('status', function (EventVirRunREG $event) {
                 $percantage = $event->percantage_temp;
 
-                if ($percantage === 100) {
+                if ($percantage == "100") {
                     return "Finisher";
                 }
 
                 return null;
             })
+            ->addColumn('entity', function (EventVirRunREG $event) {
+                $entity = $event->getEventOutsider();
+                if ($entity) {
+                    $return = $entity->company;
+                } else {
+                    $return = "Infinite Studios";
+                }
+                return $return;
+            })           
+            ->rawColumns(['fullname'])
             ->make(true);
     }   
 
@@ -369,12 +380,21 @@ class InfiniteRunController extends Controller
             ->addColumn('status', function (EventVirRunREG $event) {
                 $percantage = $event->percantage_temp;
 
-                if ($percantage === 100) {
+                if ($percantage == "100") {
                     return "Finisher";
                 }
 
                 return null;
             })
+            ->addColumn('entity', function (EventVirRunREG $event) {
+                $entity = $event->getEventOutsider();
+                if ($entity) {
+                    $return = $entity->company;
+                } else {
+                    $return = "Infinite Studios";
+                }
+                return $return;
+            })  
             ->rawColumns(['fullname'])
             ->make(true);
     }   

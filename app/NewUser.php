@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 	{
 		protected $table = 'users';
 
+		protected $guarded = [];
+
 		public function scopeJoinDeptCategory($query)
 	    {
 	        return $query->leftjoin('dept_category', 'dept_category.id', '=', 'users.dept_category_id');

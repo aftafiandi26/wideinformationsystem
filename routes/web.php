@@ -1955,4 +1955,8 @@ Route::prefix('event-admin')->group(function () {
 // Productin Technology
 Route::prefix('production-tech')->group(function () {
     Route::get('vpn-list', 'ProductionTech\\VPNEmployeList_Controller@index')->name('prodTech/manage/vpn/list');
+    Route::get('vpn-list/data', 'ProductionTech\\VPNEmployeList_Controller@dataTablesIndex')->name('prodTech/manage/vpn/list/data');
+    Route::post('vpn-list/findTable', 'ProductionTech\\VPNEmployeList_Controller@findTable')->name('prodTech/manage/vpn/list/findTable');
+    Route::get('vpn-list/findData/{start}/{end}', 'ProductionTech\\VPNEmployeList_Controller@findData')->name('prodTech/manage/vpn/list/findData');
+    Route::get('vpn-list/findDataTables/{start}/{end}', 'ProductionTech\\VPNEmployeList_Controller@dataTabelsFindData')->name('prodTech/manage/vpn/list/findDataTables');
 });

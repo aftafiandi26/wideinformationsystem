@@ -1202,19 +1202,10 @@
 
     {{-- production technolgy menu --}}
     @if (auth()->user()->dept_category_id === 10)
-    <li>
-        <a href="#" class="{!! $c63 or '' !!}"><i class="fa fa-fw fa-wpforms"></i> Production
-            Technology
-            <span class="fa arrow"></span></a>
-        <ul class="nav nav-second-level {!! $c1u or '' !!}">
-            <li>
-                <a class="{!! $c15 or '' !!}" href="{{ route('prodTech/manage/vpn/list') }}"><i
-                        class="fa fa-fw fa fa-genderless"></i> Employee List VPN</a>
-            </li>
-        </ul>
-    </li>
+    {{-- @if (auth()->user()->dept_category_id === 10) --}}
+        @include('navbar_left_prodTech')
     @endif
-    
+
 
     {{-- @if (auth()->user()->dept_category_id !== 6)
             <li>

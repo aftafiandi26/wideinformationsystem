@@ -39,4 +39,14 @@ class FormOvertimes extends Model
     {
         return $this->hasOne(User::class, 'id', 'it_id');
     }
+
+    public function getUser()
+    {
+        return User::where('id', $this->user_id)->first();
+    }
+
+    public function getWS()
+    {
+        return Ws_Availability::where('user_id', $this->user_id)->first();
+    }
 }

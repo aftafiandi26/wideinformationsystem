@@ -12,10 +12,10 @@
         style="max-width:600px; margin:auto; background:#ffffff; border:1px solid #ddd; border-radius:6px;">
         <tr>
             <td style="padding: 30px; color: #333333; font-size: 16px; line-height: 1.6;">
-                <p style="text-align: center; margin: 0 0 20px 0;">
+                {{-- <p style="text-align: center; margin: 0 0 20px 0;">
                     <img src="{{ $img }}" alt="Logo Event" width="150"
                         style="display: inline-block; max-width: 100%; height: auto;" />
-                </p>
+                </p> --}}
                 <p style="font-weight: bold; font-size: 18px; margin-top: 0;">Hello {{ $fullname }},</p>
                 <p>Your <strong>#InfiniteVirtualRun2025</strong> account is all set up and ready for you.</p>
 
@@ -64,7 +64,6 @@
                 <br>
                 <p>Cheers,</p>
                 <p>-Infinite Studios-</p>
-
             </td>
         </tr>
     </table>

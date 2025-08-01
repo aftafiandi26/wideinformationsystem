@@ -56,7 +56,7 @@ class Outsider_InfiVirRunController extends Controller
             'password'      => 'required|min:6',
             'gender'        => 'required',
             'strava'        => 'required|url|min:6',
-            'phone'         => 'required|max:12|min:10',
+            'phone'         => 'required',
             'company'       => 'required'
         ];    
 
@@ -152,7 +152,7 @@ class Outsider_InfiVirRunController extends Controller
             'email'         => 'required|email',          
             'gender'        => 'required',
             'strava'        => 'required|url|min:6',
-            'phone'         => 'required|max:12|min:10',
+            'phone'         => 'required',
             'company'       => 'required'
         ];    
 
@@ -176,6 +176,8 @@ class Outsider_InfiVirRunController extends Controller
             'phone'      => $request->input('phone'),  
             // 'active'    => true            
         ];  
+
+        dd($data);
         User::where('id', $getAccount->user_id)->update($data);
 
         $reg = [ 

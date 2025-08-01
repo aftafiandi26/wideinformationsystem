@@ -48,7 +48,7 @@
             <div class="form-group">
                 <label for="phone">Phone:</label>
                 <input type="text" class="form-control" id="phone" name="phone"
-                    value="{{ $data->user()->phone }}">
+                    value="{{ $data->user()->phone }}"min="10" max="16">
             </div>
             <div class="form-group">
                 <label for="company">Company:</label>

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Event;
 
+use App\EventOutsider;
 use App\EventVirRun;
 use App\EventVirRunREG;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Mail\Event\IFW\InfiniteVirtualRun\AnnouncementExternal;
 use App\User;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Yajra\Datatables\Facades\Datatables;
@@ -284,7 +287,50 @@ class AdminInfVirRunController extends Controller
 
     public function announcement()
     {
-        return view('all_employee.Event.Outsider.Email.announcement');
+        $external = User::where('evnt_member_outsider')->where('active', true)->get();
+
+        $admin = User::whereIn('id', [4, 226])->get();
+
+        return view('all_employee.Event.Outsider.Email.announcement', compact(['external', 'admin']));
+    }
+
+    public function postAnnouncement(Request $request)
+    {
+        $data = $request->input('inputEditor');
+        $id = $request->input('email');
+
+        dd($data);
+
+        if ($id == "all") {
+            $user = User::whereIn('id', [226])->get();        
+            $emails = $user->pluck('email')->toArray();          
+            $finalContent = $data;          
+
+            // Mail::send('all_employee.Event.Outsider.Email.mailAnnouncement', ['data' => $finalContent], function ($message) use ($emails) {
+            //     $message->from('infinitetvirtualrun@infinitestudios.id', 'InfiniteVirtualRun');
+            //     $message->bcc($emails); // atur sesuai kebutuhan, bisa array banyak email
+            //     $message->subject('Announcement Infinite Virtual Run 2025');
+            // });
+            Mail::send('all_employee.Event.Outsider.Email.mailAnnouncement', ['data' => $finalContent], function ($message) use ($emails) {
+                $message->from('infinitetvirtualrun@infinitestudios.id', 'InfiniteVirtualRun');
+                $message->bcc('hattpri.yhukimura@gmail.com'); // atur sesuai kebutuhan, bisa array banyak email
+                $message->subject('Announcement Infinite Virtual Run 2025');
+            });
+
+            return redirect()->back();
+        } else {
+            $user = User::find($id);
+            $participantName = $user->getFullName();
+            $finalContent = str_replace('[participant]', $participantName, $data);
+
+            Mail::send('all_employee.Event.Outsider.Email.mailAnnouncement', ['data' => $finalContent], function ($message) use ($user) {
+                $message->from('infinitetvirtualrun@infinitestudios.id', 'InfiniteVirtualRun');
+                $message->to($user->email); // atur sesuai kebutuhan, bisa array banyak email
+                $message->subject('Announcement Infinite Virtual Run 2025');
+            });
+
+            return redirect()->back();
+        }
     }
   
 }

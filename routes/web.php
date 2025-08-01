@@ -1950,6 +1950,7 @@ Route::prefix('event-admin')->group(function () {
     Route::post('infinite-virtual-run/disqualified/{id}', 'Event\\AdminInfVirRunController@kickOut')->name('admin/infinite-virtual-run/disqualified');
 
     Route::get('infinite-virtual-run/annoucement/external', 'Event\\AdminInfVirRunController@announcement')->name('admin/infinite-virtual-run/announcement/external');
+    Route::post('infinite-virtual-run/annoucement/post', 'Event\\AdminInfVirRunController@postAnnouncement')->name('admin/infinite-virtual-run/announcement/post');
 });
 
 // Productin Technology

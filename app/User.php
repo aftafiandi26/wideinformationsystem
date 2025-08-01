@@ -80,4 +80,10 @@ class User extends Authenticatable
     {
         return Entitled_leave_view::where('nik', $nik)->first();
     }
+
+    public function eventExternal()
+    {
+        return $this->belongsTo(EventOutsider::class, 'id', 'user_id');
+    }
+
 }

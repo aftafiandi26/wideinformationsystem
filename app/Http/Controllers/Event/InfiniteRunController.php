@@ -206,7 +206,9 @@ class InfiniteRunController extends Controller
         return Datatables::of($sorted)
             ->addIndexColumn()
             ->addColumn('fullname', function(EventVirRunREG $event) {          
-
+                if (empty($event->getUser())) {
+                    return null;
+                }
                 $fullname = $event->getUser()->getFullName();
                 $names = explode(' ', $fullname);
                 $initials = '';
@@ -313,8 +315,10 @@ class InfiniteRunController extends Controller
         return Datatables::of($sorted)
             ->addIndexColumn()
             ->addColumn('fullname', function(EventVirRunREG $event) {
-                $fullname = $event->getUser()->getFullName();
-                // $fullName = $user->getFullName();
+                if (empty($event->getUser())) {
+                    return null;
+                }
+                $fullname = $event->getUser()->getFullName();              
 
                 $names = explode(' ', $fullname);
                 $initials = '';

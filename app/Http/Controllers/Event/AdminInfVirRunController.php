@@ -46,7 +46,10 @@ class AdminInfVirRunController extends Controller
             ->addIndexColumn()
             ->addColumn('fullname', function(EventVirRun $event) {
                 $result = $event->EventRegister()->getUser()->getFullName();
-                return $result;
+                if ($result) {
+                    return $result;
+                }
+                return null;
             })
             ->addColumn('stravaURL', function (EventVirRun $event) {                                
                 $result = "<a href='".$event->url."' class='btn btn-xs btn-info' title='strava profile' target='_blank' rel='noopener noreferrer' >Strava Link</a>";
@@ -125,10 +128,12 @@ class AdminInfVirRunController extends Controller
     {
         $query = EventVirRunREG::where('periode', date('Y'))->get()
                 ->map(function($event) {
+                    
                     $user = $event->getUser();
                     $event->fullname = $user->getFullname();
-                    $event->nik = $user->nik;
-                    return $event;
+                        $event->nik = $user->nik;
+                        return $event;
+                    
                 });
 
         return Datatables::of($query)
@@ -229,6 +234,9 @@ class AdminInfVirRunController extends Controller
         return Datatables::of($query)
             ->addIndexColumn()
             ->addColumn('fullname', function (EventVirRun $event) {
+                if (empty($event->EventRegister()->getUser())) {
+                    return null;
+                }
                 $fullname = $event->EventRegister()->getUser()->getFullName();
                 $names = explode(' ', $fullname);
                 $initials = '';
@@ -259,8 +267,9 @@ class AdminInfVirRunController extends Controller
                 $result = "<a href='".$event->url."' class='btn btn-xs btn-info' title='strava profile' target='_blank' rel='noopener noreferrer' >Strava Link</a>";
                 return $result;
                 
-            })
-            ->rawColumns(['staravaURL', 'fullname'])
+            })          
+            ->addColumn('actions', 'all_employee.Event.Admin.InfVirRun.actionsHistory')
+            ->rawColumns(['staravaURL', 'fullname', 'actions'])
             ->editColumn('verify', function (EventVirRun $event) {
                 if ($event->verify == 1) {
                     // tambahkan class hijau untuk Verified
@@ -271,6 +280,9 @@ class AdminInfVirRunController extends Controller
                 } else {                    
                     return "<a href=" .route('admin/infinite-virtual-run/verify')." >Verify</a>";
                 }         
+            })
+            ->editColumn('created_at', function (EventVirRun $event) {
+                return  date('M, d Y - h:m:s', strtotime($event->created_at));
             })
             ->make(true);
     }
@@ -321,6 +333,7 @@ class AdminInfVirRunController extends Controller
         } else {
             $user = User::find($id);
             $participantName = $user->getFullName();
+           if ($participantName) {
             $finalContent = str_replace('[participant]', $participantName, $data);
 
             Mail::send('all_employee.Event.Outsider.Email.mailAnnouncement', ['data' => $finalContent], function ($message) use ($user) {
@@ -328,9 +341,25 @@ class AdminInfVirRunController extends Controller
                 $message->to($user->email); // atur sesuai kebutuhan, bisa array banyak email
                 $message->subject('Announcement Infinite Virtual Run 2025');
             });
+           }
 
             return redirect()->back();
         }
+    }
+
+    public function deleteHistory($id)
+    {
+        $data = EventVirRun::find($id);
+
+        return view('all_employee.Event.Admin.InfVirRun.modalRemoveHistory', compact(['data']));
+    }
+
+    public function postDeleteHistory(Request $request, $id)
+    {
+        $data = EventVirRun::find($id);
+        Session::flash('success', Lang::get('messages.data_custom', ['data' => $data->EventRegister()->getUser()->getFullName()." activity submission has been deleted"])); 
+        $data->delete();
+        return redirect()->route('admin/infinite-virtual-run/history');
     }
   
 }

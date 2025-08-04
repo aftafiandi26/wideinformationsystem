@@ -53,6 +53,7 @@
                                 <th>Strava URL</th>
                                 <th>Status</th>
                                 <th>Submission Date</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                     </table>
@@ -61,7 +62,11 @@
             </div>
         </div>
     </div>
+    <div id="modalRemove" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" id="popUp">
 
+        </div>
+    </div>
 @stop
 @section('bottom')
     @include('assets_script_1')
@@ -103,6 +108,9 @@
                     }, {
                         data: 'created_at',
                         searchable: false
+                    }, {
+                        data: 'actions',
+                        searchable: false
                     }
 
                 ],
@@ -110,6 +118,24 @@
                 buttons: [
                     'excel'
                 ],
+            });
+
+            $(document).on('click', 'a#idRemove', function(e) {
+                var id = $(this).attr('data-role');
+
+                $.ajax({
+                    url: id,
+                    success: function(e) {
+                        $("div#popUp").html(e);
+                        $("div#popUp").show();
+                    },
+                    error: function() {
+                        $("#popUp .modal-content").html(
+                            '<div class="modal-body"><p>Terjadi kesalahan saat memuat data.</p></div>'
+                        );
+                        $("#popUp").modal('show');
+                    }
+                });
             });
         });
     </script>

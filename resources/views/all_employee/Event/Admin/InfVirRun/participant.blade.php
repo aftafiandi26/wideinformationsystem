@@ -44,6 +44,7 @@
                                 <th>Period</th>
                                 <th>Status</th>
                                 <th>Strava Profile</th>
+                                <th>E-Certificate</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -97,6 +98,8 @@
                         data: 'active'
                     }, {
                         data: 'stravaURL'
+                    }, {
+                        data: 'ecert'
                     }, {
                         data: 'actions',
                         orderable: false,

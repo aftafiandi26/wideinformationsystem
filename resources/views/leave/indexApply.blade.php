@@ -68,8 +68,8 @@
                                     @if (auth::user()->id === 226)
                                         <a href="{!! URL::route('leave/createEtc') !!}" class="btn btn-primary btn-xs"
                                             role="button">Apply</a>
+                                            @endif
                                 </td>
-                                @endif
                                 <td></td>
                             </tr>
 

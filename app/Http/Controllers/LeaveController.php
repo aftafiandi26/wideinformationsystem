@@ -636,7 +636,7 @@ class LeaveController extends Controller
                 $labelEmailHOD = 'Head of Department :';
             }
         }
-
+      
         $holiday = ViewOffYears::select('date')->whereYear('date', date('Y'))->pluck('date');
         $subHoly = json_encode($holiday, true);
 
@@ -827,7 +827,9 @@ class LeaveController extends Controller
 
         foreach ($emailHoD as $Hod)
             $emailHOD[$Hod->email] = $Hod->first_name . ' ' . $Hod->last_name;
-
+        if (auth()->user()->dept_category_id === 4) {
+                $level = Null;
+             }
         if ($sisaExdo > 0) {
             return View::make('leave.createExdo')->with([
                 'leave' => $sisaExdo,
@@ -963,6 +965,10 @@ class LeaveController extends Controller
                 $labelEmailHOD = 'Head of Department :';
             }
         }
+
+        if (auth()->user()->dept_category_id === 4) {
+            $level = Null;
+         }
 
         foreach ($emailHoD as $Hod)
             $emailHOD[$Hod->email] = $Hod->first_name . ' ' . $Hod->last_name;
@@ -1264,6 +1270,9 @@ class LeaveController extends Controller
 
                 $labelEmailHOD = 'Head of Department :';
             }
+        }
+        if (auth()->user()->dept_category_id === 4) {
+           $level = Null;
         }
 
         foreach ($emailHoD as $Hod)
@@ -2178,6 +2187,8 @@ class LeaveController extends Controller
             // 'agreement'                 => $request->input('accept'),
             'resendmail'                => 2,
         ];
+
+        // dd($record);
 
         Leave::create($record);
 

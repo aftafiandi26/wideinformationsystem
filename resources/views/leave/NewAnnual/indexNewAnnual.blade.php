@@ -129,6 +129,11 @@
                                     <a href="{!! URL::route('createAdvanceLeave') !!}" class="btn btn-danger btn-xs" role="button">Apply</a>
                                 @endif
                                 <?php endif ?>
+                                <?php if (auth::user()->emp_status === "Permanent"): ?>
+                                @if ($user->initial_annual - $annual->transactionAnnual > 0)
+                                    <a href="{!! URL::route('createAdvanceLeave') !!}" class="btn btn-danger btn-xs" role="button">Apply</a>
+                                @endif
+                                <?php endif ?>
                             </td>
 
                             <td></td>

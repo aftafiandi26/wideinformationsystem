@@ -9,6 +9,8 @@
         @if ($data)
             <a class="btn btn-sm btn-default" href="{{ route('infiniteVirRun/submission/list') }}"
                 id="listed">Activities</a>
+            <a class="btn btn-sm btn-default" href="{{ route('infiniteVirRun/certificate', auth()->user()->id) }}"
+                id="cert">e-Certificate</a>
             <a class="btn btn-sm btn-default" href="{{ route('infiniteVirRun/submission') }}"
                 id="submission">Submission</a>
         @else

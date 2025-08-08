@@ -23,6 +23,7 @@
         "milon/barcode": "^5.3",
         "revolution/laravel-google-sheets": "^2.3",
         "simplesoftwareio/simple-qrcode": "^1.5",
+        "spatie/browsershot": "^1.9",
         "yajra/laravel-datatables-oracle": "^7.0"
     },
     "require-dev": {

@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'c81f68423ac1aa4ec2d3224376c4c0bd265dc540',
+        'reference' => 'ba26cc4207673338dda043348896ae93f97a3692',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -453,7 +453,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'c81f68423ac1aa4ec2d3224376c4c0bd265dc540',
+            'reference' => 'ba26cc4207673338dda043348896ae93f97a3692',
             'dev_requirement' => false,
         ),
         'laravel/tinker' => array(
@@ -932,6 +932,15 @@
             'install_path' => __DIR__ . '/../simplesoftwareio/simple-qrcode',
             'aliases' => array(),
             'reference' => '0d8fbf73f7adc166ec5aabbf898b7327f6c69600',
+            'dev_requirement' => false,
+        ),
+        'spatie/browsershot' => array(
+            'pretty_version' => '1.9.1',
+            'version' => '1.9.1.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../spatie/browsershot',
+            'aliases' => array(),
+            'reference' => 'b99da7cc1b0eb1c7d5ed633439fd7db20b0c630b',
             'dev_requirement' => false,
         ),
         'swiftmailer/swiftmailer' => array(

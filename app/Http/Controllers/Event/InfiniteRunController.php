@@ -7,10 +7,10 @@ use App\EventVirRunREG;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
-use Symfony\Component\CssSelector\Node\FunctionNode;
 use Yajra\Datatables\Facades\Datatables;
 
 class InfiniteRunController extends Controller
@@ -402,6 +402,42 @@ class InfiniteRunController extends Controller
             ->rawColumns(['fullname'])
             ->make(true);
     }   
+
+    public function dpfECert($id)
+    {           
+        $user = User::find($id);
+        $idEvent = $user->eventRegister()->ebib;
+        $filename = $idEvent.".pdf";
+        $event = EventVirRun::where('ebib', $idEvent)->where('verify', true)->where('delete', false)->get();       
+        $timeStrings = $event->pluck('mvtime');
+
+        $totalSeconds = 0;
+        foreach ($timeStrings as $time) {
+            list($hours, $minutes, $seconds) = explode(':', $time);
+            $totalSeconds += ((int)$hours * 3600) + ((int)$minutes * 60) + (int)$seconds;
+        }
+
+        $hours = floor($totalSeconds / 3600);
+        $minutes = floor(($totalSeconds % 3600) / 60);
+        $seconds = $totalSeconds % 60;
+
+        $duration = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);  
+        $distance = $event->pluck('distance')->sum();              
+
+        $name = $user->getFullName();
+            $length = strlen($name);
+            // dd($length);
+
+            if ($length <= 30) {             
+                $marginTop = 670;
+            } else {
+                $marginTop = 605;
+            } 
+        // ini_set('memory_limit', '64M');
+        $pdf = App::make('dompdf.wrapper');
+        $pdf->loadView('all_employee.Event.InfiniteVirRun.e-cert2025', compact(['user', 'marginTop', 'duration', 'distance']));   
+        return $pdf->stream($filename);   
+    }
 
     
     

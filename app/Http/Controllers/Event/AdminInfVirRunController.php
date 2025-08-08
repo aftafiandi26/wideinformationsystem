@@ -176,10 +176,15 @@ class AdminInfVirRunController extends Controller
             ->addColumn('stravaURL', function (EventVirRunREG $event) {                                
                 $result = "<a href='".$event->profileUrl."' class='btn btn-xs btn-info' title='strava profile' target='_blank' rel='noopener noreferrer' >Strava Profile</a>";
                 return $result;
-            })           
+            })     
+            ->addColumn('ecert', function(EventVirRunREG $event) {
+                $id = $event->user_id;
+                return view('all_employee.Event.Admin.InfVirRun.actionsECert', compact('id'));
+            })      
             ->addColumn('actions', 'all_employee.Event.Admin.InfVirRun.actionsParticipants')
-            ->rawColumns(['getFullname', 'stravaURL', 'actions', 'active'])
+            ->rawColumns(['getFullname', 'stravaURL', 'actions', 'active', 'ecert'])
             ->make(true);
+           
     }
 
     public function editProfileParticipant($id)

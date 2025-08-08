@@ -86,4 +86,11 @@ class User extends Authenticatable
         return $this->belongsTo(EventOutsider::class, 'id', 'user_id');
     }
 
+    public function eventRegister()
+    {
+        $query = EventVirRunREG::where('user_id', $this->id)->where('active', true)->first();
+       
+        return $query;
+    }
+
 }

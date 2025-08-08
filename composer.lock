@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7743df54072159cb3a95f24117087edf",
+    "content-hash": "8bf89140f7df0b70004824917280c5b1",
     "packages": [
         {
             "name": "asimlqt/php-google-spreadsheet-client",
@@ -3439,6 +3439,65 @@
                 "source": "https://github.com/SimpleSoftwareIO/simple-qrcode/tree/1.5.1"
             },
             "time": "2016-12-06T01:39:52+00:00"
+        },
+        {
+            "name": "spatie/browsershot",
+            "version": "1.9.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/browsershot.git",
+                "reference": "b99da7cc1b0eb1c7d5ed633439fd7db20b0c630b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/browsershot/zipball/b99da7cc1b0eb1c7d5ed633439fd7db20b0c630b",
+                "reference": "b99da7cc1b0eb1c7d5ed633439fd7db20b0c630b",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "4.*|5.*",
+                "intervention/image": "2.*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpspec/phpspec": "~2.1"
+            },
+            "bin": [
+                "bin/phantomjs",
+                "bin/phantomjs_macosx"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Spatie\\Browsershot": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be"
+                }
+            ],
+            "description": "Convert a webpage to an image",
+            "homepage": "https://github.com/spatie/browsershot",
+            "keywords": [
+                "browser",
+                "convert",
+                "image",
+                "laravel",
+                "phantomjs",
+                "screenshot",
+                "webpage"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/browsershot/issues",
+                "source": "https://github.com/spatie/browsershot/tree/master"
+            },
+            "time": "2017-06-02T13:29:43+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",

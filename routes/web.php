@@ -1922,6 +1922,8 @@ Route::prefix('event')->group(function () {
     Route::get('infinite-virtual-run/submission/list/data', 'Event\\InfiniteRunController@datatablesListedSubmission')->name('infiniteVirRun/submission/list/data');    
     Route::get('infinite-virtual-run/data/male', 'Event\\InfiniteRunController@dataTablesMale')->name('infiniteVirRun/data/male');          
     Route::get('infinite-virtual-run/data/female', 'Event\\InfiniteRunController@dataTablesFemale')->name('infiniteVirRun/data/female');  
+
+    Route::get('infinite-virtual-run/e-certificate/{id}', 'Event\\InfiniteRunController@dpfECert')->name('infiniteVirRun/certificate');  
     
     //Outsider People coming
     Route::get('virtual-run/registration', 'Event\\Outsider_InfiVirRunController@adminRegistration')->name('outsider/infiniteVirRun/run/adminRegistration');

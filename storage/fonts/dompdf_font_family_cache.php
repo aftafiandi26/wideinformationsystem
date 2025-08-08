@@ -77,10 +77,19 @@
     'italic' => $rootDir . '/lib/fonts/DejaVuSerif-Italic',
     'normal' => $rootDir . '/lib/fonts/DejaVuSerif',
   ),
+  'Enthralling' => array(
+    'normal' => $rootDir . '/lib/fonts/Enthralling-EaV74.otf',
+  ),
   'librebarcode' => array(
     'normal' => $fontDir . '/d342725d3a0e64c52d97fee999802161',
   ),
   'glyphicons halflings' => array(
     'normal' => $fontDir . '/2bfc7e315bce83b971b048d9ca47b5c1',
+  ),
+  'goeverywhere' => array(
+    'normal' => $fontDir . '\33a763dcde71516c07364f75da1bc91d',
+  ),
+  'limelight' => array(
+    'normal' => $fontDir . '\1e6defe5539903b095ead5795d3a3956',
   ),
 ) ?>

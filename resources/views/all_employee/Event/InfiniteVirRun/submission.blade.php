@@ -75,11 +75,18 @@
 @endpush
 @section('body')
     @include('all_employee.Event.InfiniteVirRun.menuVirRun')
+
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <p class="text-bold">Submission</p>
+                    <p class="text-bold">
+                        @if ($countVir < 3)
+                            Submission Remaining Today : {{ $countVir }}
+                        @else
+                            Submission
+                        @endif
+                    </p>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal" action="{{ route('infiniteVirRun/submission/post') }}" method="post">

@@ -87,17 +87,39 @@ class InfiniteRunController extends Controller
         $data = EventVirRunREG::where('user_id', auth()->user()->id)->where('periode', date('Y'))->where('active', true)->first();
         $admin = $this->adminVerify();
 
-        return view('all_employee.Event.InfiniteVirRun.submission', compact(['data', 'admin']));
+        $virrun = EventVirRun::where('ebib', $data->ebib)->whereIn('verify', [true, false])->whereDATE('created_at', date('Y-m-d'))->get()->count();
+        $countVir = 2 - $virrun;
+
+        $findEbib = 25002;
+
+        if ($data->ebib == $findEbib) {
+            $countVir = 999999;
+        }
+
+        if ($countVir == 0) {          
+            Session::flash('reminder', Lang::get('messages.data_custom', ['data' => 'You can submit your activities again tomorrow. Thank you']));
+            return redirect()->route('infiniteVirRun/index');
+        }        
+       
+        return view('all_employee.Event.InfiniteVirRun.submission', compact(['data', 'admin', 'countVir']));
     }
 
     public function postSubmssion(Request $request)
     {
 
-        $getUser = EventVirRunREG::where('user_id', auth()->user()->id)->where('periode', date('Y'))->first();    
+        $getUser = EventVirRunREG::where('user_id', auth()->user()->id)->where('periode', date('Y'))->first();  
+        $virrun = EventVirRun::where('ebib', $getUser)->whereIn('verify', [true, false])->whereDATE('created_at', date('Y-m-d'))->get()->count();  
         if (empty($getUser)) {
             Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'You are not an event participant']));    
             return redirect()->route('infiniteVirRun/index');
         }
+        $findEbib = 25002;
+        if ($getUser->ebib != $findEbib) {
+            if ($virrun == 2) {
+                Session::flash('reminder', Lang::get('messages.data_custom', ['data' => 'You can do this again later. Thank you']));
+                return redirect()->route('infiniteVirRun/index');
+            }
+        }       
 
         $rules = [
             'strava'    => 'required|url|min:10',
@@ -142,10 +164,9 @@ class InfiniteRunController extends Controller
             'mvtime'        => $timeString,
             'distance'      => $distance,
             'url'           => $starva
-        ];
+        ];       
  
-        EventVirRun::create($data);
-
+        EventVirRun::create($data);  
         Session::flash('success', Lang::get('messages.data_custom', ['data' => 'You have made the submission, and we will review it promptly.'])); 
         return redirect()->route('infiniteVirRun/submission/list');
     }

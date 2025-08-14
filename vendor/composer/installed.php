@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'ba26cc4207673338dda043348896ae93f97a3692',
+        'reference' => 'b1d96824d530259e31606ece255ee71bbefe586f',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -453,7 +453,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'ba26cc4207673338dda043348896ae93f97a3692',
+            'reference' => 'b1d96824d530259e31606ece255ee71bbefe586f',
             'dev_requirement' => false,
         ),
         'laravel/tinker' => array(
@@ -800,12 +800,12 @@
             ),
         ),
         'sabberworm/php-css-parser' => array(
-            'pretty_version' => 'v8.8.0',
-            'version' => '8.8.0.0',
+            'pretty_version' => 'v8.9.0',
+            'version' => '8.9.0.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../sabberworm/php-css-parser',
             'aliases' => array(),
-            'reference' => '3de493bdddfd1f051249af725c7e0d2c38fed740',
+            'reference' => 'd8e916507b88e389e26d4ab03c904a082aa66bb9',
             'dev_requirement' => false,
         ),
         'sebastian/code-unit-reverse-lookup' => array(

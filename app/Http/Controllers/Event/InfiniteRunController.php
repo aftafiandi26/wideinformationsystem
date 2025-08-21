@@ -205,24 +205,59 @@ class InfiniteRunController extends Controller
 
     public function dataTablesMale()
     {
-        $query = EventVirRunREG::where('periode', date('Y'))->where('active', true)->where('gender', 'Male')->get()
-                    ->map(function($event) {
-                        $getVirRun = $event->getEventVirRun()->where('verify', 1)->where('delete', false);
-                        $totalDistance = $getVirRun->pluck('distance')->sum();
-                        $event->activities = $getVirRun->pluck('id')->count();
-                        $event->distance_temp = $totalDistance;
-                        return $event;
-                    });
-        $sorted = $query->sortByDesc('distance_temp')->values();
+        $query = EventVirRunREG::where('periode', date('Y'))
+        ->where('active', true)
+        ->where('gender', 'Male')
+        ->get()
+        ->map(function($event) {
+            $getVirRun = $event->getEventVirRun()->where('verify', 1)->where('delete', false);
+            $totalDistance = $getVirRun->pluck('distance')->sum();
+            
+            // Hitung total duration dari format waktu (HH:MM:SS)
+            $timeStrings = $getVirRun->pluck('mvtime');
+            $totalSeconds = 0;
+            
+            foreach ($timeStrings as $time) {
+                list($hours, $minutes, $seconds) = explode(':', $time);
+                $totalSeconds += ((int)$hours * 3600) + ((int)$minutes * 60) + (int)$seconds;
+            }
+            
+            // Simpan dalam 2 format:
+            $event->duration_formatted = sprintf('%02d:%02d:%02d', 
+                floor($totalSeconds / 3600),
+                floor(($totalSeconds % 3600) / 60),
+                $totalSeconds % 60
+            );
+            $event->duration_temp = $totalSeconds; // Untuk sorting
+            
+            $event->activities = $getVirRun->pluck('id')->count();
+            $event->distance_temp = $totalDistance;
+            return $event;
+        });
+
+        // Sorting dengan prioritas distance_temp DESC, lalu duration_temp ASC
+        $sorted = $query->sort(function($a, $b) {
+            // Urutkan pertama berdasarkan distance_temp (desc)
+            if ($a->distance_temp > $b->distance_temp) return -1;
+            if ($a->distance_temp < $b->distance_temp) return 1;
+            
+            // Jika distance_temp sama, urutkan berdasarkan duration (asc)
+            if ($a->duration_temp < $b->duration_temp) return -1;
+            if ($a->duration_temp > $b->duration_temp) return 1;
+            
+            return 0;
+        })->values();
+
         $sorted = $sorted->map(function($event, $index) {
-            $event->rank = $index + 1; // rank dimulai dari 1
+            $event->rank = $index + 1;
             if ($event->distance_temp >= 25) {
                 $event->row_class = $event->rank == 1 ? 'top-rank' :
-                ($event->rank == 2 ? 'winner' :
-                ($event->rank == 3 ? 'runner-up' : ''));
+                    ($event->rank == 2 ? 'winner' :
+                    ($event->rank == 3 ? 'runner-up' : ''));
             }
             return $event;
         });
+
     
         return Datatables::of($sorted)
             ->addIndexColumn()
@@ -274,6 +309,7 @@ class InfiniteRunController extends Controller
 
                 $result = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
                 return $result;
+                // return $event->duration_formatted;
             })            
             ->addColumn('progress', function (EventVirRunREG $event) {
                 $distance = $event->distance_temp;              

@@ -253,7 +253,7 @@ Route::get('leave/apply', 'LeaveController@indexNewApply')->name('leave/apply');
 Route::get('leave/getindexApply', 'LeaveController@getIndexLeaveApply')->name('leave/getindexApply');
 Route::get('leave/apply/dataExdo', 'LeaveController@indexDataExdo')->name('indexDataExdo');
 Route::get('leave/create/advanced', 'LeaveController@createAdvance')->name('createAdvanceLeave');
-Route::get('leave/create', 'LeaveController@createLeave')->name('leave/create');  // halo
+Route::get('leave/create', 'LeaveController@createLeave')->name('leave/create');
 Route::get('leave/create1', 'LeaveController@createLeave')->name('leave/create1');
 Route::get('leave/createExdo', 'LeaveController@createExdo')->name('leave/createExdo');
 Route::get('leave/createEtc', 'LeaveController@createEtc')->name('leave/createEtc');

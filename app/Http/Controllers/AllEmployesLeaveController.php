@@ -7,6 +7,7 @@ use Datatables;
 use App\Leave;
 use App\Leave_Category;
 use App\User;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -113,37 +114,64 @@ class AllEmployesLeaveController extends Controller
 
     public function objectCalender()
     {
-        $query = Leave::where('ap_hrd', 1)->whereYear('leave_date', date('Y'))->orderBy('id', 'desc')->get();
+        $query = Leave::where('ap_hrd', 1)
+        ->where('ap_hd', 1)
+        ->whereYear('leave_date', date('Y'))
+        ->orderBy('leave_date', 'desc')
+        // ->where('request_nik', 21801003)
+        ->get();
 
+        // Preload semua user dan kategori yang dibutuhkan
+        $userIds = $query->pluck('user_id')->unique()->toArray();
+        $categoryIds = $query->pluck('leave_category_id')->unique()->toArray();
+        
+        $users = User::whereIn('id', $userIds)->where('active', true)->get()->keyBy('id');
+        $categories = Leave_Category::whereIn('id', $categoryIds)->get()->keyBy('id');
+        
+        $arrayQuery = [];
+        
         foreach ($query as $value) {
-
-            $user = User::find($value['user_id']);
-            $leaveName = Leave_Category::find($value['leave_category_id']);
-
-            if ($value['leave_category_id'] === 1) {
-                $color = 'lightblue';
-            } elseif ($value['leave_category_id'] === 2) {
-                $color = 'lightgreen';
-            } else {
-                $color = 'grey';
+            if (!isset($users[$value->user_id])) {
+                continue;
             }
-
-            $textColor = 'black';
-
-            if ($color === "grey") {
-                $textColor = 'white';
+        
+            $user = $users[$value->user_id];
+            $category = isset($categories[$value->leave_category_id]) ? $categories[$value->leave_category_id] : null;
+            
+            if (!$category) {
+                continue;
             }
-
-            $arrayQuqery[] = [
-                'id' => $value['id'],
-                'title' => $user->getFullName() . ' ' . "($leaveName->leave_category_name)",
+        
+            $colorMap = array(
+                1 => 'lightblue',
+                2 => 'lightgreen'
+            );
+            
+            $color = isset($colorMap[$value->leave_category_id]) ? $colorMap[$value->leave_category_id] : 'grey';
+            
+            $textColor = $color === 'grey' ? 'white' : 'black';
+        
+            $arrayQuery[] = array(
+                'id' => $value->id,
+                'title' => $user['username'] . ' ' . "(" . $category->leave_category_name . ")",
                 'start' => $value['leave_date'],
-                'end' => $value['back_work'],
+                'end' => $value['end_leave_date'],
                 'color' => $color,
                 'textColor' => $textColor,
-            ];
-        }
+                'allDay' => true,
+                'extendedProps' => array(
+                    'id' => $value->id,
+                    'title' => $user['username'],
+                    'start' => $value['leave_date'],
+                    'end' => $value['end_leave_date'],
+                )
+            );
 
-        return $arrayQuqery;
+            new DateTime()
+            
+            // dd($arrayQuery);
+        }
+        
+        return $arrayQuery;
     }
 }

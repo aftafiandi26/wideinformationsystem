@@ -9,10 +9,14 @@
         @if ($data)
             <a class="btn btn-sm btn-default" href="{{ route('infiniteVirRun/submission/list') }}"
                 id="listed">Activities</a>
-            <a class="btn btn-sm btn-default" href="{{ route('infiniteVirRun/certificate', auth()->user()->id) }}"
-                id="cert">e-Certificate</a>
-            <a class="btn btn-sm btn-default" href="{{ route('infiniteVirRun/submission') }}"
-                id="submission">Submission</a>
+            @if ($activeAct === true)
+                <a class="btn btn-sm btn-default" href="{{ route('infiniteVirRun/certificate', auth()->user()->id) }}"
+                    target="_blank" id="cert">e-Certificate</a>
+            @endif
+            @if ($activeAct === false)
+                <a class="btn btn-sm btn-default" href="{{ route('infiniteVirRun/submission') }}"
+                    id="submission">Submission</a>
+            @endif
         @else
             <a class="btn btn-sm btn-default" data-role="{{ route('infiniteVirRun/register') }}" data-toggle="modal"
                 data-target="#virRegister" id="virPressRegister">Register</a>

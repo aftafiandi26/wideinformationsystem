@@ -7,6 +7,8 @@ use App\EventVirRunREG;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Session;
@@ -39,17 +41,36 @@ class InfiniteRunController extends Controller
         return $admin;
     }
 
+    private function timeDatetime()
+    {
+        $return = new Datetime('2025-08-26');
+        return $return;
+    }
+
+    private function menuEcert()
+    {
+        $date = new Datetime();
+        $expDate = $this->timeDatetime();
+        $activeAct = false;
+        if ($date->getTimestamp() > $expDate->getTimestamp()) {
+            $activeAct = true;
+        }
+        return $activeAct;
+    }
+
     public function index()
     { 
         $data = EventVirRunREG::where('user_id', auth()->user()->id)->where('periode', date('Y'))->where('active', true)->first();
         $admin = $this->adminVerify();
+        $activeAct = $this->menuEcert();        
 
-        return view('all_employee.Event.InfiniteVirRun.index', compact(['data', 'admin']));
+        return view('all_employee.Event.InfiniteVirRun.index', compact(['data', 'admin', 'activeAct']));
     }
 
     public function register()
     {
-        return view('all_employee.Event.InfiniteVirRun.register');
+        $activeAct = $this->menuEcert();
+        return view('all_employee.Event.InfiniteVirRun.register', compact(['activeAct']));
     }
 
     public function postRegister(Request $request)
@@ -100,8 +121,18 @@ class InfiniteRunController extends Controller
             Session::flash('reminder', Lang::get('messages.data_custom', ['data' => 'You can submit your activities again tomorrow. Thank you']));
             return redirect()->route('infiniteVirRun/index');
         }        
+
+        $dated = new Datetime();       
+        $expDate = $this->timeDatetime();
        
-        return view('all_employee.Event.InfiniteVirRun.submission', compact(['data', 'admin', 'countVir']));
+        if ($dated->getTimestamp() > $expDate->getTimestamp()) {            
+            Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Event has ended']));
+            return redirect()->route('infiniteVirRun/index');
+        }
+
+        $activeAct = $this->menuEcert();
+        
+        return view('all_employee.Event.InfiniteVirRun.submission', compact(['data', 'admin', 'countVir', 'activeAct']));
     }
 
     public function postSubmssion(Request $request)
@@ -175,8 +206,9 @@ class InfiniteRunController extends Controller
     {
         $data = EventVirRunREG::where('user_id', auth()->user()->id)->where('periode', date('Y'))->where('active', true)->first();
         $admin = $this->adminVerify();
+        $activeAct = $this->menuEcert();
 
-        return view('all_employee.Event.InfiniteVirRun.listSubmission', compact(['data', 'admin']));
+        return view('all_employee.Event.InfiniteVirRun.listSubmission', compact(['data', 'admin', 'activeAct']));
     }
 
     public function datatablesListedSubmission()

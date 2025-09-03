@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Mail\Event\IFW\InfiniteVirtualRun\AnnouncementExternal;
 use App\User;
+use DateTime;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
@@ -31,11 +32,30 @@ class AdminInfVirRunController extends Controller
         return $admin;
     }
 
+    private function timeDatetime()
+    {
+        $return = new DateTime('2025-08-26');
+        return $return;
+    }
+
+    private function menuEcert()
+    {
+        $date = new Datetime();
+        $expDate = $this->timeDatetime();
+        $activeAct = false;
+        if ($date->getTimestamp() > $expDate->getTimestamp()) {
+            $activeAct = true;
+        }
+        return $activeAct;
+    }
+
     public function pageVerify()
     {
         $data = EventVirRunREG::where('user_id', auth()->user()->id)->where('periode', date('Y'))->where('active', true)->first();
         $admin = $this->adminVerify();
-        return view('all_employee.Event.Admin.InfVirRun.verify', compact(['data', 'admin']));       
+        $activeAct = $this->menuEcert();
+
+        return view('all_employee.Event.Admin.InfVirRun.verify', compact(['data', 'admin', 'activeAct']));       
     }
 
     public function datatablesPageVerify()
@@ -121,7 +141,9 @@ class AdminInfVirRunController extends Controller
         $data = EventVirRunREG::where('user_id', auth()->user()->id)->where('periode', date('Y'))->where('active', true)->first();
         $admin = $this->adminVerify();
 
-        return view('all_employee.Event.Admin.InfVirRun.participant', compact(['data', 'admin']));
+        $activeAct = $this->menuEcert();
+
+        return view('all_employee.Event.Admin.InfVirRun.participant', compact(['data', 'admin', 'activeAct']));
     }
 
     public function datatablesParticipant()
@@ -228,8 +250,9 @@ class AdminInfVirRunController extends Controller
         $avatar = 'https://avatar.iran.liara.run/public';
 
         // https://avatar.iran.liara.run/public/boy
+        $activeAct = $this->menuEcert();
 
-        return view('all_employee.Event.Admin.InfVirRun.history', compact(['data', 'admin']));
+        return view('all_employee.Event.Admin.InfVirRun.history', compact(['data', 'admin', 'activeAct']));
     }
 
     public function dataTablesHistory()

@@ -1202,7 +1202,7 @@
 
     {{-- production technolgy menu --}}
     @if (auth()->user()->dept_category_id === 10)
-    {{-- @if (auth()->user()->dept_category_id === 10) --}}
+        {{-- @if (auth()->user()->dept_category_id === 10) --}}
         @include('navbar_left_prodTech')
     @endif
 
@@ -1285,6 +1285,11 @@
             @endif
 
         </ul>
+    </li>
+    <li>
+        <a class="{!! $c6987903 or '' !!}" href="{{ route('network/speedtest') }}"><i
+                class="fa fa-fw fa fa-flag-checkered"></i>
+            Internal Test<span class="fa arrow"></span></a>
     </li>
 
     {{-- yg dibawh jgn di hapus --}}

@@ -383,7 +383,7 @@ class HRForfeitedNew extends Controller
             ->where('active', 1)
             ->whereNotIn('nik', ["", "123456789", "D0002"])
             ->whereNotIn('emp_status', ["Outsource"])
-            ->whereIn('id', [226])
+            // ->whereIn('id', [226])
             ->orderBy('first_name', 'asc')
             ->get();
 

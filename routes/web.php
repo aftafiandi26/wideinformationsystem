@@ -250,6 +250,15 @@ Route::get('leavel/ecek/{id}', 'LeaveController@dataKota')->name('leave/ecek');
 //	Start Route Leave
 //	Start Route Applying Leave
 Route::get('leave/apply', 'LeaveController@indexNewApply')->name('leave/apply');
+
+Route::get('leave/apply-new', 'LeaveApplyingController@indexNewApply')->name('leave/apply-new');
+Route::get('leave/balance/my', 'LeaveApplyingController@getMyLeaveBalance')->name('leave.balance.my');
+Route::get('leave/balance/user/{userId}', 'LeaveApplyingController@getUserLeaveBalance')->name('leave.balance.user');
+Route::get('leave/exdo/my', 'LeaveApplyingController@getMyExdoBalance')->name('leave.exdo.my');
+Route::get('leave/exdo/user/{userId}', 'LeaveApplyingController@getUserExdoBalance')->name('leave.exdo.user');
+Route::get('leave/exdo/list', 'LeaveApplyingController@getExdoList')->name('leave.exdo.list');
+
+
 Route::get('leave/getindexApply', 'LeaveController@getIndexLeaveApply')->name('leave/getindexApply');
 Route::get('leave/apply/dataExdo', 'LeaveController@indexDataExdo')->name('indexDataExdo');
 Route::get('leave/create/advanced', 'LeaveController@createAdvance')->name('createAdvanceLeave');
@@ -1965,4 +1974,18 @@ Route::prefix('production-tech')->group(function () {
     Route::post('vpn-list/findTable', 'ProductionTech\\VPNEmployeList_Controller@findTable')->name('prodTech/manage/vpn/list/findTable');
     Route::get('vpn-list/findData/{start}/{end}', 'ProductionTech\\VPNEmployeList_Controller@findData')->name('prodTech/manage/vpn/list/findData');
     Route::get('vpn-list/findDataTables/{start}/{end}', 'ProductionTech\\VPNEmployeList_Controller@dataTabelsFindData')->name('prodTech/manage/vpn/list/findDataTables');
+});
+
+// Network Speed Test
+Route::prefix('network')->group(function () {
+    Route::get('speedtest', 'NetworkSpeedTestController@index')->name('network/speedtest');
+    Route::get('speedtest/ping', 'NetworkSpeedTestController@ping')->name('network/speedtest/ping');
+    Route::get('speedtest/download', 'NetworkSpeedTestController@download')->name('network/speedtest/download');
+    Route::post('speedtest/upload', 'NetworkSpeedTestController@upload')->name('network/speedtest/upload');
+    Route::options('speedtest/upload', 'NetworkSpeedTestController@optionsUpload');
+});
+
+Route::prefix('coordinator')->group(function () {
+    Route::get('leave-balance', 'CoordinatorLeaveBalanceController@index')->name('coordinator/leave-balance/index');
+    Route::get('leave-balance/data', 'CoordinatorLeaveBalanceController@dataTables')->name('coordinator/leave-balance/data');
 });

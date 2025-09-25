@@ -20,7 +20,7 @@
 
     <div class="row">
         <div class="col-lg-6">
-            <h1 class="page-header">Applying Leave s</h1>
+            <h1 class="page-header">Applying Leave</h1>
         </div>
         <div class="col-lg-6 pull-right">
 
@@ -98,30 +98,32 @@
                         </tr>
                         <tr style="white-space:nowrap">
                             <td>Total Annual Leave <sup>(until EOC)</sup></td>
-                            <td><span>
-                                    <?php if (auth::user()->forfeitcase === 1): ?>
-                                    {{ $user->initial_annual - $annual->transactionAnnual }}
-                                    <?php else: ?>
-                                    {{ $user->initial_annual - $annual->transactionAnnual - $bla }}
-                                    <?php endif ?>
+                            <td>
+                                <span>
+                                    @if (auth::user()->forfeitcase === 1)
+                                        {{ $user->initial_annual - $annual->transactionAnnual }}
+                                    @else
+                                        {{ $user->initial_annual - $annual->transactionAnnual - $bla }}
+                                    @endif
                                 </span>
-                                <?php if (auth::user()->forfeitcase === 1): ?>
-                                <?php if (auth::user()->emp_status === "Permanent"): ?>
-                                ( <span style="color: green;">{{ $totalAnnualPermanent1 }}</span> +
-                                {{ $user->initial_annual - $annual->transactionAnnual - $totalAnnualPermanent1 }} )
-                                <?php else: ?>
-                                ( <span style="color: green;">{{ $totalAnnual }}</span> +
-                                {{ $user->initial_annual - $annual->transactionAnnual - $totalAnnual }} )
-                                <?php endif ?>
-                                <?php else: ?>
-                                <?php if (auth::user()->emp_status === "Permanent"): ?>
-                                ( <span style="color: green;">{{ $renewPermanet }}</span> +
-                                {{ $user->initial_annual - $annual->transactionAnnual - $totalAnnualPermanent1 }} )
-                                <?php else: ?>
-                                ( <span style="color: green;">{{ $renewContract }}</span> +
-                                {{ $user->initial_annual - $annual->transactionAnnual - $totalAnnual }} )
-                                <?php endif ?>
-                                <?php endif ?>
+
+                                @if (auth::user()->forfeitcase === 1)
+                                    @if (auth::user()->emp_status === 'Permanent')
+                                        ( <span style="color: green;">{{ $totalAnnualPermanent1 }}</span> +
+                                        {{ $user->initial_annual - $annual->transactionAnnual - $totalAnnualPermanent1 }} )
+                                    @else
+                                        ( <span style="color: green;">{{ $totalAnnual }}</span> +
+                                        {{ $user->initial_annual - $annual->transactionAnnual - $totalAnnual }} )
+                                    @endif
+                                @else
+                                    @if (auth::user()->emp_status === 'Permanent')
+                                        ( <span style="color: green;">{{ $renewPermanet }}</span> +
+                                        {{ $user->initial_annual - $annual->transactionAnnual - $totalAnnualPermanent1 }} )
+                                    @else
+                                        ( <span style="color: green;">{{ $renewContract }}</span> +
+                                        {{ $user->initial_annual - $annual->transactionAnnual - $totalAnnual }} )
+                                    @endif
+                                @endif
                             </td>
                             <td>
                                 <?php if (auth::user()->emp_status === "Contract"): ?>

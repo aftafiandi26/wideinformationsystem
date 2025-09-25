@@ -18,19 +18,41 @@
 
 @push('style')
     <style>
-        /* Warna untuk Annual Balance */
-        .annual-balance-positive {
+        /* Warna untuk Annual Available */
+        .annual-available-positive {
             color: #28a745 !important;
+            /* Green */
             font-weight: bold;
         }
 
-        .annual-balance-zero {
+        .annual-available-zero {
             color: #ffc107 !important;
+            /* Yellow */
             font-weight: bold;
         }
 
-        .annual-balance-negative {
+        .annual-available-negative {
             color: #dc3545 !important;
+            /* Red */
+            font-weight: bold;
+        }
+
+        /* Warna untuk Total Balance */
+        .total-balance-positive {
+            color: #28a745 !important;
+            /* Green */
+            font-weight: bold;
+        }
+
+        .total-balance-zero {
+            color: #6c757d !important;
+            /* Gray */
+            font-weight: bold;
+        }
+
+        .total-balance-negative {
+            color: #dc3545 !important;
+            /* Red */
             font-weight: bold;
         }
 
@@ -72,7 +94,8 @@
                         <th>Status</th>
                         <th>Total Annual</th>
                         <th>Annual Taken</th>
-                        <th>Annual Balance <sup>(untill eoc)</sup></th>
+                        <th>Annual Available</th>
+                        <th>Annual Balance <sup>(until eoc)</sup></th>
                         <th>Total Exdo</th>
                         <th>Exdo Taken</th>
                         <th>Exdo Expired</th>
@@ -123,21 +146,23 @@
                 }, {
                     data: 'annual_taken'
                 }, {
-                    data: 'annual_balance',
+                    data: 'annual_available',
                     render: function(data, type, row) {
                         var value = parseInt(data) || 0;
                         var className = '';
 
                         if (value > 0) {
-                            className = 'annual-balance-positive';
-                        } else if (value === 0) {
-                            className = 'annual-balance-zero';
+                            className = 'annual-available-positive';
+                        } else if (value === "0") {
+                            className = 'annual-available-zero';
                         } else {
-                            className = 'annual-balance-negative';
+                            className = 'annual-available-negative';
                         }
 
                         return '<span class="' + className + '">' + value + '</span>';
                     }
+                }, {
+                    data: 'final_annual_balance'
                 }, {
                     data: 'total_exdo'
                 }, {
@@ -152,7 +177,7 @@
 
                         if (value > 0) {
                             className = 'exdo-balance-positive';
-                        } else if (value === 0) {
+                        } else if (value === "0") {
                             className = 'exdo-balance-zero';
                         } else {
                             className = 'exdo-balance-negative';
@@ -161,7 +186,21 @@
                         return '<span class="' + className + '">' + value + '</span>';
                     }
                 }, {
-                    data: 'total_balance'
+                    data: 'total_balance',
+                    render: function(data, type, row) {
+                        var value = parseInt(data) || 0;
+                        var className = '';
+
+                        if (value > 0) {
+                            className = 'total-balance-positive';
+                        } else if (value === "0") {
+                            className = 'total-balance-zero';
+                        } else {
+                            className = 'total-balance-negative';
+                        }
+
+                        return '<span class="' + className + '">' + value + '</span>';
+                    }
                 }],
                 dom: 'lBfrtip',
                 buttons: [

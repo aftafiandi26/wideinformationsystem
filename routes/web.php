@@ -249,7 +249,7 @@ Route::get('leave/findCity/{id}', 'LeaveController@dataKota')->name('leave/findC
 Route::get('leavel/ecek/{id}', 'LeaveController@dataKota')->name('leave/ecek');
 //	Start Route Leave
 //	Start Route Applying Leave
-Route::get('leave/apply', 'LeaveController@indexNewApply')->name('leave/apply');
+Route::get('leave/apply', 'Leave_BalanceController@indexNewApply')->name('leave/apply');
 
 Route::get('leave/apply-new', 'LeaveApplyingController@indexNewApply')->name('leave/apply-new');
 Route::get('leave/balance/my', 'LeaveApplyingController@getMyLeaveBalance')->name('leave.balance.my');

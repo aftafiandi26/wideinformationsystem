@@ -35,7 +35,7 @@
                 <select class="form-control" id="kategori" required="true" name="kategori">
                   <option value=" "> </option>
                   <?php foreach ($categories as $category): ?>
-                     <option value="{{$category->id}}" selected="true">{{$category->kategori_stock }}</option>
+                     <option value="{{$category->unik_kategori}}" selected="true">[{{$category->unik_kategori}}] - {{$category->kategori_stock }}</option>
                   <?php endforeach ?>
                 </select>
               </div>

@@ -1,6 +1,6 @@
 <div class='modal-header'>
     <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
-    <h4 class='modal-title text-center' id='showModalLabel'>Form Remote Access Request Above 23:00</h4>
+    <h4 class='modal-title text-center' id='showModalLabel'>Form Remote Access Request VPN (WFH)</h4>
 </div>
 <div class='modal-body'>
    <div class="row">

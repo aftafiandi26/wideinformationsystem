@@ -25,34 +25,33 @@
         </h1>
     </div>
 </div>
-<a href="http://" target="_blank" rel="noopener noreferrer"></a>
 <div class="row">
     <div class="col-lg-3">
-        <a href="{{ route('forfeited/index') }}" class="btn btn-sm btn-default" title="back" style="margin-bottom: 10px;">back</a>
-        <table class="table table-bordered table-condensed table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>{{ $user->first_name.' '.$user->last_name }}</th>
-                </tr>
-                <tr>
-                    <th>NIK</th>
-                    <th>{{ $user->nik }}</th>
-                </tr>
-                <tr>
-                    <th>Department</th>
-                    <th>{{ $dept }}</th>
-                </tr>
-                <tr>
-                    <th>Position</th>
-                    <th>{{ $user->position }}</th>
-                </tr>
-                <tr>
-                    <th>Status</th>
-                    <th>{{ $user->emp_status }}</th>
-                </tr>
-            </thead>
-        </table>
+      <a href="{{ route('forfeited/index') }}" class="btn btn-sm btn-default" title="back" style="margin-bottom: 10px;">back</a>
+      <table class="table table-bordered table-condensed table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>{{ $user->first_name.' '.$user->last_name }}</th>
+            </tr>
+            <tr>
+                <th>NIK</th>
+                <th>{{ $user->nik }}</th>
+            </tr>
+            <tr>
+                <th>Department</th>
+                <th>{{ $dept }}</th>
+            </tr>
+            <tr>
+                <th>Position</th>
+                <th>{{ $user->position }}</th>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <th>{{ $user->emp_status }}</th>
+            </tr>
+        </thead>
+      </table>
     </div>
     <div class="col-lg-2"></div>
     <div class="col-lg-7">

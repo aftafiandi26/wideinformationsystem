@@ -17,7 +17,6 @@
         'c300' => 'active',
     ])
 @stop
-
 @push('style')
     <style>
         a.btn-form {
@@ -39,7 +38,6 @@
         }
     </style>
 @endpush
-
 @section('body')
     <div class="row">
         <div class="col-lg-12">

@@ -274,8 +274,8 @@ $(document).on('click','#myTable tr td a[id="viewCategory"]',function(e) {
 @endsection
 
 @push('js')
-<script>
-    function searchItem() {
+    <script>
+        function searchItem() {
         var input, filter, table, tr, td, i, txtValue;
         input = document.getElementById("myInput");
         filter = input.value.toUpperCase();
@@ -291,7 +291,7 @@ $(document).on('click','#myTable tr td a[id="viewCategory"]',function(e) {
                     tr[i].style.display = "none";
                 }
                 }       
-    }
-}
-</script>
+            }
+        }
+    </script>
 @endpush

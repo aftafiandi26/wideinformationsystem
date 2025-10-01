@@ -58,6 +58,7 @@
     </div>
 </div>
 
+
 @stop
 
 @section('bottom')
@@ -74,7 +75,7 @@ $('table#tables2').DataTable({
     responsive: true,
     ajax: '{{ route('hr/entitlement/exdo/data', [$id]) }}',
     columns: [
-        { data: 'DT_Row_Index', orderable: true, searchable : false},
+        { data: 'DT_Row_Index', orderable: false, searchable : false},
         { data: 'nik'},
         { data: 'fullname'},
         { data: 'department'},

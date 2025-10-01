@@ -160,7 +160,7 @@
                     }
                 },
                 dayMaxEvents: true, // Aktifkan fitur more link
-                dayMaxEventRows: 3, // Maksimal 3 baris event yang ditampilkan
+                dayMaxEventRows: 4, // Maksimal 3 baris event yang ditampilkan
                 moreLinkClick: 'popover', // Tampilkan popover ketika diklik
 
                 // Custom popover content

@@ -67,7 +67,7 @@
                 <label for="">Counting :</label>
                 <select name="counting" id="" class="form-control" required>
                     <option value="">- choosee a counting -</option>
-                    <option value="1">Percantage</option>
+                    <option value="1">Percentage</option>
                     <option value="2">Day</option>
                 </select>
                 <button type="submit" class="btn btn-sm btn-default">

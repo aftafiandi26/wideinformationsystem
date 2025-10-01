@@ -109,8 +109,6 @@
         e.preventDefault();
         var id = $(this).attr('data-role');
 
-        console.log(id);
-
         $.ajax({
             url: id,            
             success: function(e) {

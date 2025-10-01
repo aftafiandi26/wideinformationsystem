@@ -7,6 +7,8 @@
 @section('top')
     @include('assets_css_1')
     @include('assets_css_2')
+    @include('assets_css_3')
+    @include('assets_css_4')
 @stop
 
 @section('navbar')
@@ -74,6 +76,8 @@
 @section('bottom')
     @include('assets_script_1')
     @include('assets_script_2')
+    @include('assets_script_3')
+    @include('assets_script_7')
 @stop
 
 @section('script')
@@ -86,8 +90,17 @@
     	"order": [
     		[ 3, "asc" ]
     	],
+    	"dom": 'Blfrtip',
+    	"buttons": [{
+            extend:    'excel',
+            text:      'Excel',
+            titleAttr: 'employee',
+            title: 'Employee'
+        }], 
         responsive: true,
+        processing: true,
         ajax: '{!! URL::route("hr_mgmt-data/user/getindex") !!}'
+        
     });
 
     $(document).on('click','#tables tr td a[title="Detail"]',function(e) {

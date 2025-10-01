@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('title')
-    (it) Index Request Form
+    (it) Access Network Check for WFH
 @stop
 
 @section('top')
@@ -143,7 +143,7 @@
 @section('body')
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">Form Request WFH</h1>
+            <h1 class="page-header">Access Network Check for WFH</h1>
         </div>
     </div>
 
@@ -207,10 +207,11 @@
                     <table class="table-bordered table table-condensed">
                         <tbody>
                             <tr class="text-red">
-                                <th>Bandwidth <sup>(Mbps)
-                                        <a href="https://www.speedtest.net/id" class="btn btn-xs btn-default"
-                                            target="_blank" rel="noopener noreferrer">check</a>
-                                    </sup> </th>
+                                <th>Bandwidth<sup>(Mbps)
+                                                            <a href="#"class="btn btn-xs btn-default"
+                                                                data-toggle="modal"data-target="#modalBandwidth">check</a>
+                                                        </sup>
+                                                    </th>
 
                                 <th>
                                     <input type="number" min="0" value="{{ $data->bandwidth }}" readonly
@@ -257,8 +258,9 @@
                     <table class="table table-bordered table-condensed">
                         <tr>
                             <th colspan="4">Check Latency <sup>(Ping Test)
-                                    <a href="{{ $filePdf }}" target="_blank" class="btn btn-xs btn-default">check</a>
-                                </sup></th>
+                                                        <a href="#" class="btn btn-xs btn-default"
+                                                            data-toggle="modal" data-target="#modalLatency">check</a>
+                                                    </sup></th>
                         </tr>
                         <tr>
                             <th class="text-red">vpn03.infinitestudios.id</th>
@@ -357,6 +359,46 @@
             <div class="modal-content" id="modal-content">
 
             </div>
+        </div>
+    </div>
+    
+    <div id="modalBandwidth" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Check Bandwidth / Download / Upload</h4>
+                </div>
+                <div class="modal-body">
+                    <iframe src="{{ $filePdf1 }}" frameborder="1" style="width: 100%; height: 600px;"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="modalLatency" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Check Latency</h4>
+                </div>
+                <div class="modal-body">
+                    <iframe src="{{ $filePdf }}" frameborder="1" style="width: 100%; height: 600px;"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
         </div>
     </div>
 @stop

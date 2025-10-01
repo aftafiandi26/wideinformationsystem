@@ -69,7 +69,7 @@
                         <th>Position</th>
                         <th>Start</th>
                         <th>End</th>
-                        <th>Time</th>
+                        <th>Time<sup>(HH:MM)</sup></th>
                         <th>Work From :</th>
                         <th>Feel</th>
                         <th>Health</th>
@@ -136,7 +136,7 @@
             });
 
             $('select#emp').select2({
-                placeholder: 'please a employee'
+                placeholder: 'employee name'
             });
         })
     </script>

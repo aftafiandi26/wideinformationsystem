@@ -10,7 +10,7 @@
         <br>
         <br>
         <br>
-        <table class="table condensed table" border="1">
+        <table class="table-condensed table" border="1">
             <thead>
                 <tr>
                     <th>No</th>

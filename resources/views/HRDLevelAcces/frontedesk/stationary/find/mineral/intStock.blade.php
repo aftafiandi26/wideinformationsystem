@@ -43,7 +43,7 @@
 <div class="row">
     <div class="col-lg-10">
         <div>            
-            <form action="{{route('stationery/mineral/find/post', [$stocks->id, $month])}}" method="post">
+            <form action="{{route('stationery/mineral/purcahse/store', [$stocks->id])}}" method="post">
                 {{ csrf_field() }}
                 <div class="row">
                     <div class="col-lg-4">
@@ -156,10 +156,10 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
-                        <div class="from-group">
-                                <button type="submit" class="btn btn-primary btn-sm">Add</button>
-                                <a href="{{route('stationery/mineral/find/index', $month)}}" class="btn btn-default btn-sm">Back</a>
-                        </div>
+                       <div class="from-group">
+                            <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                            <a href="{{route('stationery/mineral/index')}}" class="btn btn-default btn-sm">Back</a>
+                       </div>
                     </div>
                 </div>
                 

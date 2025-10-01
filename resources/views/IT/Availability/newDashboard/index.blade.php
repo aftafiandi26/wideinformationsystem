@@ -25,18 +25,16 @@
 </div>
 <div class="row">
     <div class="col-lg-12">
-        <table class="table table-striped table-hover table-bordered table-condensed" id="workstations">
+        <table class="table table-striped table-hover table-bordered table-condensed" id="workstations" width="100%">
             <thead>
                 <th>No</th>
                 <th>Hostname</th>
                 <th>Type</th>
                 <th>User</th>
-                <th>Department</th>
-                <th>Position</th>
                 <th>Operation Systems</th>
                 <th>Memory</th>
                 <th>VGA</th>
-                <th>Projects</th>
+                <th>Gateway</th>
                 <th>Updated by</th>
                 <th>Updated Date</th>
                 <th>Notes</th>
@@ -65,7 +63,7 @@
 
 @stop
 @section('bottom')
-    @include('assets_script_1')
+      @include('assets_script_1')
     @include('assets_script_2')
     @include('assets_script_3')
     @include('assets_script_4')
@@ -81,12 +79,10 @@ $('table#workstations').DataTable({
         { data: 'hostname'},
         { data: 'type'},
         { data: 'user'},
-        { data: 'dept'},
-        { data: 'position'},
         { data: 'os'},
         { data: 'memory'},
         { data: 'vga'},
-        { data: 'project'},
+        { data: 'gateway', orderable: false, searchable : false},
         { data: 'update_by'},
         { data: 'updated_at'},
         { data: 'noted'},

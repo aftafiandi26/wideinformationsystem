@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('title')
-    (it) Edit Data WS Availability
+    (it) Add Data WS Availability
 @stop
 
 @section('top')

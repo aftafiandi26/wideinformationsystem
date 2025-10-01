@@ -444,7 +444,7 @@
             $('table#tables3').DataTable({
                 processing: true,
                 responsive: true,
-                ajax: "{{ route('hrd/weekend-crew/summary/data/complate') }}",
+                ajax: '{{ route('hrd/weekend-crew/summary/data/complate') }}',
                 columns: [{
                         "data": "DT_Row_Index",
                         orderable: false,
@@ -486,7 +486,7 @@
             });
 
 
-            $(document).on('click', '#tables3 tr td a[id="table1Detail"]', function(e) {
+             $(document).on('click', '#tables3 tr td a[id="table1Detail"]', function(e) {
                 e.preventDefault();
 
                 var id = $(this).attr('data-role');

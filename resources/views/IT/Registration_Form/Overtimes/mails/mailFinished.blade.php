@@ -2,7 +2,7 @@
     <div class="col-lg-12">
         Dear <b>{{ $formOvertime->user->getFullName() }}</b>.
         <br><br>
-        Your form remote access request above 23:00 was verified.
+        Your form remote access request above 23:00 was verify by {{ $formOvertime->itId->getFullName() }}.
         <br>
         <table border="1">
             <tr>

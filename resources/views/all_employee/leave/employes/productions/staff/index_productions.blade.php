@@ -115,7 +115,7 @@
                 <tr>
                     <th>No</th>
                     <th>NIK</th>
-                    <th>Employes</th>
+                    <th>Employee</th>
                     <th>Category</th>
                     <th>Start Leave</th>
                     <th>End Leave</th>

@@ -20,7 +20,7 @@
 @section('body')
 <div class="row">
     <div class="col-lg-12">
-        <h1 class="page-header">Approval Form</h1>
+        <h1 class="page-header">Approval Form VPN</h1>
     </div>
 </div>
 

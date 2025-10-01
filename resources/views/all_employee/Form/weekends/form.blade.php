@@ -141,7 +141,7 @@
         .disabled-option {
             color: red;
         }
-
+        
         .mb-5 {
             margin-top: -10px;
         }
@@ -333,7 +333,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="form-group">
-                                    @if (auth()->user()->dept_category_id === 6)
+                                       @if (auth()->user()->dept_category_id === 6 or auth()->user()->dept_category_id === 4)
                                         <label for="producers">producer: </label>
                                         <select name="producers" id="producers" class="form-control" required>
                                             <option value="">-Select a producer -</option>
@@ -351,10 +351,9 @@
                                             @foreach ($hods as $hod)
                                                 <option value="{{ $hod->id }}">{{ $hod->getFullName() }}</option>
                                             @endforeach
-                                            @if (auth()->user()->dept_category_id === 1)
-                                                <option value="{{ $anggarda->id }}">{{ $anggarda->getFullName() }}
-                                                </option>
-                                            @endif
+                                             @if (auth()->user()->dept_category_id === 1)
+                                                <option value="{{ $anggarda->id }}">{{ $anggarda->getFullName() }}</option>
+                                                @endif
 
                                         </select>
                                     @endif
@@ -443,10 +442,10 @@
                 });
 
             });
-
+          
             var redNames = "{{ $eocUser }}";
             var redNamesArray = redNames.split(',').map(Number);
-
+            
             $("select#user1").select2({
                 placeholder: "Select a employee",
                 theme: "classic",

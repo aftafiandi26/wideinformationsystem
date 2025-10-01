@@ -10,7 +10,7 @@
 <body>
 <?php 
 use App\stationary_count;
-use App\stationary_transaction; 
+use App\Stationary_transaction; 
 ?>
 <div class="container-fluid">
     <div class="row">
@@ -58,11 +58,11 @@ use App\stationary_transaction;
                             <td style="text-align: center;">{{$value->stock_barang}}</td>               
                             @for ($i = 1; $i <= 31; $i++)
                             <td style="text-align: center;">
-                                {{ stationary_transaction::where('key_param', 2)->where('kode_barang', $value->kode_barang)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }}                          
+                                {{ Stationary_transaction::where('key_param', 2)->where('kode_barang', $value->kode_barang)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }}                          
                             </td>
                             @endfor              
                             <td style="text-align: center;">{{$value->total_out_stock}}</td>
-                            <td style="text-align: center;">{{ stationary_transaction::where('kode_barang', $value->kode_barang)->where('status_transaction', 1)->whereYear('date_in_stock', date('Y'))->whereMonth('date_in_stock', date('m'))->pluck('in_stock')->sum() }}</td>
+                            <td style="text-align: center;">{{ Stationary_transaction::where('kode_barang', $value->kode_barang)->where('status_transaction', 1)->whereYear('date_in_stock', date('Y'))->whereMonth('date_in_stock', date('m'))->pluck('in_stock')->sum() }}</td>
                             <td style="text-align: center;">{{$value->balance_stock}}</td>
                             <td style="text-align: center;">{{date('M, d-Y', strtotime($value->date_stock))}}</td> 
                     </tr>
@@ -75,7 +75,7 @@ use App\stationary_transaction;
         
                         @for ($i = 1; $i <= 31; $i++)
                         <th style="text-align: center;">
-                            {{ stationary_transaction::where('key_param', 2)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }}                          
+                            {{ Stationary_transaction::where('key_param', 2)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }}                          
                         </th>
                         @endfor
                         <th style="text-align: center;">{{ $waters->pluck('total_out_stock')->sum() }}</th>

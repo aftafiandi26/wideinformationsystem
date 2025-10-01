@@ -154,7 +154,7 @@
                     <table class="table-bordered table table-condensed">
                         <tbody>
                             <tr>
-                                <th>Document Number r> <input type="text" value="{{ $data->document }}" readonly></th>
+                                <th>Document Number  r> <input type="text" value="{{ $data->document }}" readonly></th>
                                 <th>Date Checking <br> <input type="date" readonly
                                         value="{{ date('Y-m-d', strtotime($data->date)) }}">
                                 </th>

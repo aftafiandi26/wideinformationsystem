@@ -41,7 +41,7 @@
                                 <th>No</th>
                                 <th>Name</th>
                                 <th>EBIB</th>
-                                <th>Period</th>
+                                <th>Entity</th>
                                 <th>Status</th>
                                 <th>Strava Profile</th>
                                 <th>E-Certificate</th>
@@ -93,7 +93,7 @@
                     }, {
                         data: 'ebib'
                     }, {
-                        data: 'periode'
+                        data: 'entity'
                     }, {
                         data: 'active'
                     }, {

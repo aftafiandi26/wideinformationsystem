@@ -8,11 +8,11 @@
             {{ csrf_field() }}
             <div class="form-group">
                 <label for="firstName">First Name:</label>
-                <input type="text" class="form-control" id="firstName" name="firstName" value="Dede">
+                <input type="text" class="form-control" id="firstName" name="firstName">
             </div>
             <div class="form-group">
                 <label for="lastName">Last Name:</label>
-                <input type="text" class="form-control" id="lastName" name="lastName" value="Aftafiandi">
+                <input type="text" class="form-control" id="lastName" name="lastName">
             </div>
             <div class="form-group">
                 <label for="lastName">Gender:</label>
@@ -28,27 +28,25 @@
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" class="form-control" id="password" name="password"
-                    value="Event{{ date('Y') }}">
+                <input type="password" class="form-control" id="password" name="password">
                 <input type="checkbox" id="showPass"> Show Password
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" class="form-control" id="email" name="email"
-                    value="dede.aftafiandi@infinitestudios.id">
+                <input type="email" class="form-control" id="email" name="email">
             </div>
             <div class="form-group">
                 <label for="strava">Strava Profile:</label>
                 <input type="url" class="form-control" id="strava" name="strava"
-                    value="https://www.strava.com/athletes/176234509">
+                    placeholder="https://www.strava.com/athletes/176234509">
             </div>
             <div class="form-group">
-                <label for="phone">Phone:</label>
-                <input type="text" class="form-control" id="phone" name="phone" value="085272559098">
+                <label for="phone">Mobile Phone:</label>
+                <input type="text" class="form-control" id="phone" name="phone" placeholder="08*********">
             </div>
             <div class="form-group">
-                <label for="company">Company:</label>
-                <input type="text" class="form-control" id="company" name="company" value="PT Kinema">
+                <label for="company">Entity:</label>
+                <input type="text" class="form-control" id="company" name="company" placeholder="PT Kinema">
             </div>
         </form>
     </div>

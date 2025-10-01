@@ -9,7 +9,7 @@
         <tr>
             <th>Period</th>
             <th>:</th>
-            <th>{{ date('Y-m') }}-{{ $date }}</th>
+            <th>{{ date('Y-m-d', strtotime($date)) }}</th>
         </tr>
     </table>
   </div>

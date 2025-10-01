@@ -90,7 +90,7 @@
                         <th>No</th>
                         <th>Project</th>
                         <th>Date</th>
-                        <th>Employes</th>
+                        <th>Employee</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -101,7 +101,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Employes</th>
+                        <th>Employee</th>
                         <th>Position</th>
                         <th>Date</th>
                         <th>Project</th>

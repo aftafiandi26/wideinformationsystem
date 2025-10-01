@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('title')
-    (it) Index Request Form
+    (it) Access Network Check for WFH
 @stop
 
 @section('top')
@@ -20,7 +20,7 @@
 @section('body')
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">Form Request WFH</h1>
+            <h1 class="page-header">Access Network Check for WFH</h1>
         </div>
     </div>
     <div class="row">

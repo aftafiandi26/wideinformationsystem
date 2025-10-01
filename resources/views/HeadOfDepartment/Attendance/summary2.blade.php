@@ -40,7 +40,7 @@
 
     <div class="row mb-3">
         <div class="col-lg-12">
-            <form action="#" method="post" class="form-inline">
+           <form action="{{ route('hod/attendance/summary/form') }}" method="post" class="form-inline">
                 {{ csrf_field() }}
                 <label for="">Search:</label>
                 <select name="emp" id="emp" class="form-control" required>
@@ -54,15 +54,17 @@
                 <input type="date" name="start" id="start" class="form-control" required
                     value="{{ $start }}"> -
                 <input type="date" name="end" id="end" class="form-control" required
-                    value="{{ $end }}"">
+                    value="{{ $end }}">
                 <button type="submit" class="btn-sm btn btn-default">
                     <i class="fa fa-search"></i>
                 </button>
+                 <a href="{{ route('hod/attendance/summary') }}" class="btn btn-sm btn-default">back</a>
             </form>
+           
         </div>
     </div>
 
-    <div class="row">
+   <div class="row">
         <div class="col-lg-12">
             <table class="table table-bordered table-condensed table-hover table-striped" id="tables" width="100%">
                 <thead>
@@ -72,7 +74,7 @@
                         <th>Position</th>
                         <th>Start</th>
                         <th>End</th>
-                        <th>Time</th>
+                        <th>Time<sup>(HH:MM)</sup></th>
                         <th>Work From :</th>
                         <th>Feel</th>
                         <th>Health</th>
@@ -142,7 +144,7 @@
             });
 
             $('select#emp').select2({
-                placeholder: 'please a employee'
+                placeholder: 'employee name'
             });
         })
     </script>

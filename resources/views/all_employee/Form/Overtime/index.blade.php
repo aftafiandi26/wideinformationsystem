@@ -44,7 +44,7 @@
 
 <div class="row">
     <div class="panel panel-info">
-        <div class="panel-heading text-center"><b>Form Remote Access Request VPN</b></div>
+        <div class="panel-heading text-center"><b>Form Remote Access Request Above 23:00ctes</b></div>
         <div class="panel-body">
 
             <form action="{{ route('form/overtime/post') }}" method="post" class="needs-validation">

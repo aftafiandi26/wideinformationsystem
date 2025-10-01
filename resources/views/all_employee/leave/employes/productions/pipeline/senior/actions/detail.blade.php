@@ -39,15 +39,15 @@
                 <tr>
                     <td>Contact Address</td>
                     <td>:</td>
-                    <th colspan="5">{{ $leave->user()->address }}</th>
+                    <th colspan="6">{{ $leave->user()->address }}</th>
                 </tr>
                 <tr>
-                    <td colspan="8"></td>
+                    <td colspan="9"></td>
                 </tr>
                 <tr>
                     <td>Leave Category</td>
                     <td>:</td>
-                    <th colspan="5">{{ $leave->leaveName()->leave_category_name }}</th>
+                    <th colspan="6">{{ $leave->leaveName()->leave_category_name }}</th>
                 </tr>
             </table>
         </div>

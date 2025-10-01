@@ -19,7 +19,7 @@
 @section('body')
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">Change User Previlege s</h1>
+            <h1 class="page-header">Change User Previlege</h1>
         </div>
     </div>
 
@@ -301,117 +301,7 @@
                                                     @endif
                                                     <p class="help-block">{!! $errors->first('forfeitcase') !!}</p>
                                             </td>
-                                        </tr> 
-                                        <tr>
-                                            <td style="width: 400px;">                                             
-                                                {!! Form::label('skipCoordinator', 'Leave | Skip Coordinator') !!}
-                                            </td>
-                                            <td class="text-right">
-                                                @if ($errors->has('skipCoordinator'))
-                                                    <div class="form-group has-error">
-                                                @else
-                                                    <div class="form-group">
-                                                @endif
-                                                    @if ($attempt)
-                                                        @if ($attempt->coor == true)
-                                                        {!! Form::checkbox('skipCoordinator', 'Skip Coordinator', true, ['placeholder' => 'Skip Coordinator', 'maxlength' => 5]) !!}&nbsp Yes                                                            
-                                                        @else
-                                                        {!! Form::checkbox('skipCoordinator', 'Skip Coordinator', false, ['placeholder' => 'Skip Coordinator', 'maxlength' => 5]) !!}&nbsp Yes
-                                                        @endif
-                                                    @else
-                                                        {!! Form::checkbox('skipCoordinator', 'Skip Coordinator', false, ['placeholder' => 'Skip Coordinator', 'maxlength' => 5]) !!}&nbsp Yes
-                                                    @endif
-                                                    <p class="help-block">{!! $errors->first('skipCoordinator') !!}</p>
-                                            </td>
-                                        </tr>   
-                                        <tr>
-                                            <td style="width: 400px;">                                             
-                                                {!! Form::label('skipSpv', 'Leave | Skip Supervisor') !!}
-                                            </td>
-                                            <td class="text-right">
-                                                @if ($errors->has('skipSpv'))
-                                                    <div class="form-group has-error">
-                                                @else
-                                                    <div class="form-group">
-                                                @endif
-                                                    @if ($attempt)
-                                                        @if ($attempt->spv == true)
-                                                        {!! Form::checkbox('skipSpv', 'Skip Supervisor', true, ['placeholder' => 'Skip Supervisor', 'maxlength' => 5]) !!}&nbsp Yes                                                            
-                                                        @else
-                                                        {!! Form::checkbox('skipSpv', 'Skip Supervisor', false, ['placeholder' => 'Skip Supervisor', 'maxlength' => 5]) !!}&nbsp Yes
-                                                        @endif
-                                                    @else
-                                                        {!! Form::checkbox('skipSpv', 'Skip Supervisor', false, ['placeholder' => 'Skip Supervisor', 'maxlength' => 5]) !!}&nbsp Yes
-                                                    @endif
-                                                    <p class="help-block">{!! $errors->first('skipSpv') !!}</p>
-                                            </td>
-                                        </tr> 
-                                        <tr>
-                                            <td style="width: 400px;">                                             
-                                                {!! Form::label('skipPM', 'Leave | Skip Project Manager') !!}
-                                            </td>
-                                            <td class="text-right">
-                                                @if ($errors->has('skipPM'))
-                                                    <div class="form-group has-error">
-                                                @else
-                                                    <div class="form-group">
-                                                @endif
-                                                    @if ($attempt)
-                                                        @if ($attempt->pm == true)
-                                                        {!! Form::checkbox('skipPM', 'Skip Project Manager', true, ['placeholder' => 'Skip Project Manager', 'maxlength' => 5]) !!}&nbsp Yes                                                            
-                                                        @else
-                                                        {!! Form::checkbox('skipPM', 'Skip Project Manager', false, ['placeholder' => 'Skip Project Manager', 'maxlength' => 5]) !!}&nbsp Yes
-                                                        @endif
-                                                    @else
-                                                        {!! Form::checkbox('skipPM', 'Skip Project Manager', false, ['placeholder' => 'Skip Project Manager', 'maxlength' => 5]) !!}&nbsp Yes
-                                                    @endif
-                                                    <p class="help-block">{!! $errors->first('skipPM') !!}</p>
-                                            </td>
-                                        </tr> 
-                                        <tr>
-                                            <td style="width: 400px;">                                             
-                                                {!! Form::label('skipProducer', 'Leave | Skip Producer') !!}
-                                            </td>
-                                            <td class="text-right">
-                                                @if ($errors->has('skipProducer'))
-                                                    <div class="form-group has-error">
-                                                @else
-                                                    <div class="form-group">
-                                                @endif
-                                                    @if ($attempt)
-                                                        @if ($attempt->producer == true)
-                                                        {!! Form::checkbox('skipProducer', 'Skip Producer', true, ['placeholder' => 'Skip Producer', 'maxlength' => 5]) !!}&nbsp Yes                                                            
-                                                        @else
-                                                        {!! Form::checkbox('skipProducer', 'Skip Producer', false, ['placeholder' => 'Skip Producer', 'maxlength' => 5]) !!}&nbsp Yes
-                                                        @endif
-                                                    @else
-                                                        {!! Form::checkbox('skipProducer', 'Skip Producer', false, ['placeholder' => 'Skip Producer', 'maxlength' => 5]) !!}&nbsp Yes
-                                                    @endif
-                                                    <p class="help-block">{!! $errors->first('skipProducer') !!}</p>
-                                            </td>
-                                        </tr>   
-                                        <tr>
-                                            <td style="width: 400px;">                                             
-                                                {!! Form::label('skipHD', 'Leave | Skip HD') !!}
-                                            </td>
-                                            <td class="text-right">
-                                                @if ($errors->has('skipHD'))
-                                                    <div class="form-group has-error">
-                                                @else
-                                                    <div class="form-group">
-                                                @endif
-                                                    @if ($attempt)
-                                                        @if ($attempt->hd == true)
-                                                        {!! Form::checkbox('skipHD', 'Skip HD', true, ['placeholder' => 'Skip HD', 'maxlength' => 5]) !!}&nbsp Yes                                                            
-                                                        @else
-                                                        {!! Form::checkbox('skipHD', 'Skip HD', false, ['placeholder' => 'Skip HD', 'maxlength' => 5]) !!}&nbsp Yes
-                                                        @endif
-                                                    @else
-                                                        {!! Form::checkbox('skipHD', 'Skip HD', false, ['placeholder' => 'Skip HD', 'maxlength' => 5]) !!}&nbsp Yes
-                                                    @endif
-                                                    <p class="help-block">{!! $errors->first('skipProducer') !!}</p>
-                                            </td>
-                                        </tr>                                         
+                                        </tr>                                      
                                 </table>
                             </div>
 

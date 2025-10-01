@@ -135,9 +135,9 @@
                     <td style="text-align: center;">{{$value->satuan}}</td>
                     <td style="text-align: center;">{{$value->merk}}</td>
                     <td style="text-align: center;">{{$value->stock_barang}}</td>               
-                    @for ($i = 1; $i <= $lastDay; $i++)
+                    @for ($i = 1; $i <= 31; $i++)
                     <td style="text-align: center;" id="das">
-                        <a data-toggle="modal" data-target="#showModal" title="view" data-role="{{ route('stationery/mineral/modal', [$value->kode_barang, $month.'-'.$i]) }} " class="ahover">
+                        <a data-toggle="modal" data-target="#showModal" title="view" data-role="{{ route('stationery/mineral/modal', [$value->kode_barang, $i]) }} " class="ahover">
                             {{ stationary_transaction::where('key_param', $key_param)->where('kode_barang', $value->kode_barang)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }} 
                         </a>                                              
                     </td>

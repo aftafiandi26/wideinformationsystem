@@ -148,7 +148,15 @@ $('[data-toggle="tooltip"]').tooltip();
         ajax: '{!! URL::route("indexDataAttendance") !!}',
         columns: [
                     { data: 'DT_Row_Index', orderable: false, searchable : false},
-                    
+                    { data: 'nik'},
+                    { data: 'fullname'},
+                    { data: 'dept_category_id'},
+                    { data: 'timeIN'},
+                    { data: 'timeOUT'},
+                    { data: 'dateAttendance'},
+                    { data: 'time'},
+                    { data: 'remarks'},
+                    { data: 'action'}
                 ]
 
     });

@@ -159,7 +159,7 @@
     </div>
 </div>
 <div class="modal-footer">
-    <a class="btn btn-sm btn-primary" href="{{ route('manager/pipeline-it/approval', $leave->id) }}">Approval</a>
-    <a class="btn btn-sm btn-danger" href="{{ route('manager/pipeline-it/disapproval', $leave->id) }}">Disapproval</a>
+    <a class="btn btn-sm btn-primary" href="{{ route('manager/pipeline-it/approval', $leave->id) }}">Approve</a>
+    <a class="btn btn-sm btn-danger" href="{{ route('manager/pipeline-it/disapproval', $leave->id) }}">Reject</a>
     <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
 </div>

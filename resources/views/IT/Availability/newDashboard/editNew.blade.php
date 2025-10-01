@@ -28,7 +28,7 @@
 
 @section('body')
 <div class="row">
-    <div class="col-lg-12"> s
+    <div class="col-lg-12">
         <h1 class="page-header">Edit Data Workstations</h1>
     </div>
 </div>
@@ -167,7 +167,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
@@ -237,7 +236,7 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                     <label for="notes">Note:</label>
-                                    <textarea name="notes" id="notes" cols="30" rows="3" class="form-control">{{ $workstations->notes }}</textarea>
+                                    <textarea name="notes" id="notes" cols="30" rows="10" class="form-control">{{ $workstations->notes }}</textarea>
                             </div>
                         </div>
                     </div>

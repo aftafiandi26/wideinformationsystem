@@ -109,6 +109,7 @@
                     <th>Check In</th>
                     <th>Check Out</th>
                     <th>Total Time</th>
+                    <th>Status</th>
                     <th>Actions</th>                    
                 </tr>
             </thead>
@@ -158,6 +159,7 @@ $('table#tables').DataTable({
             {"data": "checkIn"},
             {"data": "checkOut"},
             {"data": "time"},
+            {"data": "status_in"},
             {"data": "actions"},
         ]
     

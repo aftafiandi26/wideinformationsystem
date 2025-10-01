@@ -50,7 +50,7 @@
                 </div>  
                 <button type="submit" class="btn btn-primary btn-sm">Add</button>
                 <a href="{{route('indexStockStationaryWater')}}" class="btn btn-default btn-sm">Back</a>
-            </form>
+                </form>
         </div>
     </div>
 </div>

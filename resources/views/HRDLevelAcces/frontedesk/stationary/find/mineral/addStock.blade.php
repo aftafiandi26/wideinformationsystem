@@ -36,7 +36,7 @@
 <div class="row">
     <div class="col-lg-10">
         <div>
-            <form action="{{route('stationery/mineral/store', $month)}}" method="post">
+            <form action="{{route('stationery/mineral/store')}}" method="post">
                {{ csrf_field() }}
                <div class="form-group">
                 <label for="category">Category <sup>(unique key)</sup></label>
@@ -54,7 +54,7 @@
               </div>
               <div class="form-group">
                 <label for="item">Item</label>
-                <input type="text" name="item" required="true" class="form-control" id="item" value="{{ old('item') }}">
+                <input type="text" name="item" required="true" class="form-control" id="item" = {{ old('item') }}>
               </div>              
               <div class="form-group">
                 <label for="brand">Brand</label>
@@ -71,13 +71,13 @@
               <div class="form-group">
                 <label for="qty">Qty</label>
                  <input type="text" name="qty" min="0" required="true" class="form-control" id="jumlah" value="{{ old('qty') }}">
-              </div> 
-              <div class="form-group">
-                <label for="price">Price</label>
-                 <input type="text" name="price" min="0" required="true" class="form-control" id="price" value="{{ old('price') }}" placeholder="0">
               </div>  
-              <button type="submit" class="btn btn-primary btn-sm" id="add">Add</button>
-              <a href="{{route('stationery/mineral/find/index', $month)}}" class="btn btn-default btn-sm">Back</a>
+               <div class="form-group">
+                <label for="price">Price (uom)</label>
+                 <input type="text" name="price" min="0" required="true" class="form-control" id="price" value="{{ old('price') }}" placeholder="0">
+              </div>
+              <button type="submit" class="btn btn-primary btn-sm">Add</button>
+              <a href="{{route('stationery/mineral/index')}}" class="btn btn-default btn-sm">Back</a>
             </form>
         </div>
     </div>

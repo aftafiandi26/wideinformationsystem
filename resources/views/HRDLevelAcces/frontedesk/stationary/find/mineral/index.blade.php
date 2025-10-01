@@ -68,25 +68,25 @@
 @section('body')
 <div class="row">
     <div class="col-lg-12">
-        <h1 class="page-header">Mineral Water Stock ss</h1> 
+        <h1 class="page-header">Mineral Water Stock</h1> 
     </div>
 </div>
 <div class="row ">       
     <div class="col-lg-6">
-        <a href="{{ route('stationery/mineral/find/index', date('Y-m', strtotime('previous month', strtotime($month))))}}" class="btn btn-sm btn-default previous"><i class="fa fa-arrow-left"></i> {{ $previous }}</a>
-        <a href="{{ route('stationery/mineral/find/index', date('Y-m', strtotime('next month', strtotime($month))))}}" class="btn btn-sm btn-default previous">{{ $next }} <i class="fa fa-arrow-right"></i></a>
+        <a href="{{ route('stationery/mineral/find/index', date('Y-m', strtotime('previous month')))}}" class="btn btn-sm btn-default previous"><i class="fa fa-arrow-left"></i> {{ $previous }}</a>
+        <a href="{{ route('stationery/mineral/find/index', date('Y-m', strtotime('next month')))}}" class="btn btn-sm btn-default previous">{{ $next }} <i class="fa fa-arrow-right"></i></a>
     </div>
     <div class="col-lg-6 finding">
         <a href="{{route('stationery/mineral/pdf', [$month])}}" class="btn btn-sm btn-default pdf" target="_blank">PDF</a> 
         <a href="{{route('stationery/mineral/excel', [$month])}}" class="btn btn-sm btn-default excel">Excel</a>     
-        <a href="{{route('stationery/mineral/find/add', [$month])}}" class="btn btn-sm btn-default stock">Add Stock</a>
+        <a href="{{route('stationery/mineral/add')}}" class="btn btn-sm btn-default stock">Add Stock</a>
     </div> 
 </div>
 
 <div class="row textHeadling">
     <div class="col-lg-12">        
         <label>Periode: {{date('F Y')}}</label><br>
-        <label>Stock Started: {{date('F Y', strtotime('-1 month', strtotime($month)))}}</label><br> 
+        <label>Stock Started: {{date('F Y', strtotime('-1 month'))}}</label><br> 
     </div>
 </div>
 <div class="row">
@@ -107,7 +107,7 @@
                     <th rowspan="2" style="text-align: center;">UOM</th>
                     <th rowspan="2" style="text-align: center;">Brand</th>
                     <th rowspan="2" style="text-align: center;">Stock</th>
-                    <th colspan="{{ $lastDay }}" style="text-align: center;">Date Items Out <i>{{date('F Y', strtotime($month))}}</i></th>
+                    <th colspan="{{ $lastDay }}" style="text-align: center;">Date Items Out <i>{{date('F Y')}}</i></th>
                     <th rowspan="2" style="text-align: center;">Total Items Out</th>
                     <th rowspan="2" style="text-align: center;">IN (Purchase)</th>
                     <th rowspan="2" style="text-align: center;">Balance Stock</th>
@@ -159,13 +159,12 @@
                         @endif
                     @endforeach
                     <td style="text-align: center;">{{date('M, d-Y', strtotime($value->date_stock))}}</td>                  
-                    <td><a href="{{route('stationery/mineral/find/in', [$value->id, $month])}}" class="btn btn-xs btn-default" id="in">In</a></td>
-                    <td><a href="{{route('stationery/mineral/find/out', [$value->id, $month])}}" class="btn btn-xs btn-default" id="out">Out</a></td>
+                    <td><a href="{{route('stationery/mineral/purcahse/add', [$value->id])}}" class="btn btn-xs btn-default" id="in">In</a></td>
+                    <td><a href="{{route('stationery/mineral/out/add', [$value->id])}}" class="btn btn-xs btn-default" id="out">Out</a></td>
                     <td><a href="{{route('stationery/mineral/edit', [$value->id])}}" class="btn btn-xs btn-default" id="edit">Edit</a></td>                
                 </tr>
-                <?php endforeach ?>                
-            </tbody>
-            <tfoot>                
+                <?php endforeach ?>
+                <tfoot>                
                 <tr>
                     <th colspan="5" style="text-align: right;">Total</th>
                     <th style="text-align: center;">{{ $total_tfoot['totalStocked'] }}</th>
@@ -184,6 +183,7 @@
                     <th colspan="6"></th>
                 </tr>
                 </tfoot>
+            </tbody>
         </table>
     </div>
 </div>

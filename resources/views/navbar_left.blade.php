@@ -37,13 +37,14 @@
                                 <a class="{!! $c16 or '' !!}" href="{!! URL::route('leave/apply') !!}"><i
                                         class="fa fa-fw fa fa-genderless"></i> Applying Leave </a>
                             </li>
-
-                            <li>
-                                <a class="{!! $c16 or '' !!}" href="#" id="undermaintanance"
-                                    title="Applying Leave" time="02:00 PM"><i class="fa fa-fw fa fa-genderless"></i>
-                                    Applying Leave (under maintenance) </a>
-                            </li>
-
+                            
+                            @if (auth()->user()->id == 226)
+                                <!--<li>-->
+                                <!--    <a class="{!! $c16 or '' !!}" href="#" id="undermaintanance"-->
+                                <!--        title="Applying Leave" time="02:00 PM"><i class="fa fa-fw fa fa-genderless"></i>-->
+                                <!--        Applying Leave (under maintenance) </a>-->
+                                <!--</li>-->
+                            @endif
                             <li>
                                 <a class="{!! $c16 or '' !!}" href="{!! URL::route('all_employes/leave/transaction/migrate') !!}"><i
                                         class="fa fa-fw fa fa-genderless"></i> Leave Transaction </a>
@@ -269,43 +270,45 @@
         </li>
     @endif
     <!-- IT Menu -->
-    @if (auth::user()->dept_category_id === 1)
+    @if (auth::user()->dept_category_id === 1 or auth::user()->dept_category_id === 10 and auth::user()->hd === 1)
         <!-- WS Availability -->
 
-        <li>
-            <a class="{!! $c3 or '' !!}" href="#"><i class="fa fa-fw fa-home"></i> WS
-                Availability<span class="fa arrow"></span></a>
-            <ul class="nav nav-second-level {!! $c1u or '' !!}">
-                <li>
-                    <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/add') !!}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Add Workstation</a>
-                </li>
-                <li>
-                    <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/index') !!}"><i
-                            class="fa fa-fw fa fa-genderless"></i> List Workstation</a>
-                </li>
-                <li>
-                    <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/idle/index') !!}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Workstations Idle</a>
-                </li>
-                <li>
-                    <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/fails/index') !!}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Workstations Fail</a>
-                </li>
-                <li>
-                    <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/scrapped/index') !!}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Workstations Scrapped</a>
-                </li>
-                <li>
-                    <a class="{!! $c16 or '' !!}" href="{!! URL::route('History/Availability') !!}"><i
-                            class="fa fa-fw fa fa-genderless"></i> History Workstation</a>
-                </li>
-                <li>
-                    <a class="{!! $c16 or '' !!}" href="{!! URL::route('legend') !!}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Legend Availability</a>
-                </li>
-            </ul>
-        </li>
+        @if(auth()->user()->dept_category_id === 1)
+            <li>
+                <a class="{!! $c3 or '' !!}" href="#"><i class="fa fa-fw fa-home"></i> WS
+                    Availability<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level {!! $c1u or '' !!}">
+                    <li>
+                        <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/add') !!}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Add Workstation</a>
+                    </li>
+                    <li>
+                        <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/index') !!}"><i
+                                class="fa fa-fw fa fa-genderless"></i> List Workstation</a>
+                    </li>
+                    <li>
+                        <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/idle/index') !!}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Workstations Idle</a>
+                    </li>
+                    <li>
+                        <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/fails/index') !!}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Workstations Fail</a>
+                    </li>
+                    <li>
+                        <a class="{!! $c16 or '' !!}" href="{!! URL::route('workstations/availability/scrapped/index') !!}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Workstations Scrapped</a>
+                    </li>
+                    <li>
+                        <a class="{!! $c16 or '' !!}" href="{!! URL::route('History/Availability') !!}"><i
+                                class="fa fa-fw fa fa-genderless"></i> History Workstation</a>
+                    </li>
+                    <li>
+                        <a class="{!! $c16 or '' !!}" href="{!! URL::route('legend') !!}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Legend Availability</a>
+                    </li>
+                </ul>
+            </li>
+        @endif
 
         <li>
             <a class="{!! $c3 or '' !!}" href="#"><i class="fa fa-fw fa-refresh"></i> Management
@@ -545,6 +548,9 @@
     <!-- End WS Availability -->
 
     <!-- End IT Menu -->
+     @if (auth()->user()->dept_category_id === 1 or auth()->user()->dept_category_id === 10)
+        @include('navbar_left_prodTech')
+    @endif
     <!-- Start HR Rusun Menu -->
     @if (Auth::user()->hr === 1)
         <li>
@@ -1157,55 +1163,8 @@
                 </li>
             @endif
 
-            @if (auth()->user()->koor == true)
-                <li>
-                    <a class="{!! $c33 or '' !!}" href="#"><i class="fa fa-users"></i>
-                        Freelancer<span class="fa arrow"></span></a>
-                    <ul class="nav nav-second-level {!! $c1u or '' !!}">
-                        <li>
-                            <a class="{!! $c34 or '' !!}" href="{{ route('freelance/create') }}"><i
-                                    class="fa fa-fw fa fa-genderless"></i> Create</a>
-                            <a class="{!! $c34 or '' !!}" href="{{ route('freelance/view') }}"><i
-                                    class="fa fa-fw fa fa-genderless"></i> List</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a class="{!! $cs34 or '' !!}" href="{{ route('coordinator/exdo-extends/index') }}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Extends Exdo</a>
-                </li>
-            @endif
-
-            @if (auth()->user()->producer == true)
-                <li>
-                    <a class="{!! $cs34 or '' !!}" href="{{ route('producer/exdo-exntend/index') }}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Extends Exdo</a>
-                </li>
-            @endif
-
-            @if (auth()->user()->gm == true)
-                <li>
-                    <a class="{!! $cs34 or '' !!}" href="{{ route('gm/exdo-extended/index') }}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Extends Exdo</a>
-                </li>
-            @endif
-
-            @if (auth()->user()->hr == true)
-                <li>
-                    <a class="{!! $cs34 or '' !!}" href="{{ route('hrd/exdo-extended/index') }}"><i
-                            class="fa fa-fw fa fa-genderless"></i> Extends Exdo</a>
-                </li>
-            @endif
-
         </ul>
     </li>
-
-    {{-- production technolgy menu --}}
-    @if (auth()->user()->dept_category_id === 10)
-        {{-- @if (auth()->user()->dept_category_id === 10) --}}
-        @include('navbar_left_prodTech')
-    @endif
-
 
     {{-- @if (auth()->user()->dept_category_id !== 6)
             <li>
@@ -1221,6 +1180,7 @@
                 </ul>
             </li>
         @endif --}}
+        
 
     <li>
         <a class="{!! $c63 or '' !!}" href="#"><i class="fa fa-fw fa fa-wpforms"></i> Guideline<span
@@ -1240,7 +1200,7 @@
                 <a class="{!! $c1 or '' !!}"
                     href="https://3.basecamp.com/4952258/buckets/20262700/message_boards/7482724197" target="_blank"
                     rel="noopener noreferrer"><i class="fa fa-fw fa fa-genderless"></i> Wiki</a>
-                <a class="{!! $c1 or '' !!}" href="{{ route('guideline/wfh') }}"><i
+                <a class="{!! $c1 or '' !!}" href="https://3.basecamp.com/4952258/buckets/20262700/messages/8646859089" target="_blank"  rel="noopener noreferrer"><i
                         class="fa fa-fw fa fa-genderless"></i> WFH</a>
             </li>
 
@@ -1286,16 +1246,11 @@
 
         </ul>
     </li>
-    <li>
-        <a class="{!! $c6987903 or '' !!}" href="{{ route('network/speedtest') }}"><i
-                class="fa fa-fw fa fa-flag-checkered"></i>
-            Internal Test<span class="fa arrow"></span></a>
-    </li>
-
     {{-- yg dibawh jgn di hapus --}}
     </ul>
 
 </div>
+ 
 @endif
 
 @if (auth()->user()->evnt_member_outsider == true)

@@ -35,6 +35,7 @@ User of Duration Access ({{ date('M') }})
                     <th>Start OVertimes</th>
                     <th>End OVertimes</th>
                     <th>Duration (hours)</th>
+                    <th>Reason</th>
                 </tr>
             </thead>
         </table>
@@ -73,6 +74,7 @@ $('#tables').DataTable({
         { data: 'startovertime'},
         { data: 'endovertime'},
         { data: 'duration'},
+        { data: 'reason'},
 
     ],
     });

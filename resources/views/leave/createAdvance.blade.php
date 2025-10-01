@@ -605,21 +605,6 @@ Applying Leave
 
         var balanceID = $('input#balanceID').val();
 
-        if(hasilRemains < 0) {                        
-            alert("Sorry, your leave balance is not enough");
-            alert("This page will be reload");
-            location.reload();
-        }                    
-
-        if (startLeave > endLeave) {
-            document.getElementById('startLeave').value = null;
-            document.getElementById('back_work').value = null;
-        }
-
-        if (endLeave > backWork) {
-            document.getElementById('back_work').value = null;
-        }        
-
         // Mendefinisikan dua tanggal
         const tanggal1 = new Date(startLeave);
         const tanggal2 = new Date(endLeave);                   
@@ -635,6 +620,21 @@ Applying Leave
         var hasilRemains = parseFloat(balanceID) - parseFloat(hasil);
         document.getElementById('remaining').value = parseFloat(hasilRemains);
 
+        if(hasilRemains < 0) {                        
+            alert("Sorry, your leave balance is not enough");
+            alert("This page will be reload");
+            location.reload();
+        }                    
+
+        if (startLeave > endLeave) {
+            document.getElementById('startLeave').value = null;
+            document.getElementById('back_work').value = null;
+        }
+
+        if (endLeave > backWork) {
+            document.getElementById('back_work').value = null;
+        }
+        
         if (!startLeave) {           
             document.getElementById('back_work').value = null;
             document.getElementById('perhitungan').value = 0;

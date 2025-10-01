@@ -14,7 +14,7 @@
 @section('navbar')
     @include('navbar_top')
     @include('navbar_left', [
-        'c312' => 'active'
+        'c3' => 'active'
     ])
 @stop
 @section('body')
@@ -22,13 +22,20 @@
 
 <div class="row">
     <div class="col-lg-12">
-        <h1 class="page-header">Mineral Out Stock</h1> 
+        <h1 class="page-header">Stationery Out Stock</h1> 
     </div>
 </div>
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
-@include('asset_feedbackErrors')
-
-<form action="{{route('stationery/mineral/out/store', [$stocks->id])}}" method="post">
+<form action="{{route('storeOutStockStationaryWater', [$stocks->id])}}" method="post">
     {{ csrf_field() }}
     <div class="row">
         <div class="col-lg-3">
@@ -91,7 +98,7 @@
         <div class="col-lg-6">
            <div class="form-group">
                 <div class="form-gorup">
-                    <label for="describe">Description</label>
+                    <label for="describe">Remark</label>
                     <textarea   textarea name="describe" id="describe" cols="30" rows="3" class="form-control" required></textarea>
                 </div>
            </div>
@@ -147,9 +154,7 @@
 @section('script')
     $('select#user').select2();
 
-    $('a#enable').on('click', function (e) {
-        console.log($(this));
-
+    $('a#enable').on('click', function () {
         const manual = document.getElementById("manual");
         const select = document.getElementById("user");
         const div = document.getElementById("selectUser");
@@ -166,7 +171,7 @@
         disable.classList.remove('hidden');        
 
         select.removeAttribute('required');        
-        select.remove(select.selectedIndex);          
+        select.removeAttribute('value');        
     });
 
     $('a#disable').on('click', function () {

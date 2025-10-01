@@ -625,7 +625,7 @@ Applying Leave
         if (endLeave > backWork) {
             document.getElementById('back_work').value = null;
         }
-
+        
         if (!startLeave) {           
             document.getElementById('back_work').value = null;
             document.getElementById('perhitungan').value = 0;

@@ -81,6 +81,7 @@
                     @foreach ($projectGroups as $group)
                         <th>{{ $group->group_name }}</th>
                     @endforeach
+                    <th>Total</th>
                 </thead>
             </table>
         </div>
@@ -134,19 +135,9 @@
                 }, {
                     data: 'column4'
                 }, {
-                    data: 'column5'
-                }, {
-                    data: 'column6'
-                }, {
-                    data: 'column7'
-                }, {
                     data: 'column8'
                 }, {
-                    data: 'column9'
-                }, {
                     data: 'column10'
-                }, {
-                    data: 'column11'
                 }, {
                     data: 'column12'
                 }, {
@@ -155,6 +146,10 @@
                     data: 'column14'
                 }, {
                     data: 'column15'
+                }, {
+                    data: 'column16'
+                }, {
+                    data: 'totalPercent'
                 }],
                 dom: 'lBfrtip',
                 buttons: [

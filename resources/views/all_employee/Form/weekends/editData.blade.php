@@ -39,7 +39,7 @@
                     <label for="over">Change With:</label>
                     <select name="over" id="over" class="form-control">
                         <option value="allowance" @if ('allowance' == $data->extra) selected @endif>Allowance</option>
-                        <option value="catch up" @if ('catch up' == $data->extra) selected @endif>Catch Up</option>
+                         <option value="catch up" @if ('catch up' == $data->extra) selected @endif>Catch Up</option>
                         <option value="exdo" @if ('exdo' == $data->extra) selected @endif>Exdo</option>
                     </select>
                 </div>

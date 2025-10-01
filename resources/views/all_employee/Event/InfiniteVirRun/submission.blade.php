@@ -75,13 +75,12 @@
 @endpush
 @section('body')
     @include('all_employee.Event.InfiniteVirRun.menuVirRun')
-
     <div class="row">
         <div class="col-lg-12">
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <p class="text-bold">
-                        @if ($countVir < 3)
+                       @if ($countVir < 3)
                             Submission Remaining Today : {{ $countVir }}
                         @else
                             Submission
@@ -92,7 +91,7 @@
                     <form class="form-horizontal" action="{{ route('infiniteVirRun/submission/post') }}" method="post">
                         {{ csrf_field() }}
                         <div class="form-group @if ($errors->has('strava')) has-error has-feedback @endif">
-                            <label class="control-label col-sm-2" for="strava">Strava Active URL:</label>
+                            <label class="control-label col-sm-2" for="strava">Strava Link:</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" name="strava"
                                     placeholder="https://www.strava.com/activities/12031600253">

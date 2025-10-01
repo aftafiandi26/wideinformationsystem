@@ -50,19 +50,19 @@
               </div>
                <div class="form-group">
                 <label for="code_item">Code Item <sup>(parameter key)</sup></label>
-                <input type="text" name="code_item" required="true" class="form-control" id="code_item" value="{{ old('code_item') }}" placeholder="00xx">
+                <input type="text" name="code_item" required="true" class="form-control" id="code_item" value="{{ old('code_item') }}">
               </div>
               <div class="form-group">
                 <label for="item">Item</label>
-                <input type="text" name="item" required="true" class="form-control" id="item"  value="{{ old('item') }}" placeholder="name item">
+                <input type="text" name="item" required="true" class="form-control" id="item" = {{ old('item') }}>
               </div>              
               <div class="form-group">
                 <label for="brand">Brand</label>
-                <input type="text" name="brand" required="true" class="form-control" id="brand" value="{{ old('brand') }}" placeholder="brand">
+                <input type="text" name="brand" required="true" class="form-control" id="brand" value="{{ old('brand') }}">
               </div>
               <div class="form-group">
                 <label for="uom">UOM</label>
-                <input type="text" min="3" id="uom" name="uom" required="true" class="form-control" value="{{ old('uom') }}" placeholder="unit of measurement">
+                <input type="text" min="3" id="uom" name="uom" required="true" class="form-control" value="{{ old('uom') }}">
               </div>
               <div class="form-group">
                 <label for="date_stock">Date Stock</label>
@@ -72,10 +72,10 @@
                 <label for="qty">Qty</label>
                  <input type="text" name="qty" min="0" required="true" class="form-control" id="jumlah" value="{{ old('qty') }}" placeholder="0">
               </div>  
-              <div class="form-group">
-                <label for="price">Price</label>
+               <div class="form-group">
+                <label for="price">Price (uom)</label>
                  <input type="text" name="price" min="0" required="true" class="form-control" id="price" value="{{ old('price') }}" placeholder="0">
-              </div>  
+              </div> 
               <button type="submit" class="btn btn-primary btn-sm">Add</button>
               <a href="{{route('stationery/mineral/index')}}" class="btn btn-default btn-sm">Back</a>
             </form>

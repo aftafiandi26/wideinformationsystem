@@ -52,7 +52,7 @@
             </form>
         </div>
     </div>
-    <div class="row mb-5">
+    <div class="row mb-15">
         <div class="col-lg-12">
             <form action="{{ route('gm/summary/attendance/filter/employee') }}" method="get" class="form-inline">
                 {{ csrf_field() }}
@@ -76,13 +76,7 @@
             </form>
         </div>
     </div>
-    <div class="row mb-15">
-        <div class="col-lg-12">
-            <a href="{{ route('gm/summary/attendance/index') }}" class="btn btn-sm btn-default">
-                <i class="fa fa-step-backward"></i> Back
-            </a>
-        </div>
-    </div>
+  
     <div class="row">
         <div class="col-lg-6">
             <table class="table table-condensed table-hover table-striped table-bordered" id="tables" width="100%">
@@ -91,7 +85,7 @@
                         <th>No</th>
                         <th>Project</th>
                         <th>Date</th>
-                        <th>Employes</th>
+                        <th>Employee</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -102,7 +96,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Employes</th>
+                        <th>Employee</th>
                         <th>Position</th>
                         <th>Date</th>
                         <th>Project</th>
@@ -127,6 +121,9 @@
     @include('assets_script_3')
     @include('assets_script_4')
     @include('assets_script_7')
+    <script src="https://cdn.datatables.net/buttons/2.3.7/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.7/js/buttons.html5.min.js"></script>
+
 @stop
 
 @push('js')
@@ -167,7 +164,6 @@
 
             $(document).on('click', '#tables tr td button[id="detail"]', function(e) {
                 var id = $(this).attr('data-role');
-                console.log(id);
 
                 if ($.fn.DataTable.isDataTable('#showEmployes')) {
                     $('#showEmployes').DataTable().destroy();
@@ -176,7 +172,6 @@
                 $('#showEmployes').DataTable({
                     processing: true,
                     responsive: true,
-                    serverSide: true,
                     ajax: id,
                     columns: [{
                         data: 'DT_Row_Index',
@@ -193,7 +188,18 @@
                     }],
                     dom: 'lBfrtip',
                     buttons: [
-                        'excel'
+                        {
+                            extend: 'excelHtml5',
+                            text: 'Excel',
+                            exportOptions: {
+                                columns: ':visible', // Ekspor hanya kolom yang terlihat
+                                modifier: {
+                                    search: 'none',  // Abaikan filter pencarian
+                                    order: 'applied', // Gunakan urutan yang diterapkan
+                                    page: 'all'      // Ekspor semua halaman
+                                }
+                            }
+                        }
                     ],
                     lengthMenu: [
                         [10, 25, 50, -1], // Nilai opsi (angka)

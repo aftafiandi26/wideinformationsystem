@@ -25,17 +25,7 @@
                         <td>{{ ++$key }}</td>
                         <td>{{ $item->user()->getFullName() }}</td>
                         <td>{{ date('Y-m-d', strtotime($item->start)) }}</td>
-                        <td>
-                            @if ($item->approved == 1)
-                                Approved
-                            @endif
-                            @if ($item->approved == 2)
-                                Disapproved
-                            @endif
-                            @if ($item->approved == 0)
-                                Pending
-                            @endif
-                        </td>
+                        <td>Approved</td>
                     </tr>
                 @endforeach
             </tbody>

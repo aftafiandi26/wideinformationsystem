@@ -47,11 +47,6 @@
                 data-original-title="Go to Import Data" data-toggle="tooltip" data-placement="top"
                 href="{!! URL::route('Upload/Employee') !!}"><span class="fa fa-upload"> Import Excel</span></a>
         </div>
-        <div class="col-lg-12">
-            <div align="right">
-
-            </div>
-        </div>
     </div>
 
     <div class="row">
@@ -159,7 +154,7 @@
                     }, {
                         data: 'education_institution'
                     }, {
-                        data: 'education_institution'
+                        data: 'emp_status'
                     }, {
                         data: 'phone'
                     }, {

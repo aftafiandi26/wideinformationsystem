@@ -25,11 +25,11 @@
 </style>
 <?php 
 use App\stationary_count;
-use App\stationary_transaction;
+use App\Stationary_transaction;
  ?>
 <div class="row">
     <div class="col-lg-12">
-        <h1 class="page-header">Stationary Stock Mineral Water</h1> 
+        <h1 class="page-header">Stationary Stock Mineral Water)</h1> 
     </div>
 </div>
 <div class="row">
@@ -72,7 +72,7 @@ use App\stationary_transaction;
                   } ?>
                   <th style="text-align: center;">In</th>
                   <th style="text-align: center;">Out</th>
-                  <th style="text-align: center;">Edit</th>                 
+                  <th style="text-align: center;">Rename</th>                  
             </tr>
         </thead>
         <tbody>
@@ -86,20 +86,19 @@ use App\stationary_transaction;
                   <td style="text-align: center;">{{$value->stock_barang}}</td>               
                   @for ($i = 1; $i <= 31; $i++)
                   <td style="text-align: center;">
-                    {{-- inidia --}}
                     <a data-toggle="modal" data-target="#showModal" title="view" data-role="{{ route('mineral/modalMineralViewTable', [$value->kode_barang, $i]) }}">
-                        {{ stationary_transaction::where('key_param', 2)->where('kode_barang', $value->kode_barang)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }} 
+                        {{ Stationary_transaction::where('key_param', 2)->where('kode_barang', $value->kode_barang)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }} 
                     </a>                                              
                   </td>
                   @endfor              
                   <td style="text-align: center;">{{$value->total_out_stock}}</td>
-                  <td style="text-align: center;">{{ stationary_transaction::where('kode_barang', $value->kode_barang)->where('status_transaction', 1)->whereYear('date_in_stock', date('Y'))->whereMonth('date_in_stock', date('m'))->pluck('in_stock')->sum() }}</td>
+                  <td style="text-align: center;">{{ Stationary_transaction::where('kode_barang', $value->kode_barang)->where('status_transaction', 1)->whereYear('date_in_stock', date('Y'))->whereMonth('date_in_stock', date('m'))->pluck('in_stock')->sum() }}</td>
                   <td style="text-align: center;">{{$value->balance_stock}}</td>
                   <td style="text-align: center;">{{date('M, d-Y', strtotime($value->date_stock))}}</td>
                   
                   <td><a href="{{route('indexInStockStationaryWater', [$value->id])}}" class="btn btn-xs btn-default" id="in">In</a></td>
                   <td><a href="{{route('indexOutStockStationaryWater', [$value->id])}}" class="btn btn-xs btn-default" id="out">Out</a></td>
-                  <td><a href="{{route('editStockStationaryWater', [$value->id])}}" class="btn btn-xs btn-default" id="edit">Edit</a></td>                   
+                  <td><a href="{{route('editStockStationaryWater', [$value->id])}}" class="btn btn-xs btn-default" id="rename">Rename</a></td>                
                </tr>
             <?php endforeach ?>
             <tfoot>                
@@ -109,7 +108,7 @@ use App\stationary_transaction;
 
                   @for ($i = 1; $i <= 31; $i++)
                   <th style="text-align: center;">
-                     {{ stationary_transaction::where('key_param', 2)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }}                          
+                    {{ Stationary_transaction::where('key_param', 2)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }}                
                   </th>
                   @endfor
 
@@ -127,14 +126,6 @@ use App\stationary_transaction;
 <div class="modal fade" id="showModal" tabindex="-1" role="dialog" aria-labelledby="showModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" id="modal-content">
-           
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="showModalDelete" tabindex="-1" role="dialog" aria-labelledby="showModalLabelDelete" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" id="modal-content-delete">
            
         </div>
     </div>
@@ -178,5 +169,4 @@ $(document).on('click','#myTable tr td a[title="view"]',function(e) {
         }
     });
 }); 
-
 @endsection

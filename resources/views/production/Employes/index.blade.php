@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('title')
-    Summary Attendance
+    Phone Books
 @stop
 
 @section('top')
@@ -29,12 +29,10 @@
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>NIK</th>
                     <th>Employee</th>
                     <th>Position</th>
                     <th>Department</th>
                     <th>Email</th>
-                    <th>Project</th>
                 </tr>
             </thead>
           </table>
@@ -65,12 +63,10 @@ $('[data-toggle="tooltip"]').tooltip();
         ajax: '{{ route('production/phonebook/data') }}',
         columns: [
             {data: 'DT_Row_Index', orderable: false, searchable : false},
-            {data: 'nik'},
             {data: 'fullname'},
             {data: 'position'},
             {data: 'department'},
             {data: 'email'},
-            {data: 'project'},
         ],
         dom: 'Bfrtip',
         buttons: [

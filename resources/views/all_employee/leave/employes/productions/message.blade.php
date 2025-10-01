@@ -1,5 +1,4 @@
 <p>Dear {{ $data['to'] }}</p>
-<br>
 <p>This is reminder, please follow up about this</p>
 <p>Employee said : {{ $data['message'] }}</p>
 <table class="table table-hover" border="1" style="text-align: center">

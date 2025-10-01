@@ -22,7 +22,8 @@ class HomeController extends Controller
     {
         if (Auth::user()) {
             if (Auth::user()->active === 1) {
-                return View::make('index');
+                // return View::make('index');
+                return View::make('dashboardWelcome');
             } else {
                 Auth::logout();
                 return Redirect::route('index')->with('getError', Lang::get('messages.acc_banned'));

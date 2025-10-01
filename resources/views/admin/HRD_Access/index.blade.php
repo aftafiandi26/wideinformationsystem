@@ -61,8 +61,7 @@
         ],
         
         responsive: true,       
-        ajax: '{!! URL::route("HRD-get") !!}',
-        
+        ajax: '{!! URL::route("HRD-get") !!}'
     });
 
     $(document).on('click','#tables tr td a[title="Detail"]',function(e) {

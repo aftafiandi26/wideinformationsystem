@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('title')
-    (hr) Index Request Form
+    (hr) Access Network Check for WFH
 @stop
 
 @section('top')
@@ -143,7 +143,7 @@
 @section('body')
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">Form Request WFH</h1>
+            <h1 class="page-header">Access Network Check for WFH</h1>
         </div>
     </div>
 
@@ -300,7 +300,7 @@
                                 value="1" @if ($data->net_quality === 1) checked @endif disabled>
                             <label for="net_quality_bad">Not Good</label>
                             <input type="radio" id="net_quality_good" class="custom-radio" name="network_quality"
-                                value="2" @if ($data->net_quality === 1) checked @endif disabled>
+                                value="2" @if ($data->net_quality === 2) checked @endif disabled>
                             <label for="net_quality_good">Good</label>
                             <input type="radio" id="net_quality_excellent" class="custom-radio" name="network_quality"
                                 value="3" @if ($data->net_quality === 3) checked @endif disabled>

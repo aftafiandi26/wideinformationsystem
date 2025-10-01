@@ -92,7 +92,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Employes</th>
+                        <th>Employee</th>
                         <th>Position</th>
                         <th>Date</th>
                         <th>Project</th>

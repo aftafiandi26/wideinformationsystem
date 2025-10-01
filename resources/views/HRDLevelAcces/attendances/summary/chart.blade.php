@@ -11,7 +11,7 @@
     @include('assets_css_4')
     @include('asset_select2')
 
-    <link rel="stylesheet" href="{{ asset('assets/apexchart/dist/apexcharts.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/assets/apexchart/dist/apexcharts.css') }}">
 @stop
 
 @section('navbar')
@@ -53,12 +53,6 @@
 
 <div class="row">
     <div class="col-lg-12">
-        <div id="chart"></div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-12">
         <table class="table table-condensed table-striped table-hover table-bordered" width="100%" id="tables">
             <thead>
                 <tr>
@@ -69,7 +63,6 @@
                     <th>Check Out</th>
                     <th>Condition</th>
                     <th>Health</th>
-                    <th>Projects</th>
                 </tr>
             </thead>
         </table>
@@ -98,7 +91,6 @@ $('table#tables').DataTable({
         { "data": "end"},
         { "data": "condition"},
         { "data": "health"},
-        { "data": "projects"},
     ],
     "dom": 'Blfrtip',
     "buttons": [{
@@ -111,12 +103,10 @@ $('table#tables').DataTable({
 @stop
 
 @push('js')
-<script src="{{ asset('assets/apexchart/dist/apexcharts.js') }}"></script>
+<script src="{{ asset('assets/assets/apexchart/dist/apexcharts.js') }}"></script>
 
 <script>
     $(document).ready(function () {
-
-        var heighted = 300;
 
         var options = {
             series: [{
@@ -124,7 +114,7 @@ $('table#tables').DataTable({
                 data: <?= json_encode($percentages); ?>
             }],
             chart: {
-                height: heighted,
+                height: 350,
                 type: 'bar',
             },
             plotOptions: {
@@ -186,8 +176,9 @@ $('table#tables').DataTable({
                 }            
             },
             title: {
-                text: "# Rate Employes Condition on {{ $start }} - {{ $end }}",
-                floating: true,          
+                text: '# Rate Employes Condition',
+                floating: true,
+                offsetY: 330,
                 align: 'center',
                 style: {
                     color: '#444'
@@ -204,7 +195,7 @@ $('table#tables').DataTable({
                 data: <?= json_encode($percent_Q2); ?>
             }],
             chart: {
-                height: heighted,
+                height: 350,
                 type: 'bar',
             },
             plotOptions: {
@@ -266,8 +257,9 @@ $('table#tables').DataTable({
                 }            
             },
             title: {
-                text: "# Rate Employes Health on {{ $start }} - {{ $end }}",
-                floating: true,             
+                text: '# Rate Employes Health',
+                floating: true,
+                offsetY: 330,
                 align: 'center',
                 style: {
                     color: '#444'
@@ -280,41 +272,6 @@ $('table#tables').DataTable({
 
         var q2 = new ApexCharts(document.querySelector("#quest2"), options1);
         q2.render();
-
-        var options = {
-            series: [{
-                name: "people",
-                data: <?= $jsonResult ?>,
-            }],
-            chart: {
-                type: 'bar',  
-                height: heighted          
-            },
-            plotOptions: {
-                bar: {
-                borderRadius: 4,
-                borderRadiusApplication: 'end',
-                horizontal: true,
-            }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            xaxis: {
-                categories: <?= $jsonProject ?>,
-            },
-            title: {
-                text: "Project Daily on {{ $start }} - {{ $end }}",
-                floating: true,             
-                align: 'center',
-                style: {
-                    color: '#444'
-                }
-            }        
-        };
-
-        var chart = new ApexCharts(document.querySelector("#chart"), options);
-        chart.render();
 
     });
 </script>

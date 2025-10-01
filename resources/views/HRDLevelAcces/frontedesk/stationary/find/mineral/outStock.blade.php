@@ -26,7 +26,7 @@
     </div>
 </div>
 @include('asset_feedbackErrors')
-<form action="{{route('stationery/mineral/find/out/post', [$stocks->id, $month])}}" method="post">
+<form action="{{route('stationery/mineral/out/store', [$stocks->id])}}" method="post">
     {{ csrf_field() }}
     <div class="row">
         <div class="col-lg-3">
@@ -115,7 +115,7 @@
         <div class="col-lg-6">
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">Out Item</button>
-                <a href="{{route('stationery/mineral/find/index', $month)}}" class="btn btn-sm btn-default">Back</a>
+                <a href="{{route('stationery/mineral/index')}}" class="btn btn-sm btn-default">Back</a>
             </div>
         </div>
     </div>

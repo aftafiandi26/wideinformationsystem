@@ -20,8 +20,8 @@ use App\stationary_transaction;
                         <th colspan="5">STATIONERY INVENTORY STOCK</th>
                     </tr>
                     <tr>
-                        <th colspan="5">PERIODE {{strtoupper(date('F Y'))}}</th>
-                        <?php for ($i=1; $i <=30 ; $i++) {
+                        <th colspan="5">PERIODE {{strtoupper(date('F Y', strtotime($month)))}}</th>
+                        <?php for ($i=1; $i <= $lastDay ; $i++) {
                             echo "<th></th>";
                         } ?>
                         <th colspan="6" style="text-align: right;">Update On : {{date('M, d Y')}}</th>
@@ -40,7 +40,7 @@ use App\stationary_transaction;
                     <th rowspan="2" style="text-align: center;">UOM</th>
                     <th rowspan="2" style="text-align: center;">Brand</th>
                     <th rowspan="2" style="text-align: center;">Stock</th>
-                    <th colspan="31" style="text-align: center;">Date Items Out <i>{{date('F Y')}}</i></th>
+                    <th colspan="{{ $lastDay }}" style="text-align: center;">Date Items Out <i>{{date('F Y', strtotime($month))}}</i></th>
                     <th rowspan="2" style="text-align: center;">Total Items Out</th>
                     <th rowspan="2" style="text-align: center;">IN (Purchase)</th>
                     <th rowspan="2" style="text-align: center;">Balance Stock</th>
@@ -53,8 +53,8 @@ use App\stationary_transaction;
                     <td></td>
                     <td></td>
                     <td></td>            
-                    <?php for ($i=1; $i <=31 ; $i++) { 
-                       echo "<th>$i</th>";
+                    <?php for ($i=1; $i <= $lastDay ; $i++) { 
+                        echo "<th>$i</th>";
                     } ?> 
                     <td></td>
                     <td></td>
@@ -63,44 +63,60 @@ use App\stationary_transaction;
               </tr>          
             </thead>
             <tbody>
-                @foreach ($waters as $key => $value)
-                    <tr>
-                        <td style="text-align: center;">{{ $key + 1 }}td>
-                        <td style="text-align: center;">{{$value->kode_barang}}</td>
-                        <td style="text-align: left;">{{$value->name_item}}</td>
-                        <td style="text-align: center;">{{$value->satuan}}</td>
-                        <td style="text-align: center;">{{$value->merk}}</td>
-                        <td style="text-align: center;">{{$value->stock_barang}}</td>   
+                <?php foreach ($waters as $key => $value): ?>
+                <tr>
+                    <td style="text-align: center;">{{$key + 1}}</td>
+                    <td style="text-align: center;">{{$value->kode_barang}}</td>
+                    <td style="text-align: left;">{{ $value->name_item }}</td>
+                    <td style="text-align: center;">{{$value->satuan}}</td>
+                    <td style="text-align: center;">{{$value->merk}}</td>
+                    <td style="text-align: center;">
+                        @foreach ($array_waters as $water)
+                            @if ($water['id'] === $value->id)
+                                {{ $water['stocked'] }}
+                            @endif
+                        @endforeach
+                    </td>               
+                    @for ($i = 1; $i <= $lastDay; $i++)
+                    <td style="text-align: center;" id="das">
+                        @foreach ($array_out_waters as $water)
+                            @if ($water['id'] === $value->id && $water['day'] === $i)
+                                {{ $water['value'] }}
+                            @endif
+                        @endforeach                                             
+                    </td>
+                    @endfor              
+                    @foreach ($array_waters as $water)
+                        @if ($water['id'] === $value->id)
+                            <td style="text-align: center;">{{ $water['out_count'] }}</td>
+                            <td style="text-align: center;">{{ $water['in_count'] }}</td>
+                            <td style="text-align: center;">{{ $water['balance'] }}</td>
+                        @endif
+                    @endforeach
+                    <td style="text-align: center;">{{date('M, d-Y', strtotime($value->date_stock))}}</td>                 
                         
-                        @for ($i = 1; $i <= 31; $i++)
-                        <td style="text-align: center;">
-                           {{ stationary_transaction::where('key_param', $key_param)->where('kode_barang', $value->kode_barang)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }}                          
-                        </td>
-                        @endfor
-                        <td style="text-align: center;">{{$value->total_out_stock}}</td>
-                        <td style="text-align: center;">{{ stationary_transaction::where('kode_barang', $value->kode_barang)->where('status_transaction', 1)->whereYear('date_in_stock', date('Y'))->whereMonth('date_in_stock', date('m'))->pluck('in_stock')->sum() }}</td>
-                        <td style="text-align: center;">{{$value->balance_stock}}</td>
-                        <td style="text-align: center;">{{date('M, d-Y', strtotime($value->date_stock))}}</td> 
-                    </tr>
-                @endforeach
+                </tr>
+                <?php endforeach ?>                
             </tbody>
             <tfoot>                
                 <tr>
-                   <th colspan="5" style="text-align: right;">Total</th>
-                   <th style="text-align: center;">{{ $waters->pluck('stock_barang')->sum() }}</th>
- 
-                   @for ($i = 1; $i <= 31; $i++)
-                   <th style="text-align: center;">
-                      {{ stationary_transaction::where('key_param', $key_param)->where('status_transaction', 2)->whereYear('date_out_stock', date('Y'))->whereMonth('date_out_stock',date('m'))->whereDay('date_out_stock', $i)->pluck('out_stock')->sum() }}                          
-                   </th>
-                   @endfor
- 
-                   <th style="text-align: center;">{{ $waters->pluck('total_out_stock')->sum() }}</th>
-                   <th style="text-align: center;">{{ $waters->pluck('in_purchase')->sum() }}</th>
-                   <th style="text-align: center;">{{ $waters->pluck('balance_stock')->sum() }}</th>
-                   <th colspan="6"></th>
+                    <th colspan="5" style="text-align: right;">Total</th>
+                    <th style="text-align: center;">{{ $total_tfoot['totalStocked'] }}</th>
+                    @for ($i = 1; $i <= $lastDay; $i++)
+                        <th style="text-align: center;">
+                            @foreach ($array_tfoot_out as $water)
+                                @if ($water['day'] === $i)
+                                    {{ $water['value'] }}
+                                @endif
+                            @endforeach
+                        </th>
+                    @endfor
+                    <th style="text-align: center;">{{ $total_tfoot['total_tfoot_out'] }}</th>
+                    <th style="text-align: center;">{{ $total_tfoot['total_tfoot_in'] }}</th>
+                    <th style="text-align: center;">{{ $total_tfoot['total_tfoot_balance'] }}</th>
+                    <td></td>
                 </tr>
-             </tfoot>
+                </tfoot>
         </table>
     </div>
 

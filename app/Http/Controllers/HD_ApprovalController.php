@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\Outsource\Form\Leave\ApprovedLeaveMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
@@ -20,7 +21,7 @@ use App\Dept_Category;
 use App\Leave;
 use App\Leave_Category;
 use App\Initial_Leave;
-use Mail;
+use Illuminate\Support\Facades\Mail;   
 use DB;
 
 class HD_ApprovalController extends Controller
@@ -431,6 +432,22 @@ class HD_ApprovalController extends Controller
       ];
     }
 
+    if ($email->emp_status === "Outsource") {
+      $data = [
+        'ap_hd' => 1,
+        'date_ap_hd' => date("Y-m-d"),
+        'ver_hr' => 1,
+        'ap_hrd' => 1,
+        'ap_gm' => 1,
+        'resendmail' => 0,
+      ];
+
+      Leave::where('id', $id)->update($data);
+      Session::flash('message', Lang::get('messages.data_updated', ['data' => 'leave']));
+      Mail::to($email->email)->send(new ApprovedLeaveMail($id));
+      return Redirect::route('leave/HD_approval');
+    }
+
     Leave::where('id', $id)->update($data);
     Session::flash('message', Lang::get('messages.data_updated', ['data' => 'leave']));
 
@@ -506,6 +523,22 @@ class HD_ApprovalController extends Controller
       'date_ap_hrd'       => date("Y-m-d"),
       'resendmail'        => 0,
     ];
+    
+    if ($email->emp_status === "Outsource") {
+      $data = [
+        'ap_hd' => 2,
+        'date_ap_hd' => date("Y-m-d"),
+        'ver_hr' => 2,
+        'ap_hrd' => 5,
+        'ap_gm' => 2,
+        'resendmail' => 0,
+      ];
+
+      Leave::where('id', $id)->update($data);
+      Session::flash('message', Lang::get('messages.data_updated', ['data' => 'leave']));
+      Mail::to($email->email)->send(new ApprovedLeaveMail($id));
+      return Redirect::route('leave/HD_approval');
+    }
 
     Leave::where('id', $id)->update($data);
     Session::flash('message', Lang::get('messages.data_updated', ['data' => 'leave']));

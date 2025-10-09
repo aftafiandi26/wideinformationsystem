@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendingApplyingLeaveMail extends Mailable
+class ApprovedLeaveMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -31,6 +31,7 @@ class SendingApplyingLeaveMail extends Mailable
     public function build()
     {
         $leave = Leave::find($this->data);
-        return $this->view('leave.outsources.leave.formLeave.mails.sendingApplying', compact('leave'))->subject('[Aproval] Leave Application - WIS');
+        $keu = "approved";
+        return $this->view('leave.outsources.leave.formLeave.mails.approved', compact('leave', 'keu'))->subject('[Approved] Leave Application - WIS');
     }
 }

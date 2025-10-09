@@ -110,7 +110,7 @@ class HRDLevelAccess extends Controller
             ->whereNotIn('users.username', ['admin', 'hr', 'wis_system'])
             ->whereNotIn('users.nik', ["", "123456789"])
             ->where('users.active', 1)            
-            ->whereIn('users.id', [226, 130])
+            // ->whereIn('users.id', [226, 130])
             ->orderBy('users.first_name', 'asc')
             ->get();
 

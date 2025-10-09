@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Route;
 
 //  Start Route Resource
 //  Route Index
@@ -578,7 +579,7 @@ Route::prefix('HRD')->group(function () {
         Route::post('attendances/delete/{id}', 'HR_Attendance_Controller@removed')->name('hr/summary/attendance/removed');
         Route::post('attendances/insert', 'HR_Attendance_Controller@insert')->name('hr/summary/attendance/insert');
         Route::get('attendances/reset/{id}', 'HR_Attendance_Controller@reset')->name('hr/summary/attendance/reset');
-        
+
         Route::post('attendances/employes', 'HR_Attendance_Controller@convertEmp')->name('hr/summary/attendance/summary/employes/convert');
         Route::get('attendances/employes/{selectEmp}/{empDateStarted}/{empDateEnded}', 'HR_Attendance_Controller@summaryEmp')->name('hr/summary/attendance/summary/employes');
         Route::get('attendances/employes/data/{selectEmp}/{empDateStarted}/{empDateEnded}', 'HR_Attendance_Controller@dataSummaryEmp')->name('hr/summary/attendance/summary/employes/data');
@@ -586,11 +587,11 @@ Route::prefix('HRD')->group(function () {
         Route::post('attendances/employes/push/{id}', 'HR_Attendance_Controller@SummaryEmpUpdate')->name('hr/summary/attendance/summary/employes/update');
         Route::get('attendances/employes/delete/{id}/{selectEmp}/{empDateStarted}/{empDateEnded}', 'HR_Attendance_Controller@DeleteEmp')->name('hr/summary/attendance/summary/employes/delete');
         Route::post('attendances/employes/delete/post/{id}', 'HR_Attendance_Controller@removeEmp')->name('hr/summary/attendance/summary/employes/delete/post');
-        
+
         Route::get('attendances/chart/{start}/{end}', 'HR_Attendance_Controller@chart')->name('hr/summary/attendance/chart');
         Route::post('attendances/chart/get', 'HR_Attendance_Controller@getChart')->name('hr/summary/attendance/chart/get');
         Route::get('attendances/chart/datatables/{start}/{end}', 'HR_Attendance_Controller@chartDatatables')->name('hr/summary/attendance/chart/datatables');
-        
+
         Route::prefix('Attendance')->group(function () {
             Route::get('index', 'HR2Controller@indexAttendace')->name('indexHrAttendace');
             Route::get('index/data', 'HR2Controller@dataAttendace')->name('indexDataAttendance');
@@ -601,7 +602,7 @@ Route::prefix('HRD')->group(function () {
             Route::get('index/Day', 'HR2Controller@indexPerDayAttendance')->name('indexPerDayAttendance');
             Route::get('getListtAttendance', 'HR2Controller@getListtAttendance')->name('getListtAttendance');
             Route::get('getListtAttendance/{id}', 'HR2Controller@editGetListDataAttendance')->name('editGetListDataAttendance');
-             Route::get('getListtAttendance/{id}/modal', 'HR2Controller@modalDeletegetListtAttendance')->name('editGetListDataAttendance/modalDelete');
+            Route::get('getListtAttendance/{id}/modal', 'HR2Controller@modalDeletegetListtAttendance')->name('editGetListDataAttendance/modalDelete');
             Route::post('getListtAttendance/{id}/modal/post', 'HR2Controller@updateDeleteAbove')->name('editGetListDataAttendance/modalDelete/post');
             Route::post('getListtAttendance/{id}', 'HR2Controller@updateGetListDataAttendance')->name('updateGetListDataAttendance');
             Route::get('downloadAttendance/{startDate}/{endDate}/{id}', 'HR2Controller@downloadExcelListAttendance')->name('downloadExcelListAttendance');
@@ -686,7 +687,7 @@ Route::prefix('HRD')->group(function () {
 
     route::get('indexEndEmployee', 'HRDLevelAccess@indexEndEmployee')->name('indexEndEmployee');
     route::get('getEndEmployee', 'HRDLevelAccess@getEndEmployee')->name('getEndEmployee');
-    
+
     Route::prefix('project')->group(function () {
         Route::get('group-name/data', 'HRDLevelAccess@groupProject')->name('hrd/project-group/data');
         Route::get('group-name/data/{id}', 'HRDLevelAccess@groupProjectModal')->name('hrd/project-group/show');
@@ -696,7 +697,7 @@ Route::prefix('HRD')->group(function () {
         Route::post('group-name/project3/{id}', 'HRD_ProjectController@storerProject3')->name('hrd/project-group/project3');
         Route::post('group-name/project4/{id}', 'HRD_ProjectController@storerProject4')->name('hrd/project-group/project4');
     });
-    
+
     route::prefix('Detail')->group(function () {
         route::get('detailTotalEmployee', 'HRDLevelAccess@detailTotalEmployee')->name('detailTotalEmployee');
         route::get('getdetailTotalEmployee', 'HRDLevelAccess@getdetailTotalEmployee')->name('getdetailTotalEmployee');
@@ -721,12 +722,12 @@ Route::prefix('HRD')->group(function () {
         Route::post('post-ViewOffYear', 'HRDLevelAccess@storeAddViewOffYears')->name('storeAddViewOffYears');
         Route::get('delete-ViewOffYear/{id}', 'HRDLevelAccess@deleteViewOffYears')->name('deleteViewOffYears');
     });
-    
+
     Route::prefix('entitled')->group(function () {
         Route::get('list', 'HRLeaveEntitled@index')->name('hr/entitled/index');
         Route::get('list/data', 'HRLeaveEntitled@dataObject')->name('hr/entitled/index/data');
     });
-    
+
     Route::get('weekend-crew', 'HR_Weekend_Crew_controller@indexSummary')->name('hrd/weekend-crew/index');
     Route::get('weekend-crew/data', 'HR_Weekend_Crew_controller@dataTabalesSummary')->name('hrd/weekend-crew/summary/data');
     Route::get('weekend-crew/data/{id}', 'HR_Weekend_Crew_controller@showDataSummary')->name('hrd/weekend-crew/summary/data/show');
@@ -773,8 +774,8 @@ Route::prefix('frontdesk')->group(function () {
         Route::post('month/{id}/{month}/post', 'FrontdeskStationeryMonthController@storeInStocked')->name('stationery/atk/month/purchase/store');
         Route::get('month/out/{id}/{month}', 'FrontdeskStationeryMonthController@outStocked')->name('stationery/atk/month/out/index');
         Route::post('month/out/{id}/{month}/post', 'FrontdeskStationeryMonthController@storeOutStocked')->name('stationery/atk/month/out/store');
-        
-         Route::get('mineral', 'FrontdeskMineralController@index')->name('stationery/mineral/index');
+
+        Route::get('mineral', 'FrontdeskMineralController@index')->name('stationery/mineral/index');
         Route::get('mineral/add', 'FrontdeskMineralController@addStock')->name('stationery/mineral/add');
         Route::post('mineral/store', 'FrontdeskMineralController@storeStock')->name('stationery/mineral/store');
         Route::get('mineral/pruchase/{id}', 'FrontdeskMineralController@inStocked')->name('stationery/mineral/purcahse/add');
@@ -797,13 +798,13 @@ Route::prefix('frontdesk')->group(function () {
         Route::post('mineral/find/in/post/{id}/{month}', 'FrontdeskMineralMonthController@storeInStocked')->name('stationery/mineral/find/post');
         Route::get('mineral/find/out/{id}/{month}', 'FrontdeskMineralMonthController@outStocked')->name('stationery/mineral/find/out');
         Route::post('mineral/find/out/post/{id}/{month}', 'FrontdeskMineralMonthController@storeOutStocked')->name('stationery/mineral/find/out/post');
-        
+
         Route::get('mineral/history/search/form', 'FrontdeskMineralHistoricalController@formSearch')->name('stationery/mineral/history/search');
         Route::get('mineral/history/{year}/{month}', 'FrontdeskMineralHistoricalController@index')->name('stationery/mineral/history/index');
         Route::get('mineral/tracking/{id}', 'FrontdeskMineralTrackingController@index')->name('statinery/mineral/tracking/index');
         Route::get('mineral/tracking/data/{id}', 'FrontdeskMineralTrackingController@objectIndex')->name('statinery/mineral/tracking/index/data');
-        
-         Route::prefix('Category')->group(function () {
+
+        Route::prefix('Category')->group(function () {
             Route::get('index', 'FrontdeskController@indexKategoryStationary')->name('indexKategoryStationary');
             Route::get('index/data', 'FrontdeskController@dataIndexCategory')->name('dataKategoryStationary');
             Route::get('add', 'FrontdeskController@addKategoryStationary')->name('addKategoryStationary');
@@ -862,7 +863,7 @@ Route::prefix('forfeited')->group(function () {
     // pemotongan untuk cuti hangus
     Route::get('cutOff/{id}/{forfeited}', 'HRForfeited@cutOffForfeited')->name('forfeited/cutOff');
     Route::post('cutOff', 'HRForfeited@storeCutOffForfeited')->name('forfeited/cutOff/post');
-    
+
     Route::get('form', 'HR_ForfeitedForm_Controller@index')->name('forfeited/form/index');
     Route::get('form/datatables', 'HR_ForfeitedForm_Controller@datatables')->name('forfeited/form/index/datatables');
     Route::get('form/modalformleave/{id}', 'HR_ForfeitedForm_Controller@modalformleave')->name('forfeited/form/modalformleave');
@@ -942,7 +943,7 @@ Route::prefix('Pipeline')->group(function () {
         Route::get('availability/scrapped/data', 'PipelineWorkstationsAvailability@dataScrapped')->name('pipeline/workstations/availability/scrapped/data');
         Route::get('availability/scrapped/notes/{id}', 'PipelineWorkstationsAvailability@scrappedNoted')->name('pipeline/workstations/availability/scrapped/notes');
     });
-    
+
     Route::get('leave/hd/pipeline', 'HD_PipelineApporvalController@index')->name('leave/hd/pipeline');
     Route::get('leave/hd/pipeline/data', 'HD_PipelineApporvalController@dataTables')->name('leave/hd/pipeline/data');
     Route::get('leave/hd/pipeline/{data}', 'HD_PipelineApporvalController@modalApproval')->name('leave/hd/pipeline/id');
@@ -1004,7 +1005,7 @@ Route::prefix('Information-IT')->group(function () {
         Route::post('fails/update/{id}', 'ITWSAvailability@updateFails')->name('workstations/availability/fails/update');
         Route::get('fails/delete/{id}', 'ITWSAvailability@deleteFails')->name('workstations/availability/fails/delete');
         Route::get('fails/delete/post/{id}', 'ITWSAvailability@postDeleteFails')->name('workstations/availability/fails/delete/post');
-        
+
         Route::get('add-workstation', 'ITWSAvailability@add')->name('workstations/availability/add');
         Route::post('store-workstation', 'ITWSAvailability@store')->name('workstations/availability/store');
     });
@@ -1184,7 +1185,7 @@ Route::prefix('registration')->group(function () {
     Route::get('it/form/requested/progress', 'ITformOvertimesController@indexProgress')->name('form/overtime/progress/index');
     Route::get('it/form/requested/progress/data', 'ITformOvertimesController@dataProgress')->name('form/overtime/progress/index/data');
     Route::get('it/form/requested/progress/{id}', 'ITformOvertimesController@modalProgressing')->name('form/overtime/progress/modal');
-    
+
     Route::get('history/overtime', 'ITDataOvertimeMonth@index')->name('it/form/history/index');
     Route::get('history/overtime/data', 'ITDataOvertimeMonth@dataIndex')->name('it/form/history/index/data');
     Route::get('history/overtime/user', 'ITDataOvertimeMonth@indexUser')->name('it/form/history/user/index');
@@ -1352,7 +1353,7 @@ Route::prefix('register')->group(function () {
     Route::get('form/approval/coordinator/modal/{id}', 'FormOvertimesApprovalController@modalCoordinatorApproved')->name('form/approval/coordinator/approved');
     Route::post('form/approval/coordinator/approved/{id}', 'FormOvertimesApprovalController@approvedCoordinator')->name('form/approval/coordinator/approved/post');
     Route::post('form/approval/coordinator/disapproved/{id}', 'FormOvertimesApprovalController@disapprovedCoordinator')->name('form/approval/coordinator/disapproved/post');
-    
+
     // Working on Weekends for Coordinator -> ini dia
     Route::get('working-weekend/form-not-accessed', 'CoordinatorWorkingWeekendsController@notAccessed')->name('coordinator/working/weekends/form/not-accessed');
     Route::get('working-weekend/form', 'CoordinatorWorkingWeekendsController@form')->name('coordinator/working/weekends/form');
@@ -1418,7 +1419,7 @@ Route::get('employee/exit-interview-form', 'AllEmployee_2Controller@indexEmploye
 
 Route::prefix('general-manager')->group(function () {
     // Working on Weekend General Manager
-     Route::get('remote-access/summary', 'GeneralManager_SummaryRemoteAccessVPN_Controller@index')->name('gm/remote-access/summary/index');
+    Route::get('remote-access/summary', 'GeneralManager_SummaryRemoteAccessVPN_Controller@index')->name('gm/remote-access/summary/index');
     Route::get('remote-access/summary/{date}', 'GeneralManager_SummaryRemoteAccessVPN_Controller@dataIndex')->name('gm/remote-access/summary/index/data');
 
     Route::get('remote-access/summary/month/{date}', 'GeneralManager_SummaryRemoteAccessVPN_Controller@indexMonthly')->name('gm/remote-access/summary/month/index');
@@ -1454,7 +1455,7 @@ Route::prefix('general-manager')->group(function () {
 });
 
 // Menu Role Admin - Production
-Route::prefix('admin-production')->group(function() {
+Route::prefix('admin-production')->group(function () {
     Route::get('summary/attendance', 'GM_Summary_AttendancesController@index')->name('gm/summary/attendance/index');
     Route::get('summary/attendance/data', 'GM_Summary_AttendancesController@dataTablesIndex')->name('gm/summary/attendance/index/data');
     Route::get('summary/attendance/data/show/{id}/{date}', 'GM_Summary_AttendancesController@dataTatablesShowEmployes')->name('gm/summary/attendance/index/data/show');
@@ -1463,14 +1464,14 @@ Route::prefix('admin-production')->group(function() {
     Route::get('summary/attendance/filter/data/{id}/{start}/{end}', 'GM_Summary_AttendancesController@filterDataTablesShowEmployee')->name('gm/summary/attendance/filter/data/show');
     Route::get('summary/attendance/filter/employee', 'GM_Summary_AttendancesController@employeeFilter')->name('gm/summary/attendance/filter/employee');
     Route::get('summary/attendance/filter/employee/{id}/{start}/{end}', 'GM_Summary_AttendancesController@employeeFilterShow')->name('gm/summary/attendance/filter/employee/data');
-    
+
     Route::get('employee-time-sheet', 'GM_ProjectTimeSheetControlller@index')->name('gm/employee-time-sheet/index');
     Route::post('employee-time-sheet/dataFilter', 'GM_ProjectTimeSheetControlller@dataFilter')->name('gm/employee-time-sheet/dataFilter');
     Route::get('employee-time-sheet/filter/{start}/{end}', 'GM_ProjectTimeSheetControlller@filter')->name('gm/employee-time-sheet/filter');
     Route::get('employee-time-sheet/filter/data/{start}/{end}', 'GM_ProjectTimeSheetControlller@dataTablesFilter')->name('gm/employee-time-sheet/filter/data');
     Route::get('employee-time-sheet/filter-day/{start}/{end}', 'GM_ProjectTimeSheetControlller@filterDay')->name('gm/employee-time-sheet/filterDay');
     Route::get('employee-time-sheet/filter-day/data/{start}/{end}', 'GM_ProjectTimeSheetControlller@dataTablesFilterDay')->name('gm/employee-time-sheet/filterDay/data');
-    
+
     Route::get('vpn-beyond-duration', 'ProductionAdminController@index')->name('admin-production/vpn-duration/index');
     Route::get('vpn-beyond-duration/data', 'ProductionAdminController@dataTablesUser')->name('admin-production/vpn-duration/dataTables');
     Route::get('vpn-beyond-duration/show/{id}/{month}/{year}', 'ProductionAdminController@show')->name('admin-production/vpn-duration/show');
@@ -1701,7 +1702,7 @@ Route::prefix('form')->group(function () {
     Route::get('remote-access-wfh/summary', 'HR_NetworkCheckForWFH_Controller@summaryForm')->name('remote-access-wfh/summary');
     Route::get('remote-access-wfh/summary/data', 'HR_NetworkCheckForWFH_Controller@dataTableSummary')->name('remote-access-wfh/summary/data');
     Route::get('remote-access-wfh/summary/{id}', 'HR_NetworkCheckForWFH_Controller@formSummary')->name('remote-access-wfh/summary/form');
-     Route::get('remote-access-wfh/pdf/{id}', 'HR_NetworkCheckForWFH_Controller@pdfSummary')->name('hr/form/remote-access-wfh/pdf');
+    Route::get('remote-access-wfh/pdf/{id}', 'HR_NetworkCheckForWFH_Controller@pdfSummary')->name('hr/form/remote-access-wfh/pdf');
 });
 
 Route::prefix('it-form')->group(function () {
@@ -1712,7 +1713,7 @@ Route::prefix('it-form')->group(function () {
     Route::get('remote-access-wfh/form/modal/vpn03/{id}', 'ITForm_WfhChecklistController@modalButtonVPN03')->name('it/form/remote-access-wfh/form/modal/vpn03');
     Route::get('remote-access-wfh/form/modal/bandwidth/{id}', 'ITForm_WfhChecklistController@modalButtonBandwidth')->name('it/form/remote-access-wfh/form/modal/bandwidth');
     Route::post('remote-access-wfh/form/update/{id}', 'ITForm_WfhChecklistController@updateForm')->name('it/form/remote-access-wfh/form/update');
-    
+
     Route::get('remote-access-wfh/document', 'IT_Admin_NetworkCheckWFH_Controller@index')->name('it/form/remote-access-wfh/document');
     Route::get('remote-access-wfh/document/data', 'IT_Admin_NetworkCheckWFH_Controller@dataTables')->name('it/form/remote-access-wfh/document/data');
     Route::get('remote-access-wfh/document/{data}', 'IT_Admin_NetworkCheckWFH_Controller@form')->name('it/form/remote-access-wfh/document/form');
@@ -1734,12 +1735,12 @@ Route::prefix('event')->group(function () {
     Route::post('infinite-virtual-run/register/post', 'Event\\InfiniteRunController@postRegister')->name('infiniteVirRun/register/post');
     Route::get('infinite-virtual-run/submission', 'Event\\InfiniteRunController@submission')->name('infiniteVirRun/submission');
     Route::post('infinite-virtual-run/submission/post', 'Event\\InfiniteRunController@postSubmssion')->name('infiniteVirRun/submission/post');
-    Route::get('infinite-virtual-run/submission/list', 'Event\\InfiniteRunController@listedSubmission')->name('infiniteVirRun/submission/list');    
-    Route::get('infinite-virtual-run/submission/list/data', 'Event\\InfiniteRunController@datatablesListedSubmission')->name('infiniteVirRun/submission/list/data');    
-    Route::get('infinite-virtual-run/data/male', 'Event\\InfiniteRunController@dataTablesMale')->name('infiniteVirRun/data/male');          
-    Route::get('infinite-virtual-run/data/female', 'Event\\InfiniteRunController@dataTablesFemale')->name('infiniteVirRun/data/female');  
-    Route::get('infinite-virtual-run/e-certificate/{id}', 'Event\\InfiniteRunController@dpfECert')->name('infiniteVirRun/certificate'); 
-    
+    Route::get('infinite-virtual-run/submission/list', 'Event\\InfiniteRunController@listedSubmission')->name('infiniteVirRun/submission/list');
+    Route::get('infinite-virtual-run/submission/list/data', 'Event\\InfiniteRunController@datatablesListedSubmission')->name('infiniteVirRun/submission/list/data');
+    Route::get('infinite-virtual-run/data/male', 'Event\\InfiniteRunController@dataTablesMale')->name('infiniteVirRun/data/male');
+    Route::get('infinite-virtual-run/data/female', 'Event\\InfiniteRunController@dataTablesFemale')->name('infiniteVirRun/data/female');
+    Route::get('infinite-virtual-run/e-certificate/{id}', 'Event\\InfiniteRunController@dpfECert')->name('infiniteVirRun/certificate');
+
     Route::get('virtual-run/registration', 'Event\\Outsider_InfiVirRunController@adminRegistration')->name('outsider/infiniteVirRun/run/adminRegistration');
     Route::get('virtual-run/registration/create', 'Event\\Outsider_InfiVirRunController@modalRegistration')->name('outsider/infiniteVirRun/run/adminRegistration/create');
     Route::post('virtual-run/registration/store', 'Event\\Outsider_InfiVirRunController@storeRegister')->name('outsider/infiniteVirRun/run/adminRegistration/store');
@@ -1748,7 +1749,7 @@ Route::prefix('event')->group(function () {
     Route::post('virtual-run/registration/update/{id}', 'Event\\Outsider_InfiVirRunController@updateAccount')->name('outsider/infiniteVirRun/run/adminRegistration/post');
     Route::get('virtual-run/registration/delete/{id}', 'Event\\Outsider_InfiVirRunController@delete')->name('outsider/infiniteVirRun/run/adminRegistration/delete');
     Route::post('virtual-run/registration/destroy/{id}', 'Event\\Outsider_InfiVirRunController@destroy')->name('outsider/infiniteVirRun/run/adminRegistration/destroy');
-    
+
 });
 
 Route::prefix('event-admin')->group(function () {
@@ -1765,10 +1766,10 @@ Route::prefix('event-admin')->group(function () {
     Route::get('infinite-virtual-run/history', 'Event\\AdminInfVirRunController@history')->name('admin/infinite-virtual-run/history');
     Route::get('infinite-virtual-run/history/data', 'Event\\AdminInfVirRunController@dataTablesHistory')->name('admin/infinite-virtual-run/history/data');
     Route::post('infinite-virtual-run/disqualified/{id}', 'Event\\AdminInfVirRunController@kickOut')->name('admin/infinite-virtual-run/disqualified');
-    
+
     Route::get('infinite-virtual-run/history/delete/{id}', 'Event\\AdminInfVirRunController@deleteHistory')->name('admin/infinite-virtual-run/history/delete');
     Route::post('infinite-virtual-run/history/delete/{id}/post', 'Event\\AdminInfVirRunController@postDeleteHistory')->name('admin/infinite-virtual-run/history/delete/post');
-    
+
     Route::get('infinite-virtual-run/annoucement/external', 'Event\\AdminInfVirRunController@announcement')->name('admin/infinite-virtual-run/announcement/external');
     Route::post('infinite-virtual-run/annoucement/post', 'Event\\AdminInfVirRunController@postAnnouncement')->name('admin/infinite-virtual-run/announcement/post');
 });
@@ -1794,3 +1795,20 @@ Route::prefix('coordinator')->group(function () {
     Route::get('leave-balance', 'CoordinatorLeaveBalanceController@index')->name('coordinator/leave-balance/index');
     Route::get('leave-balance/data', 'CoordinatorLeaveBalanceController@dataTables')->name('coordinator/leave-balance/data');
 });
+
+Route::prefix('outsource')->group(function () {
+    Route::get('leave', 'Outsources\\LeaveController@indexNewApplyOutsource')->name('outsource/leave/outsource');
+    Route::get('leave/create', 'Outsources\\LeaveController@createLeave')->name('outsource/leave/outsource/create');
+    Route::get('leave/review', 'Outsources\\LeaveController@reviewLeave')->name('outsource/leave/outsource/review');
+    Route::post('leave/store', 'Outsources\\LeaveController@storeLeave')->name('outsource/leave/outsource/store');
+    Route::get('holidays/{year}', 'HolidayController@getHolidaysByYear')->name('outsource/holidays');
+
+    Route::get('leave/etc', 'Outsources\\LeaveController@etcLeave')->name('outsource/leave/outsource/etc');
+    
+    // Leave Categories API
+    Route::get('leave/categories', 'Outsources\\LeaveController@getLeaveCategories')->name('outsource/leave/categories');
+    Route::get('leave/categories/{id}', 'Outsources\\LeaveController@getLeaveCategoryById')->name('outsource/leave/categories/show');
+    Route::post('leave/validate', 'Outsources\\LeaveController@validateLeaveRequest')->name('outsource/leave/validate');
+    Route::get('leave/requirements/{id}', 'Outsources\\LeaveController@getLeaveRequirements')->name('outsource/leave/requirements');
+});
+

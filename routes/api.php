@@ -17,3 +17,13 @@ use Illuminate\Http\Request;
     return $request->user();
 });
 */
+
+// Holiday API Routes
+Route::prefix('holidays')->group(function () {
+    Route::get('year/{year}', 'HolidayController@getHolidaysByYear');
+    Route::get('check/{date}', 'HolidayController@checkHoliday');
+    Route::get('range/{startDate}/{endDate}', 'HolidayController@getHolidaysInRange');
+    Route::get('month/{year}/{month}', 'HolidayController@getHolidaysByMonth');
+    Route::get('total/{year}', 'HolidayController@getTotalHolidays');
+    Route::get('available-years', 'HolidayController@getAvailableYears');
+});

@@ -37,7 +37,7 @@
                                 <a class="{!! $c16 or '' !!}" href="{!! URL::route('leave/apply') !!}"><i
                                         class="fa fa-fw fa fa-genderless"></i> Applying Leave </a>
                             </li>
-                            
+
                             @if (auth()->user()->id == 226)
                                 <!--<li>-->
                                 <!--    <a class="{!! $c16 or '' !!}" href="#" id="undermaintanance"-->
@@ -273,7 +273,7 @@
     @if (auth::user()->dept_category_id === 1 or auth::user()->dept_category_id === 10 and auth::user()->hd === 1)
         <!-- WS Availability -->
 
-        @if(auth()->user()->dept_category_id === 1)
+        @if (auth()->user()->dept_category_id === 1)
             <li>
                 <a class="{!! $c3 or '' !!}" href="#"><i class="fa fa-fw fa-home"></i> WS
                     Availability<span class="fa arrow"></span></a>
@@ -548,7 +548,7 @@
     <!-- End WS Availability -->
 
     <!-- End IT Menu -->
-     @if (auth()->user()->dept_category_id === 1 or auth()->user()->dept_category_id === 10)
+    @if (auth()->user()->dept_category_id === 1 or auth()->user()->dept_category_id === 10)
         @include('navbar_left_prodTech')
     @endif
     <!-- Start HR Rusun Menu -->
@@ -1180,7 +1180,7 @@
                 </ul>
             </li>
         @endif --}}
-        
+
 
     <li>
         <a class="{!! $c63 or '' !!}" href="#"><i class="fa fa-fw fa fa-wpforms"></i> Guideline<span
@@ -1200,8 +1200,9 @@
                 <a class="{!! $c1 or '' !!}"
                     href="https://3.basecamp.com/4952258/buckets/20262700/message_boards/7482724197" target="_blank"
                     rel="noopener noreferrer"><i class="fa fa-fw fa fa-genderless"></i> Wiki</a>
-                <a class="{!! $c1 or '' !!}" href="https://3.basecamp.com/4952258/buckets/20262700/messages/8646859089" target="_blank"  rel="noopener noreferrer"><i
-                        class="fa fa-fw fa fa-genderless"></i> WFH</a>
+                <a class="{!! $c1 or '' !!}"
+                    href="https://3.basecamp.com/4952258/buckets/20262700/messages/8646859089" target="_blank"
+                    rel="noopener noreferrer"><i class="fa fa-fw fa fa-genderless"></i> WFH</a>
             </li>
 
         </ul>
@@ -1250,7 +1251,7 @@
     </ul>
 
 </div>
- 
+
 @endif
 
 @if (auth()->user()->evnt_member_outsider == true)

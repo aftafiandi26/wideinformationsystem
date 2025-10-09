@@ -188,7 +188,7 @@ class HRController extends Controller
 
         $level          = ['' => '-Select-', 'USER' => 'User', 'HUMAN RESOURCE' => 'Human Resource', 'HEAD OF DEPARTMENT' => 'Head of Department', 'GENERAL MANAGER' => 'General Manager'];
         $gender         = ['' => '-Select-', 'Male' => 'Male', 'Female' => 'Female'];
-        $emp_status     = ['' => '-Select-', 'Permanent' => 'Permanent', 'Contract' => 'Contract', 'PKL' => 'PKL'];
+        $emp_status     = ['' => '-Select-', 'Permanent' => 'Permanent', 'Contract' => 'Contract', 'PKL' => 'PKL', 'Outsource' => 'Outsource'];
         $marital_status = ['' => '-Select-', 'Single' => 'Single', 'Married' => 'Married', 'Widowed' => 'Widowed [widowed because her husband passed away]', 'Widower' => 'Widower [widower because his wife passed away]', 'Divorced/Divorcee' => 'Divorced/Divorcee'];
         $rusun_stat     = ['' => '-Select-', 'Sharing' => 'Sharing', 'Single Paid' => 'Single Paid', 'Single Free' => 'Single Free', 'None' => 'None'];
 

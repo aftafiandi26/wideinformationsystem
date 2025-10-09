@@ -4,6 +4,7 @@
         -moz-animation: fade-in 1.7s linear infinite alternate;
         animation: fade-in 1.7s linear infinite alternate;
     }
+
     .anic2 {
         -webkit-animation: fade-in 2.3s linear infinite alternate;
         -moz-animation: fade-in 2.3s linear infinite alternate;
@@ -12,17 +13,20 @@
 
 
     @media (max-width: 769px) {
+
         /* layar mobile */
         .paijo {
-            height: 165px;               
-        }      
+            height: 165px;
+        }
+
         ul.santa {
             margin-top: 15px;
             text-align: right;
         }
     }
-    
+
     @media (min-width: 769px) {
+
         /* layar desktop */
         .paijo {
             height: 90px;
@@ -36,7 +40,6 @@
             margin-top: 0px;
         }
     }
-
 </style>
 
 <div class="paijo">
@@ -47,18 +50,20 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="{!! URL::route('index') !!}">      
-            <img width="60px" height="40px" class="img" src="{{asset('assets/Graphic2.png')}}" alt="logo">
+        <a class="navbar-brand" href="{!! URL::route('index') !!}">
+            <img width="60px" height="40px" class="img" src="{{ asset('assets/Graphic2.png') }}" alt="logo">
         </a>
-        <a href="{!! URL::route('index') !!}" class="navbar-brand text-center" id="ceklek"><b>Wide Information System</b><br> <span style="font-size: 14px;" class="anic">Kinema Systrans Multimedia</span><br><span style="font-size: 14px;" class="anic2">Infinite Studios</span></a>        
+        <a href="{!! URL::route('index') !!}" class="navbar-brand text-center" id="ceklek"><b>Wide Information
+                System</b><br> <span style="font-size: 14px;" class="anic">Kinema Systrans Multimedia</span><br><span
+                style="font-size: 14px;" class="anic2">Infinite Studios</span></a>
     </div>
-    
+
     <ul class="nav navbar-top-links navbar-right santa">
         <li class="dropdown">
             <a class="dropdown-toggle  " data-toggle="dropdown" href="#">
                 <i></i> {!! Auth::user()->first_name !!} {!! Auth::user()->last_name !!} <i class="fa fa-caret-down"></i>
             </a>
-    
+
             <ul class="dropdown-menu dropdown-user">
                 @if (auth()->user()->evnt_member_outsider == false)
                     <li>
@@ -69,9 +74,9 @@
                 <li>
                     <a href="{!! URL::route('get_change-password') !!}"><i class="fa fa-lock fa-fw"></i> Change Password </a>
                 </li>
-    
+
                 <li class="divider"></li>
-    
+
                 <li>
                     <a href="{!! URL::route('logout') !!}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
                 </li>

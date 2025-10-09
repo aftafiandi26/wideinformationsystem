@@ -16,6 +16,7 @@ use App\User;
 use App\Forfeited;
 use App\ForfeitedCounts;
 use App\Log_MedicalStaff;
+use App\Services\LeaveBalanceService;
 use App\MedicStaff;
 use App\ViewOffYears;
 use Carbon\Carbon;
@@ -63,17 +64,25 @@ class LeaveController extends Controller
 
     public function dataKota($id)
     {
-        $data = asset('response/js/hometown/' . $id . '.js');
+        // Get the actual file path, not URL
+        $filePath = public_path('response/js/hometown/' . $id . '.js');
 
         try {
-            $response = file_get_contents($data);
-            $response = json_decode($response, true);
-            $return = $response;
-        } catch (\Exception $error) {
-            $return = null;
-        }
+            if (file_exists($filePath)) {
+                $response = file_get_contents($filePath);
+                $response = json_decode($response, true);
 
-        return $return;
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    return response()->json($response);
+                } else {
+                    return response()->json(['error' => 'Invalid JSON format'], 400);
+                }
+            } else {
+                return response()->json(['error' => 'Cities data not found'], 404);
+            }
+        } catch (\Exception $error) {
+            return response()->json(['error' => 'Failed to load cities data'], 500);
+        }
     }
 
     public function indexLeaveApply()
@@ -181,184 +190,82 @@ class LeaveController extends Controller
 
     public function indexNewApply()
     {
-        $annual = DB::table('users')
-            ->leftJoin('initial_leave', 'initial_leave.user_id', '=', 'users.id')
-            ->leftJoin('leave_category', 'leave_category.id', '=', 'initial_leave.leave_category_id')
-            ->leftJoin('leave_transaction', 'leave_transaction.user_id', '=', 'users.id')
+        $leaveBalanceService = new LeaveBalanceService();
+        $userId = auth()->user()->id;
+        $user = User::find($userId);
 
-            ->select([
-                DB::raw('
-            (
-                select (
-                    select COALESCE(sum(total_day), 0) from leave_transaction where user_id=' . Auth::user()->id . ' and leave_category_id=1
-                    and formStat=1
-                )
-            ) as transactionAnnual')
-            ])
-            ->first();
+        // Get annual leave taken using service
+        $annualTaken = $leaveBalanceService->getAnnualLeaveTaken($userId);
 
-        $test =  DB::table('leave_transaction')->where('leave_category_id', 1)->where('user_id', auth()->user()->id)->where('ap_hrd', 1)->get();
+        // Create annual object for backward compatibility
+        $annual = (object) ['transactionAnnual' => $annualTaken];
 
+        // Calculate annual leave balance using service
+        $annualBalance = $leaveBalanceService->calculateAnnualLeaveBalance($user, $annualTaken);
 
-        $user = User::find(auth::user()->id);
+        // Calculate exdo balance using service
+        $exdoBalance = $leaveBalanceService->calculateExdoBalance($userId);
 
-        $startDate = date_create($user->join_date);
-        $endDate = date_create($user->end_date);
+        // Calculate forfeited leave using service
+        $forfeitedData = $leaveBalanceService->calculateForfeitedLeave($userId);
 
+        // Calculate final balance using service
+        $finalBalance = $leaveBalanceService->calculateFinalBalance($annualBalance, $forfeitedData, $user->emp_status);
+
+        // Prepare data for view (maintaining backward compatibility)
         $startYear = date('Y', strtotime($user->join_date));
         $endYear = date('Y', strtotime($user->end_date));
-
-        if (auth::user()->emp_status === "Permanent") {
-            $yearEnd = date('Y');
-        } else {
-            $yearEnd = $endYear;
-        }
-
-        $now = date_create(date("Y-m-d"));
-        $now1 = date_create(date('Y') . '-01-01');
-        $now2 = date_create($yearEnd . '-12-31');
-
-        if ($now <= $endDate) {
-            $nowed = date_create("2023-03-09");
-            $sekarang = $now;
-        } else {
-            $sekarang = $endDate;
-        }
-
-        $cont = date_diff($now, $now1);
-
-
-        $daff = date_diff($startDate, $sekarang)->format('%m') + (12 * date_diff($startDate, $sekarang)->format('%y'));
-
-        $daffPermanent = date_diff($now1, $now);
-        $daffPermanent = $daffPermanent->m;
-
-        $daffPermanent2 = date_diff($now1, $now2)->format('%m') + (12 * date_diff($now1, $now2->modify('+5 day'))->format('%y'));
-
-        $daffPermanent1 = 12 - $daffPermanent;
-
-        if ($daff <= $annual->transactionAnnual) {
-            $newAnnual =  $annual->transactionAnnual;
-        } else {
-            $newAnnual = $daff;
-        }
-
-        $totalAnnual = $newAnnual - $annual->transactionAnnual;
-
-        $at = array(
-            $totalAnnual, $newAnnual, $annual->transactionAnnual, $daff, $sekarang, $now
-        );
-
-        $totalAnnualPermanent = $user->initial_annual - $annual->transactionAnnual;
-
-        $totalAnnualPermanent1 = $totalAnnualPermanent - $daffPermanent1;
-
-        //-------------------------------------------------
-
-        $exdo = Initial_Leave::where('user_id', auth::user()->id)->pluck('initial');
-
-        $w = Initial_Leave::where('user_id', auth::user()->id)
-            ->whereDATE('expired', '<', date('Y-m-d'))
-            ->pluck('initial');
-
-        $expiredExdo = $w;
-
-        // $minusExdo = Leave::where('user_id', auth::user()->id)->where('leave_category_id', 2)->where('ap_hd', 1)->where('ap_gm', 1)->where('ver_hr', 1)->where('ap_hrd', 1)->pluck('total_day');
-        $minusExdo = Leave::where('user_id', auth::user()->id)->where('leave_category_id', 2)->where('formStat', true)->pluck('total_day');
-
-        $goingExdo = 0;
-
-        if ($expiredExdo->sum() >= $minusExdo->sum()) {
-            $goingExdo = $expiredExdo->sum() - $minusExdo->sum();
-        }
-
-        $sisaExdo = $exdo->sum() - $minusExdo->sum() - $goingExdo;
+        $yearEnd = ($user->emp_status === "Permanent") ? date('Y') : $endYear;
 
         $try = [
-            $sisaExdo,
-            $exdo->sum(),
-            $minusExdo->sum(),
-            $goingExdo,
-            "---",
-            $expiredExdo->sum()
+            'annual' => $annualTaken,
+            'totalAnnual' => $annualBalance['total_annual'],
+            'totalAnnualPermanent1' => $annualBalance['total_annual_permanent'],
+            'remainExdo' => $exdoBalance['remaining_exdo'],
+            'startYear' => $startYear,
+            'yearEnd' => $yearEnd,
+            'user' => $user->initial_annual,
+            'exdo' => $exdoBalance['total_exdo'],
+            'minusExdo' => $exdoBalance['exdo_taken'],
+            'w' => $exdoBalance['expired_exdo'],
+            'forfeited' => $forfeitedData['forfeited'],
+            'forfeitedCounts' => $forfeitedData['forfeited_counts'],
+            'countAmount' => $forfeitedData['count_amount'],
+            'bla' => $forfeitedData['valid_forfeited'],
+            'renewPermanet' => $finalBalance['renew_permanent'],
+            'renewContract' => $finalBalance['renew_contract']
         ];
 
-        $test = [
-            'exdo' => $exdo->sum(),
-            'w'    => $w->sum(),
-            'minusExdo'  => $minusExdo->sum(),
-            'sisaExdo'    => $sisaExdo,
-            'goingExdo'   => $goingExdo
-        ];
-
-        $forfeited = Forfeited::where('user_id', auth::user()->id)->pluck('countAnnual');
-        $forfeitedCounts = ForfeitedCounts::where('user_id', auth::user()->id)->where('status', 1)->pluck('amount');
-        $countAmount = $forfeited->sum() - $forfeitedCounts->sum();
-
-        $bla = 0;
-        if ($countAmount >= 0) {
-            $bla = $countAmount;
-        } else {
-            $bla = 0;
+        if (auth()->user()->emp_status === "Outsource") {
+            return redirect()->route('outsource/leave/outsource');
         }
-
-        $bla = 0;
-        if ($countAmount >= 0) {
-            $bla = $countAmount;
-        } else {
-            $bla = 0;
-        }
-
-        $renewPermanet = $totalAnnualPermanent1 - $bla;
-        $renewContract = $totalAnnual - $bla;
-
-
-        if (auth()->user()->emp_status === "PKL") {
-            $totalAnnual = 0;
-            $renewContract = 0;
-        }
-
-        $try = [
-            'annual'      => $annual->transactionAnnual,
-            'totalAnnual' => $totalAnnual,
-            'totalAnnualPermanent1' => $totalAnnualPermanent1,
-            'remainExdo'     => $sisaExdo,
-            'startYear'     => $startYear,
-            'yearEnd'       => $yearEnd,
-            'user'      => $user->initial_annual,
-            'exdo'      => $exdo,
-            'minusExdo' => $minusExdo,
-            'w' => $w,
-            'forfeited'         => $forfeited,
-            'forfeitedCounts'   => $forfeitedCounts,
-            'countAmount'       => $countAmount,
-            'bla'               => $bla,
-            'renewPermanet'     => $renewPermanet,
-            'renewContract'     => $renewContract
-        ];
-
-        // dd($try);
 
         return view('leave.NewAnnual.indexNewAnnual', [
-            'annual'      => $annual,
-            'totalAnnual' => $totalAnnual,
-            'totalAnnualPermanent1' => $totalAnnualPermanent1,
-            'remainExdo'     => $sisaExdo,
-            'startYear'     => $startYear,
-            'yearEnd'       => $yearEnd,
-            'user'      => $user,
-            'exdo'      => $exdo,
-            'minusExdo' => $minusExdo,
-            'w' => $w,
-            'forfeited'         => $forfeited,
-            'forfeitedCounts'   => $forfeitedCounts,
-            'countAmount'       => $countAmount,
-            'bla'               => $bla,
-            'renewPermanet'     => $renewPermanet,
-            'renewContract'     => $renewContract,
-            'try'               => $try,
+            'annual' => $annual,
+            'totalAnnual' => $annualBalance['total_annual'],
+            'totalAnnualPermanent1' => $annualBalance['total_annual_permanent'],
+            'remainExdo' => $exdoBalance['remaining_exdo'],
+            'startYear' => $startYear,
+            'yearEnd' => $yearEnd,
+            'user' => $user,
+            'exdo' => $exdoBalance['total_exdo'],
+            'minusExdo' => $exdoBalance['exdo_taken'],
+            'w' => $exdoBalance['expired_exdo'],
+            'forfeited' => $forfeitedData['forfeited'],
+            'forfeitedCounts' => $forfeitedData['forfeited_counts'],
+            'countAmount' => $forfeitedData['count_amount'],
+            'bla' => $forfeitedData['valid_forfeited'],
+            'renewPermanet' => $finalBalance['renew_permanent'],
+            'renewContract' => $finalBalance['renew_contract'],
+            'try' => $try,
         ]);
     }
+
+    /**
+     * Display leave balance for outsource employees
+     * 
+     * @return \Illuminate\View\View
+     */
 
     public function indexDataExdo()
     {
@@ -371,7 +278,7 @@ class LeaveController extends Controller
             ->addIndexColumn()
             ->addColumn('difforHumans', function (Initial_Leave $initial) {
 
-                $carbon =  Carbon::parse($initial->expired)->addDay();
+                $carbon = Carbon::parse($initial->expired)->addDay();
                 return $carbon->diffForHumans();
             })
             ->setRowClass('@if ($expired < date("Y-m-d")){{ "danger" }} @endif')
@@ -452,7 +359,7 @@ class LeaveController extends Controller
 
 
         if ($daff <= $annual->transactionAnnual) {
-            $newAnnual =  $annual->transactionAnnual;
+            $newAnnual = $annual->transactionAnnual;
         } else {
             $newAnnual = $daff;
         }
@@ -547,13 +454,13 @@ class LeaveController extends Controller
         foreach ($pm_category as $value)
             $pmm[$value->email] = $value->first_name . ' ' . $value->last_name;
 
-        $level_hrd =  User::where('level_hrd', '=', 'Senior Pipeline')->where('active', 1)->get();
+        $level_hrd = User::where('level_hrd', '=', 'Senior Pipeline')->where('active', 1)->get();
         foreach ($level_hrd as $value)
-            $level[$value->email] =  $value->first_name . ' ' . $value->last_name;
+            $level[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $ricky = null;
 
-        $ghea =   User::select('email')->where('active', 1)->where('hd', '=', '1')->where('dept_category_id', 6)->pluck('email');
+        $ghea = User::select('email')->where('active', 1)->where('hd', '=', '1')->where('dept_category_id', 6)->pluck('email');
 
         $generalManager = User::where('active', 1)->where('gm', 1)->first();
 
@@ -582,7 +489,7 @@ class LeaveController extends Controller
 
         $lineProducer = User::where('active', 1)->where('producer', 1)->where('dept_category_id', 6)->orderBy('first_name', 'asc')->get();
         foreach ($lineProducer as $value)
-            $producer[$value->email] =  $value->first_name . ' ' . $value->last_name;
+            $producer[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $supervisor = User::where('active', 1)->where('spv', 1)->whereIn('dept_category_id', [4, 6])->orderBy('first_name', 'asc')->get();
         foreach ($supervisor as $value)
@@ -636,7 +543,7 @@ class LeaveController extends Controller
                 $labelEmailHOD = 'Head of Department :';
             }
         }
-      
+
         $holiday = ViewOffYears::select('date')->whereYear('date', date('Y'))->pluck('date');
         $subHoly = json_encode($holiday, true);
 
@@ -652,7 +559,7 @@ class LeaveController extends Controller
                 'ent_annual' => $ent_annual->entitle_ann,
                 'proe' => $proe,
                 'pro_category' => $pro_category,
-                'pmm'       => $pmm,
+                'pmm' => $pmm,
                 'pm_category' => $pm_category,
                 'level' => $level,
                 'ricky' => $ricky,
@@ -661,15 +568,15 @@ class LeaveController extends Controller
                 'emailHOD' => $emailHOD,
                 'infiniteApproved' => $infiniteApproved,
                 'johnReedel' => $johnReedel,
-                'producer'  => $lineProducer,
-                'spv'       => $spv,
-                'supervisor'       => $supervisor,
-                'ITcoor'     => $ITcoor,
+                'producer' => $lineProducer,
+                'spv' => $spv,
+                'supervisor' => $supervisor,
+                'ITcoor' => $ITcoor,
                 'adminFacility' => $adminFacility,
                 'assistGM' => $assistGM,
-                'generalManager'    => $generalManager,
-                'indexAnnual'       =>  $det,
-                'holiday'   => $subHoly,
+                'generalManager' => $generalManager,
+                'indexAnnual' => $det,
+                'holiday' => $subHoly,
 
             ]);
         } else {
@@ -681,7 +588,7 @@ class LeaveController extends Controller
 
     public function createExdo()
     {
-        $department  = dept_category::where(['id' => Auth::user()->dept_category_id])->value('dept_category_name');
+        $department = dept_category::where(['id' => Auth::user()->dept_category_id])->value('dept_category_name');
 
         $taken = DB::table('users')
             ->leftJoin('initial_leave', 'initial_leave.user_id', '=', 'users.id')
@@ -721,13 +628,13 @@ class LeaveController extends Controller
         foreach ($pm_category as $value)
             $pmm[$value->email] = $value->first_name . ' ' . $value->last_name;
 
-        $level_hrd =  User::where('level_hrd', '=', 'Senior Pipeline')->where('dept_category_id', 6)->where('active', 1)->get();
+        $level_hrd = User::where('level_hrd', '=', 'Senior Pipeline')->where('dept_category_id', 6)->where('active', 1)->get();
         foreach ($level_hrd as $value)
-            $level[$value->email] =  $value->first_name . ' ' . $value->last_name;
+            $level[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $ricky = null;
 
-        $ghea =   User::select('email')->where('hd', '=', '1')->where('dept_category_id', 6)->pluck('email');
+        $ghea = User::select('email')->where('hd', '=', '1')->where('dept_category_id', 6)->pluck('email');
 
         $generalManager = User::where('active', 1)->where('gm', 1)->first();
 
@@ -737,7 +644,7 @@ class LeaveController extends Controller
 
         $lineProducer = User::where('active', 1)->where('producer', 1)->where('dept_category_id', 6)->orderBy('first_name', 'asc')->get();
         foreach ($lineProducer as $value)
-            $producer[$value->email] =  $value->first_name . ' ' . $value->last_name;
+            $producer[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $supervisor = User::where('active', 1)->where('spv', 1)->whereIn('dept_category_id', [6, 4])->orderBy('first_name', 'asc')->get();
 
@@ -828,8 +735,8 @@ class LeaveController extends Controller
         foreach ($emailHoD as $Hod)
             $emailHOD[$Hod->email] = $Hod->first_name . ' ' . $Hod->last_name;
         if (auth()->user()->dept_category_id === 4) {
-                $level = Null;
-             }
+            $level = Null;
+        }
         if ($sisaExdo > 0) {
             return View::make('leave.createExdo')->with([
                 'leave' => $sisaExdo,
@@ -847,14 +754,14 @@ class LeaveController extends Controller
                 'ricky' => $ricky,
                 'infiniteApproved' => $infiniteApproved,
                 'johnReedel' => $johnReedel,
-                'producer'  => $lineProducer,
+                'producer' => $lineProducer,
                 'supervisor' => $supervisor,
-                'ITcoor'    => $ITcoor,
+                'ITcoor' => $ITcoor,
                 'adminFacility' => $adminFacility,
                 'assistGM' => $assistGM,
                 'generalManager' => $generalManager,
-                'provinsi'  => $provinsi,
-                'holiday'   => $subHoly
+                'provinsi' => $provinsi,
+                'holiday' => $subHoly
 
             ]);
         } else {
@@ -866,7 +773,7 @@ class LeaveController extends Controller
     {
 
         $department = dept_category::where(['id' => Auth::user()->dept_category_id])->value('dept_category_name');
-        $leave      = [];
+        $leave = [];
         $list_leave = leave_Category::where('id', '>', '2')->orderBy('id', 'asc')->get();
         foreach ($list_leave as $value)
             $leave[$value->leave_category_name] = $value->leave_category_name;
@@ -879,13 +786,13 @@ class LeaveController extends Controller
         foreach ($pm_category as $value)
             $pmm[$value->email] = $value->first_name . ' ' . $value->last_name;
 
-        $level_hrd =  User::where('level_hrd', '=', 'Senior Pipeline')->where('dept_category_id', 6)->where('active', 1)->get();
+        $level_hrd = User::where('level_hrd', '=', 'Senior Pipeline')->where('dept_category_id', 6)->where('active', 1)->get();
         foreach ($level_hrd as $value)
-            $level[$value->email] =  $value->first_name . ' ' . $value->last_name;
+            $level[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $ricky = null;
 
-        $ghea =   User::select('email')->where('hd', '=', '1')->where('dept_category_id', 6)->pluck('email');
+        $ghea = User::select('email')->where('hd', '=', '1')->where('dept_category_id', 6)->pluck('email');
 
         $generalManager = User::where('active', 1)->where('gm', 1)->first();
 
@@ -895,7 +802,7 @@ class LeaveController extends Controller
 
         $lineProducer = User::where('active', 1)->where('producer', 1)->where('dept_category_id', 6)->orderBy('first_name', 'asc')->get();
         foreach ($lineProducer as $value)
-            $producer[$value->email] =  $value->first_name . ' ' . $value->last_name;
+            $producer[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $supervisor = User::where('active', 1)->where('spv', 1)->whereIn('dept_category_id', [4, 6])->orderBy('first_name', 'asc')->get();
 
@@ -968,7 +875,7 @@ class LeaveController extends Controller
 
         if (auth()->user()->dept_category_id === 4) {
             $level = Null;
-         }
+        }
 
         foreach ($emailHoD as $Hod)
             $emailHOD[$Hod->email] = $Hod->first_name . ' ' . $Hod->last_name;
@@ -984,17 +891,17 @@ class LeaveController extends Controller
             'level' => $level,
             'ghea' => $ghea,
             'ricky' => $ricky,
-            'emailHOD'  => $emailHOD,
+            'emailHOD' => $emailHOD,
             'infiniteApproved' => $infiniteApproved,
             'johnReedel' => $johnReedel,
-            'producer'      => $lineProducer,
-            'supervisor'    => $supervisor,
-            'ITcoor'        => $ITcoor,
+            'producer' => $lineProducer,
+            'supervisor' => $supervisor,
+            'ITcoor' => $ITcoor,
             'adminFacility' => $adminFacility,
-            'assistGM'     => $assistGM,
-            'generalManager'    => $generalManager,
-            'provinsi'          => $provinsi,
-            'holiday'      => $subHoly
+            'assistGM' => $assistGM,
+            'generalManager' => $generalManager,
+            'provinsi' => $provinsi,
+            'holiday' => $subHoly
         ]);
     }
 
@@ -1075,7 +982,7 @@ class LeaveController extends Controller
 
 
         if ($daff <= $annual->transactionAnnual) {
-            $newAnnual =  $annual->transactionAnnual;
+            $newAnnual = $annual->transactionAnnual;
         } else {
             $newAnnual = $daff;
         }
@@ -1188,13 +1095,13 @@ class LeaveController extends Controller
         foreach ($pm_category as $value)
             $pmm[$value->email] = $value->first_name . ' ' . $value->last_name;
 
-        $level_hrd =  User::where('level_hrd', '=', 'Senior Pipeline')->where('dept_category_id', 6)->where('active', 1)->get();
+        $level_hrd = User::where('level_hrd', '=', 'Senior Pipeline')->where('dept_category_id', 6)->where('active', 1)->get();
         foreach ($level_hrd as $value)
-            $level[$value->email] =  $value->first_name . ' ' . $value->last_name;
+            $level[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $ricky = null;
 
-        $ghea =   User::select('email')->where('hd', '=', '1')->where('dept_category_id', 6)->pluck('email');
+        $ghea = User::select('email')->where('hd', '=', '1')->where('dept_category_id', 6)->pluck('email');
 
         $generalManager = User::where('active', 1)->where('gm', 1)->first();
 
@@ -1202,7 +1109,7 @@ class LeaveController extends Controller
 
         $lineProducer = User::where('active', 1)->where('producer', 1)->where('dept_category_id', 6)->orderBy('first_name', 'asc')->get();
         foreach ($lineProducer as $value)
-            $producer[$value->email] =  $value->first_name . ' ' . $value->last_name;
+            $producer[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $supervisor = User::where('active', 1)->where('spv', 1)->whereIn('dept_category_id', [4, 6])->orderBy('first_name', 'asc')->get();
 
@@ -1272,7 +1179,7 @@ class LeaveController extends Controller
             }
         }
         if (auth()->user()->dept_category_id === 4) {
-           $level = Null;
+            $level = Null;
         }
 
         foreach ($emailHoD as $Hod)
@@ -1296,12 +1203,12 @@ class LeaveController extends Controller
                 'johnReedel' => $johnReedel,
                 'producer' => $lineProducer,
                 'supervisor' => $supervisor,
-                'ITcoor'    => $ITcoor,
+                'ITcoor' => $ITcoor,
                 'adminFacility' => $adminFacility,
-                'assistGM'     => $assistGM,
-                'generalManager'    => $generalManager,
-                'provinsi'          => $provinsi,
-                'holiday'      => $subHoly
+                'assistGM' => $assistGM,
+                'generalManager' => $generalManager,
+                'provinsi' => $provinsi,
+                'holiday' => $subHoly
             ]);
         } else {
             return Redirect::route('createAdvanceLeave');
@@ -1330,7 +1237,7 @@ class LeaveController extends Controller
         $email_spv = null;
         $email_pm = null;
         $email_producer = null;
-        $ap_gm      = 0;
+        $ap_gm = 0;
         $date_ap_gm = null;
         $ap_pipeline = 0;
         $date_ap_pipeline = null;
@@ -1341,7 +1248,7 @@ class LeaveController extends Controller
         $ap_pm = 0;
         $date_ap_pm = null;
         $ap_producer = 0;
-        $date_producer  = null;
+        $date_producer = null;
         $ap_hd = 0;
         $date_ap_hd = null;
         // ---------------------
@@ -1385,7 +1292,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_gm = 1;
                 $date_ap_gm = date("Y-m-d");
                 if (auth::user()->stat_officer === 1) {
@@ -1423,7 +1330,7 @@ class LeaveController extends Controller
                     $ap_pm = 1;
                     $date_ap_pm = date("Y-m-d");
                     $ap_producer = 1;
-                    $date_producer  = date("Y-m-d");
+                    $date_producer = date("Y-m-d");
                     $ap_hd = 1;
                     $date_ap_hd = date("Y-m-d");
                     $email_producer = $emailProducer;
@@ -1439,7 +1346,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_gm = 1;
                 $date_ap_gm = date("Y-m-d");
                 $email_pm = $emailPM;
@@ -1474,7 +1381,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_gm = 1;
                 $date_ap_gm = date("Y-m-d");
                 $email_pm = 'hr.verification@infinitestudios.id';
@@ -1494,7 +1401,7 @@ class LeaveController extends Controller
             $ap_pm = 1;
             $date_ap_pm = date("Y-m-d");
             $ap_producer = 1;
-            $date_producer  = date("Y-m-d");
+            $date_producer = date("Y-m-d");
             // $ap_gm = 1;
             // $date_ap_gm = date("Y-m-d");
             $email_pm = $emailPM;
@@ -1515,7 +1422,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 0;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_hd = 1;
                 $date_ap_hd = date("Y-m-d");
                 // -------------------
@@ -1534,7 +1441,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_gm = 1;
                 $date_ap_gm = date("Y-m-d");
                 $email_pm = $emailPM;
@@ -1573,7 +1480,7 @@ class LeaveController extends Controller
                     $ap_pm = 1;
                     $date_ap_pm = date("Y-m-d");
                     $ap_producer = 1;
-                    $date_producer  = date("Y-m-d");
+                    $date_producer = date("Y-m-d");
                     $ap_hd = 1;
                     $date_ap_hd = date("Y-m-d");
                     // -----------------------
@@ -1594,7 +1501,7 @@ class LeaveController extends Controller
                         $ap_pm = 1;
                         $date_ap_pm = date("Y-m-d");
                         $ap_producer = 1;
-                        $date_producer  = date("Y-m-d");
+                        $date_producer = date("Y-m-d");
                         $ap_gm = 1;
                         $date_ap_gm = date("Y-m-d");
                         $email_koor = $emailCoor;
@@ -1609,7 +1516,7 @@ class LeaveController extends Controller
                         $ap_pm = 1;
                         $date_ap_pm = date("Y-m-d");
                         $ap_producer = 1;
-                        $date_producer  = date("Y-m-d");
+                        $date_producer = date("Y-m-d");
                         $ap_gm = 1;
                         $date_ap_gm = date("Y-m-d");
                         $email_koor = $emailCoor;
@@ -1623,7 +1530,7 @@ class LeaveController extends Controller
                         $ap_pm = 1;
                         $date_ap_pm = date("Y-m-d");
                         $ap_producer = 1;
-                        $date_producer  = date("Y-m-d");
+                        $date_producer = date("Y-m-d");
                         $ap_gm = 1;
                         $date_ap_gm = date("Y-m-d");
                         $email_pm = $emailPM;
@@ -1638,7 +1545,7 @@ class LeaveController extends Controller
                             $ap_pm = 1;
                             $date_ap_pm = date("Y-m-d");
                             $ap_producer = 1;
-                            $date_producer  = date("Y-m-d");
+                            $date_producer = date("Y-m-d");
                             $ap_hd = 1;
                             $date_ap_hd = date("Y-m-d");
                             $ap_gm = 0;
@@ -1655,7 +1562,7 @@ class LeaveController extends Controller
                         $ap_pm = 1;
                         $date_ap_pm = date("Y-m-d");
                         $ap_producer = 1;
-                        $date_producer  = date("Y-m-d");
+                        $date_producer = date("Y-m-d");
                         $ap_gm = 1;
                         $date_ap_gm = date("Y-m-d");
                         $email_pm = $emailPM;
@@ -1671,7 +1578,7 @@ class LeaveController extends Controller
                         $ap_pm = 1;
                         $date_ap_pm = date("Y-m-d");
                         $ap_producer = 1;
-                        $date_producer  = date("Y-m-d");
+                        $date_producer = date("Y-m-d");
                         $ap_gm = 1;
                         $date_ap_gm = date("Y-m-d");
                         $email_pm = $emailPM;
@@ -1685,7 +1592,7 @@ class LeaveController extends Controller
                         $ap_pm = 1;
                         $date_ap_pm = date("Y-m-d");
                         $ap_producer = 1;
-                        $date_producer  = date("Y-m-d");
+                        $date_producer = date("Y-m-d");
                         $ap_gm = 1;
                         $date_ap_gm = date("Y-m-d");
                         $email_pm = $emailPM;
@@ -1751,7 +1658,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_hd = 1;
                 $date_ap_hd = date("Y-m-d");
                 $ap_gm = 1;
@@ -1769,7 +1676,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_gm = 1;
                 $date_ap_gm = date("Y-m-d");
                 $email_pm = $emailPM;
@@ -1804,7 +1711,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_gm = 1;
                 $date_ap_gm = date("Y-m-d");
                 $email_pm = $emailPM;
@@ -1821,7 +1728,7 @@ class LeaveController extends Controller
             $ap_pm = 1;
             $date_ap_pm = date("Y-m-d");
             $ap_producer = 1;
-            $date_producer  = date("Y-m-d");
+            $date_producer = date("Y-m-d");
             $ap_hd = 1;
             $date_ap_hd = date("Y-m-d");
             $ap_gm = 1;
@@ -1853,7 +1760,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_gm = 1;
                 $date_ap_gm = date("Y-m-d");
                 $email_pm = $emailPM;
@@ -1885,7 +1792,7 @@ class LeaveController extends Controller
                 $ap_pm = 1;
                 $date_ap_pm = date("Y-m-d");
                 $ap_producer = 1;
-                $date_producer  = date("Y-m-d");
+                $date_producer = date("Y-m-d");
                 $ap_gm = 1;
                 $date_ap_gm = date("Y-m-d");
                 $email_pm = $emailPM;
@@ -1894,26 +1801,26 @@ class LeaveController extends Controller
 
 
         $return = [
-            "email_koor"        => $email_koor,
-            "email_spv"         => $email_spv,
-            "email_pm"          => $email_pm,
-            "email_producer"    => $email_producer,
-            "ap_gm"             => $ap_gm,
-            "date_ap_gm"        => $date_ap_gm,
-            "ap_pipeline"        => $ap_pipeline,
-            "date_ap_pipeline"  => $date_ap_pipeline,
-            "ap_spv"            => $ap_spv,
-            "date_ap_spv"       => $date_ap_spv,
-            "ap_koor"           => $ap_koor,
-            "date_ap_koor"      => $date_ap_koor,
-            "ap_pm"             => $ap_pm,
-            "date_ap_pm"        => $date_ap_pm,
-            "ap_producer"       => $ap_producer,
-            "date_producer"     => $date_producer,
-            "ap_hd"             => $ap_hd,
-            "date_ap_hd"        => $date_ap_hd,
-            "ap_infinite"       => $ap_infinite,
-            "date_ap_infinite"  => $date_ap_infinite
+            "email_koor" => $email_koor,
+            "email_spv" => $email_spv,
+            "email_pm" => $email_pm,
+            "email_producer" => $email_producer,
+            "ap_gm" => $ap_gm,
+            "date_ap_gm" => $date_ap_gm,
+            "ap_pipeline" => $ap_pipeline,
+            "date_ap_pipeline" => $date_ap_pipeline,
+            "ap_spv" => $ap_spv,
+            "date_ap_spv" => $date_ap_spv,
+            "ap_koor" => $ap_koor,
+            "date_ap_koor" => $date_ap_koor,
+            "ap_pm" => $ap_pm,
+            "date_ap_pm" => $date_ap_pm,
+            "ap_producer" => $ap_producer,
+            "date_producer" => $date_producer,
+            "ap_hd" => $ap_hd,
+            "date_ap_hd" => $date_ap_hd,
+            "ap_infinite" => $ap_infinite,
+            "date_ap_infinite" => $date_ap_infinite
         ];
 
         return $return;
@@ -1976,7 +1883,7 @@ class LeaveController extends Controller
         $email_spv = $ruleForm['email_spv'];
         $email_pm = $ruleForm['email_pm'];
         $email_producer = $ruleForm['email_producer'];
-        $ap_gm      = $ruleForm['ap_gm'];
+        $ap_gm = $ruleForm['ap_gm'];
         $date_ap_gm = $ruleForm['date_ap_gm'];
         $ap_pipeline = $ruleForm['ap_pipeline'];
         $date_ap_pipeline = $ruleForm['date_ap_pipeline'];
@@ -1987,7 +1894,7 @@ class LeaveController extends Controller
         $ap_pm = $ruleForm['ap_pm'];
         $date_ap_pm = $ruleForm['date_ap_pm'];
         $ap_producer = $ruleForm['ap_producer'];
-        $date_producer  = $ruleForm['date_producer'];
+        $date_producer = $ruleForm['date_producer'];
         $ap_hd = $ruleForm['ap_hd'];
         $date_ap_hd = $ruleForm['date_ap_hd'];
         // ---------------------
@@ -2011,9 +1918,9 @@ class LeaveController extends Controller
             }
         }
 
-        $start_leaved       = $request->input('leave_date');
-        $end_leaved         = $request->input('end_leave_date');
-        $back_work_leaved   = $request->input('back_work');
+        $start_leaved = $request->input('leave_date');
+        $end_leaved = $request->input('end_leave_date');
+        $back_work_leaved = $request->input('back_work');
 
         if ($start_leaved <= $end_leaved) {
             $get_end_leaved = $end_leaved;
@@ -2044,55 +1951,55 @@ class LeaveController extends Controller
         $forfeitedCount = ForfeitedCounts::where('user_id', auth::user()->id)->where('status', 1)->pluck('amount')->sum();
 
         $rules = [
-            'leave_date'        => 'required|date',
-            'end_leave_date'    => 'required|date',
-            'back_work'         => 'required|date',
-            'reason'            => 'required|max:50'
+            'leave_date' => 'required|date',
+            'end_leave_date' => 'required|date',
+            'back_work' => 'required|date',
+            'reason' => 'required|max:50'
         ];
 
         $data = [
-            'user_id'                    => auth()->user()->id,
-            'leave_category_id'          => '1',
-            'request_by'                 => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-            'request_nik'                => Auth::user()->nik,
-            'request_position'           => Auth::user()->position,
-            'request_join_date'          => Auth::user()->join_date,
+            'user_id' => auth()->user()->id,
+            'leave_category_id' => '1',
+            'request_by' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
+            'request_nik' => Auth::user()->nik,
+            'request_position' => Auth::user()->position,
+            'request_join_date' => Auth::user()->join_date,
             'request_dept_category_name' => dept_category::where(['id' => Auth::user()->dept_category_id])->value('dept_category_name'),
-            'period'                     => date('Y'),
-            'leave_date'                 => $request->input('leave_date'),
-            'end_leave_date'             => $request->input('end_leave_date'),
-            'back_work'                  => $request->input('back_work'),
-            'total_day'                  => $request->input('perhitungan'),
-            'taken'                      => $taken->leavetaken,
-            'entitlement'                => $ent_annual->entitle_ann,
-            'pending'                    => $ent_annual->entitle_ann - $taken->leavetaken,
-            'remain'                     => $ent_annual->entitle_ann - $taken->leavetaken - $request->input('perhitungan'),
-            'ap_hd'                      => $ap_hd,
-            'ap_gm'                      => $ap_gm,
-            'date_ap_hd'                 => $date_ap_hd,
-            'date_ap_gm'                 => $date_ap_gm,
-            'ver_hr'                     => '0',
-            'ap_koor'                    => $ap_koor,
-            'ap_spv'                     => $ap_spv,
-            'ap_pm'                     => $ap_pm,
-            'ap_producer'               => $ap_producer,
-            'ap_pipeline'               => $ap_pipeline,
-            'ap_Infinite'               => $ap_infinite,
-            'date_ap_Infinite'          => $date_ap_infinite,
-            'date_ap_koor'              => $date_ap_koor,
-            'date_ap_spv'               => $date_ap_spv,
-            'date_ap_pm'                => $date_ap_pm,
-            'date_ap_pipeline'          => $date_ap_pipeline,
-            'email_koor'                => $email_koor,
-            'email_spv'                 => $email_spv,
-            'email_pm'                  => $email_pm,
-            'email_producer'            => $email_producer,
-            'reason_leave'              => strtolower($request->input('reason')),
-            'r_departure'               => $nama_provins,
-            'r_after_leaving'           => $request->input('nama_city'),
-            'plan_leave'                => $request->input('rencana'),
-            'agreement'                 => $request->input('agree'),
-            'resendmail'                => 2,
+            'period' => date('Y'),
+            'leave_date' => $request->input('leave_date'),
+            'end_leave_date' => $request->input('end_leave_date'),
+            'back_work' => $request->input('back_work'),
+            'total_day' => $request->input('perhitungan'),
+            'taken' => $taken->leavetaken,
+            'entitlement' => $ent_annual->entitle_ann,
+            'pending' => $ent_annual->entitle_ann - $taken->leavetaken,
+            'remain' => $ent_annual->entitle_ann - $taken->leavetaken - $request->input('perhitungan'),
+            'ap_hd' => $ap_hd,
+            'ap_gm' => $ap_gm,
+            'date_ap_hd' => $date_ap_hd,
+            'date_ap_gm' => $date_ap_gm,
+            'ver_hr' => '0',
+            'ap_koor' => $ap_koor,
+            'ap_spv' => $ap_spv,
+            'ap_pm' => $ap_pm,
+            'ap_producer' => $ap_producer,
+            'ap_pipeline' => $ap_pipeline,
+            'ap_Infinite' => $ap_infinite,
+            'date_ap_Infinite' => $date_ap_infinite,
+            'date_ap_koor' => $date_ap_koor,
+            'date_ap_spv' => $date_ap_spv,
+            'date_ap_pm' => $date_ap_pm,
+            'date_ap_pipeline' => $date_ap_pipeline,
+            'email_koor' => $email_koor,
+            'email_spv' => $email_spv,
+            'email_pm' => $email_pm,
+            'email_producer' => $email_producer,
+            'reason_leave' => strtolower($request->input('reason')),
+            'r_departure' => $nama_provins,
+            'r_after_leaving' => $request->input('nama_city'),
+            'plan_leave' => $request->input('rencana'),
+            'agreement' => $request->input('agree'),
+            'resendmail' => 2,
         ];
 
         if ($request->input('remaining') < 0) {
@@ -2143,52 +2050,52 @@ class LeaveController extends Controller
         $data = FacadesRequest::cookie('data');
 
         $record = [
-            'user_id'                    => $data['user_id'],
-            'leave_category_id'          => $data['leave_category_id'],
-            'request_by'                 => $data['request_by'],
-            'request_nik'                => $data['request_nik'],
-            'request_position'           => $data['request_position'],
-            'request_join_date'          => $data['request_join_date'],
+            'user_id' => $data['user_id'],
+            'leave_category_id' => $data['leave_category_id'],
+            'request_by' => $data['request_by'],
+            'request_nik' => $data['request_nik'],
+            'request_position' => $data['request_position'],
+            'request_join_date' => $data['request_join_date'],
             'request_dept_category_name' => $data['request_dept_category_name'],
-            'period'                     => $data['period'],
-            'leave_date'                 => $data['leave_date'],
-            'end_leave_date'             => $data['end_leave_date'],
-            'back_work'                  => $data['back_work'],
-            'total_day'                  => $data['total_day'],
-            'taken'                      => $data['taken'],
-            'entitlement'                => $data['entitlement'],
-            'pending'                    => $data['pending'],
-            'remain'                     => $data['remain'],
-            'ap_hd'                      => $data['ap_hd'],
-            'ap_gm'                      => $data['ap_gm'],
-            'date_ap_hd'                 => $data['date_ap_hd'],
-            'date_ap_gm'                 => $data['date_ap_gm'],
-            'ver_hr'                     => $data['ver_hr'],
-            'ap_koor'                    => $data['ap_koor'],
-            'ap_spv'                     => $data['ap_spv'],
-            'ap_pm'                     => $data['ap_pm'],
-            'ap_producer'               => $data['ap_producer'],
-            'ap_pipeline'               => $data['ap_pipeline'],
-            'ap_Infinite'               => $data['ap_Infinite'],
-            'date_ap_Infinite'          => $data['date_ap_Infinite'],
-            'date_ap_koor'              => $data['date_ap_koor'],
-            'date_ap_spv'               => $data['date_ap_spv'],
-            'date_ap_pm'                => $data['date_ap_pm'],
-            'date_ap_pipeline'          => $data['date_ap_pipeline'],
-            'email_koor'                => $data['email_koor'],
-            'email_spv'                 => $data['email_spv'],
+            'period' => $data['period'],
+            'leave_date' => $data['leave_date'],
+            'end_leave_date' => $data['end_leave_date'],
+            'back_work' => $data['back_work'],
+            'total_day' => $data['total_day'],
+            'taken' => $data['taken'],
+            'entitlement' => $data['entitlement'],
+            'pending' => $data['pending'],
+            'remain' => $data['remain'],
+            'ap_hd' => $data['ap_hd'],
+            'ap_gm' => $data['ap_gm'],
+            'date_ap_hd' => $data['date_ap_hd'],
+            'date_ap_gm' => $data['date_ap_gm'],
+            'ver_hr' => $data['ver_hr'],
+            'ap_koor' => $data['ap_koor'],
+            'ap_spv' => $data['ap_spv'],
+            'ap_pm' => $data['ap_pm'],
+            'ap_producer' => $data['ap_producer'],
+            'ap_pipeline' => $data['ap_pipeline'],
+            'ap_Infinite' => $data['ap_Infinite'],
+            'date_ap_Infinite' => $data['date_ap_Infinite'],
+            'date_ap_koor' => $data['date_ap_koor'],
+            'date_ap_spv' => $data['date_ap_spv'],
+            'date_ap_pm' => $data['date_ap_pm'],
+            'date_ap_pipeline' => $data['date_ap_pipeline'],
+            'email_koor' => $data['email_koor'],
+            'email_spv' => $data['email_spv'],
             // 'email_pm'                  => $data['email_pm'],
-            'email_pm'                  => $data['email_pm'],
-            'email_producer'            => $data['email_producer'],
-            'reason_leave'              => $data['reason_leave'],
-            'r_departure'               => $data['r_departure'],
-            'r_after_leaving'           => $data['r_after_leaving'],
+            'email_pm' => $data['email_pm'],
+            'email_producer' => $data['email_producer'],
+            'reason_leave' => $data['reason_leave'],
+            'r_departure' => $data['r_departure'],
+            'r_after_leaving' => $data['r_after_leaving'],
             // 'plan_leave'                => $request->input('rencana'),
             // 'agreement'                 => $request->input('accept'),
-            'resendmail'                => 2,
+            'resendmail' => 2,
         ];
 
-        // dd($record);
+        dd($record);
 
         Leave::create($record);
 
@@ -2212,10 +2119,10 @@ class LeaveController extends Controller
                 }
 
                 $forfeiteds = [
-                    'user_id'   => auth::user()->id,
-                    'leave_id'  => $lastLeaved->id,
-                    'amount'    => $rangeForfeited,
-                    'status'    => 0,
+                    'user_id' => auth::user()->id,
+                    'leave_id' => $lastLeaved->id,
+                    'amount' => $rangeForfeited,
+                    'status' => 0,
                 ];
 
                 ForfeitedCounts::insert($forfeiteds);
@@ -2243,13 +2150,13 @@ class LeaveController extends Controller
 
             $medic = [
                 'leave_id' => $etcLeave->id,
-                'user_id'   => auth()->user()->id,
-                'sicked_date'   => $record['leave_date'],
-                'image'         => $log_MedicStaff,
-                'count_sicked'  => $record['total_day'],
-                'address_sick'  => $record['r_after_leaving'],
+                'user_id' => auth()->user()->id,
+                'sicked_date' => $record['leave_date'],
+                'image' => $log_MedicStaff,
+                'count_sicked' => $record['total_day'],
+                'address_sick' => $record['r_after_leaving'],
                 'hospital_name' => $hospital['name'],
-                'age'           => $age
+                'age' => $age
             ];
 
             MedicStaff::insert($medic);
@@ -2689,7 +2596,7 @@ class LeaveController extends Controller
         $email_spv = $ruleForm['email_spv'];
         $email_pm = $ruleForm['email_pm'];
         $email_producer = $ruleForm['email_producer'];
-        $ap_gm      = $ruleForm['ap_gm'];
+        $ap_gm = $ruleForm['ap_gm'];
         $date_ap_gm = $ruleForm['date_ap_gm'];
         $ap_pipeline = $ruleForm['ap_pipeline'];
         $date_ap_pipeline = $ruleForm['date_ap_pipeline'];
@@ -2700,7 +2607,7 @@ class LeaveController extends Controller
         $ap_pm = $ruleForm['ap_pm'];
         $date_ap_pm = $ruleForm['date_ap_pm'];
         $ap_producer = $ruleForm['ap_producer'];
-        $date_producer  = $ruleForm['date_producer'];
+        $date_producer = $ruleForm['date_producer'];
         $ap_hd = $ruleForm['ap_hd'];
         $date_ap_hd = $ruleForm['date_ap_hd'];
         // ---------------------
@@ -2723,9 +2630,9 @@ class LeaveController extends Controller
             }
         }
 
-        $start_leaved       = $request->input('leave_date');
-        $end_leaved         = $request->input('end_leave_date');
-        $back_work_leaved   = $request->input('back_work');
+        $start_leaved = $request->input('leave_date');
+        $end_leaved = $request->input('end_leave_date');
+        $back_work_leaved = $request->input('back_work');
 
         if ($start_leaved <= $end_leaved) {
             $get_end_leaved = $end_leaved;
@@ -2757,57 +2664,59 @@ class LeaveController extends Controller
         $countExdo = Initial_Leave::where('user_id', auth()->user()->id)->get();
 
         $rules = [
-            'leave_date'        => 'required',
-            'end_leave_date'    => 'required',
-            'back_work'         => 'required',
-            'reason'            => 'required|max:50'
+            'leave_date' => 'required',
+            'end_leave_date' => 'required',
+            'back_work' => 'required',
+            'reason' => 'required|max:50'
         ];
 
 
         $data = [
-            'user_id'                    => Auth::user()->id,
-            'leave_category_id'          => '2',
-            'request_by'                 => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-            'request_nik'                => Auth::user()->nik,
-            'request_position'           => Auth::user()->position,
-            'request_join_date'          => Auth::user()->join_date,
+            'user_id' => Auth::user()->id,
+            'leave_category_id' => '2',
+            'request_by' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
+            'request_nik' => Auth::user()->nik,
+            'request_position' => Auth::user()->position,
+            'request_join_date' => Auth::user()->join_date,
             'request_dept_category_name' => dept_category::where(['id' => Auth::user()->dept_category_id])->value('dept_category_name'),
-            'period'                     => date('Y'),
-            'leave_date'                 => $request->input('leave_date'),
-            'end_leave_date'             => $request->input('end_leave_date'),
-            'back_work'                  => $request->input('back_work'),
-            'total_day'                  => $request->input('perhitungan'),
-            'taken'                      => $taken->leavetaken,
-            'entitlement'                => $countExdo->pluck('initial')->sum(),
-            'pending'                    => $countExdo->pluck('initial')->sum() - $taken->leavetaken,
-            'remain'                     => $countExdo->pluck('initial')->sum() - $taken->leavetaken - $request->input('perhitungan'),
-            'ap_hd'                      => $ap_hd,
-            'ap_gm'                      => $ap_gm,
-            'date_ap_hd'                 => $date_ap_hd,
-            'date_ap_gm'                 => $date_ap_gm,
-            'ver_hr'                     => '0',
-            'ap_koor'                    => $ap_koor,
-            'ap_spv'                     => $ap_spv,
-            'ap_pm'                     => $ap_pm,
-            'ap_producer'               => $ap_producer,
-            'ap_pipeline'               => $ap_pipeline,
-            'date_ap_koor'               => $date_ap_koor,
-            'date_ap_spv'                => $date_ap_spv,
-            'date_ap_pm'                => $date_ap_pm,
-            'date_ap_pipeline'          => $date_ap_pipeline,
-            'email_koor'                => $email_koor,
-            'email_spv'                 => $email_spv,
-            'email_pm'                  => $email_pm,
-            'email_producer'            => $email_producer,
-            'reason_leave'              => strtolower($request->input('reason')),
-            'r_departure'               => $nama_provins,
-            'r_after_leaving'           => $request->input('nama_city'),
-            'plan_leave'                => $request->input('rencana'),
-            'agreement'                 => $request->input('agree'),
-            'ap_Infinite'               => $ap_infinite,
-            'date_ap_Infinite'          => $date_ap_infinite,
-            'resendmail'                => 2,
+            'period' => date('Y'),
+            'leave_date' => $request->input('leave_date'),
+            'end_leave_date' => $request->input('end_leave_date'),
+            'back_work' => $request->input('back_work'),
+            'total_day' => $request->input('perhitungan'),
+            'taken' => $taken->leavetaken,
+            'entitlement' => $countExdo->pluck('initial')->sum(),
+            'pending' => $countExdo->pluck('initial')->sum() - $taken->leavetaken,
+            'remain' => $countExdo->pluck('initial')->sum() - $taken->leavetaken - $request->input('perhitungan'),
+            'ap_hd' => $ap_hd,
+            'ap_gm' => $ap_gm,
+            'date_ap_hd' => $date_ap_hd,
+            'date_ap_gm' => $date_ap_gm,
+            'ver_hr' => '0',
+            'ap_koor' => $ap_koor,
+            'ap_spv' => $ap_spv,
+            'ap_pm' => $ap_pm,
+            'ap_producer' => $ap_producer,
+            'ap_pipeline' => $ap_pipeline,
+            'date_ap_koor' => $date_ap_koor,
+            'date_ap_spv' => $date_ap_spv,
+            'date_ap_pm' => $date_ap_pm,
+            'date_ap_pipeline' => $date_ap_pipeline,
+            'email_koor' => $email_koor,
+            'email_spv' => $email_spv,
+            'email_pm' => $email_pm,
+            'email_producer' => $email_producer,
+            'reason_leave' => strtolower($request->input('reason')),
+            'r_departure' => $nama_provins,
+            'r_after_leaving' => $request->input('nama_city'),
+            'plan_leave' => $request->input('rencana'),
+            'agreement' => $request->input('agree'),
+            'ap_Infinite' => $ap_infinite,
+            'date_ap_Infinite' => $date_ap_infinite,
+            'resendmail' => 2,
         ];
+
+        dd($data);
 
         $validator = Validator::make($request->all(), $rules);
 
@@ -2874,7 +2783,7 @@ class LeaveController extends Controller
         $email_spv = $ruleForm['email_spv'];
         $email_pm = $ruleForm['email_pm'];
         $email_producer = $ruleForm['email_producer'];
-        $ap_gm      = $ruleForm['ap_gm'];
+        $ap_gm = $ruleForm['ap_gm'];
         $date_ap_gm = $ruleForm['date_ap_gm'];
         $ap_pipeline = $ruleForm['ap_pipeline'];
         $date_ap_pipeline = $ruleForm['date_ap_pipeline'];
@@ -2885,7 +2794,7 @@ class LeaveController extends Controller
         $ap_pm = $ruleForm['ap_pm'];
         $date_ap_pm = $ruleForm['date_ap_pm'];
         $ap_producer = $ruleForm['ap_producer'];
-        $date_producer  = $ruleForm['date_producer'];
+        $date_producer = $ruleForm['date_producer'];
         $ap_hd = $ruleForm['ap_hd'];
         $date_ap_hd = $ruleForm['date_ap_hd'];
         // ---------------------
@@ -2909,9 +2818,9 @@ class LeaveController extends Controller
             }
         }
         /////////////////////////////////////////////////////////////
-        $start_leaved       = $request->input('leave_date');
-        $end_leaved         = $request->input('end_leave_date');
-        $back_work_leaved   = $request->input('back_work');
+        $start_leaved = $request->input('leave_date');
+        $end_leaved = $request->input('end_leave_date');
+        $back_work_leaved = $request->input('back_work');
 
         if ($start_leaved <= $end_leaved) {
             $get_end_leaved = $end_leaved;
@@ -2940,56 +2849,56 @@ class LeaveController extends Controller
         $nama_provins = $this->namaPronvisi($request->input('nama_provin'));
 
         $rules = [
-            'leave_date'        => 'required',
-            'end_leave_date'    => 'required',
-            'back_work'         => 'required',
-            'reason'            => 'required|max:100',
-            'fileInput'              => 'file|mimes:jpeg,jpg,png|max:6144'
+            'leave_date' => 'required',
+            'end_leave_date' => 'required',
+            'back_work' => 'required',
+            'reason' => 'required|max:100',
+            'fileInput' => 'file|mimes:jpeg,jpg,png|max:6144'
         ];
 
         $data = [
-            'user_id'                    => Auth::user()->id,
-            'leave_category_id'          => leave_Category::where('leave_category_name', $request->input('leave_category_id'))->value('id'),
-            'request_by'                 => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-            'request_nik'                => Auth::user()->nik,
-            'request_position'           => Auth::user()->position,
-            'request_join_date'          => Auth::user()->join_date,
+            'user_id' => Auth::user()->id,
+            'leave_category_id' => leave_Category::where('leave_category_name', $request->input('leave_category_id'))->value('id'),
+            'request_by' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
+            'request_nik' => Auth::user()->nik,
+            'request_position' => Auth::user()->position,
+            'request_join_date' => Auth::user()->join_date,
             'request_dept_category_name' => dept_category::where(['id' => Auth::user()->dept_category_id])->value('dept_category_name'),
-            'period'                     => date('Y'),
-            'leave_date'                 => $request->input('leave_date'),
-            'end_leave_date'             => $request->input('end_leave_date'),
-            'back_work'                  => $request->input('back_work'),
-            'total_day'                  => $request->input('perhitungan'),
-            'taken'                      => 0,
-            'entitlement'                => 0,
-            'pending'                    => 0,
-            'remain'                     => 0,
-            'ap_hd'                      => $ap_hd,
-            'ap_gm'                      => $ap_gm,
-            'date_ap_hd'                 => $date_ap_hd,
-            'date_ap_gm'                 => $date_ap_gm,
-            'ver_hr'                     => '0',
-            'ap_koor'                    => $ap_koor,
-            'ap_spv'                     => $ap_spv,
-            'ap_pm'                     => $ap_pm,
-            'ap_producer'               => $ap_producer,
-            'ap_pipeline'               => $ap_pipeline,
-            'date_ap_koor'               => $date_ap_koor,
-            'date_ap_spv'                => $date_ap_spv,
-            'date_ap_pm'                => $date_ap_pm,
-            'date_ap_pipeline'          => $date_ap_pipeline,
-            'email_koor'                => $email_koor,
-            'email_spv'                 => $email_spv,
-            'email_pm'                  => $email_pm,
-            'email_producer'            => $email_producer,
-            'reason_leave'              => strtolower($request->input('reason')),
-            'r_departure'               => $nama_provins,
-            'r_after_leaving'           => $request->input('nama_city'),
-            'plan_leave'              => $request->input('rencana'),
-            'agreement'                 => $request->input('agree'),
-            'ap_Infinite'               => $ap_infinite,
-            'date_ap_Infinite'          => $date_ap_infinite,
-            'resendmail'                => 2,
+            'period' => date('Y'),
+            'leave_date' => $request->input('leave_date'),
+            'end_leave_date' => $request->input('end_leave_date'),
+            'back_work' => $request->input('back_work'),
+            'total_day' => $request->input('perhitungan'),
+            'taken' => 0,
+            'entitlement' => 0,
+            'pending' => 0,
+            'remain' => 0,
+            'ap_hd' => $ap_hd,
+            'ap_gm' => $ap_gm,
+            'date_ap_hd' => $date_ap_hd,
+            'date_ap_gm' => $date_ap_gm,
+            'ver_hr' => '0',
+            'ap_koor' => $ap_koor,
+            'ap_spv' => $ap_spv,
+            'ap_pm' => $ap_pm,
+            'ap_producer' => $ap_producer,
+            'ap_pipeline' => $ap_pipeline,
+            'date_ap_koor' => $date_ap_koor,
+            'date_ap_spv' => $date_ap_spv,
+            'date_ap_pm' => $date_ap_pm,
+            'date_ap_pipeline' => $date_ap_pipeline,
+            'email_koor' => $email_koor,
+            'email_spv' => $email_spv,
+            'email_pm' => $email_pm,
+            'email_producer' => $email_producer,
+            'reason_leave' => strtolower($request->input('reason')),
+            'r_departure' => $nama_provins,
+            'r_after_leaving' => $request->input('nama_city'),
+            'plan_leave' => $request->input('rencana'),
+            'agreement' => $request->input('agree'),
+            'ap_Infinite' => $ap_infinite,
+            'date_ap_Infinite' => $date_ap_infinite,
+            'resendmail' => 2,
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -3019,8 +2928,8 @@ class LeaveController extends Controller
                         $filed = $request->file('fileInput');
 
                         if ($request->hasFile('fileInput') && $request->file('fileInput')->isValid()) {
-                            $file      =  $filed;
-                            $prof_pict =  strtolower($data['request_by']) . '--' . time() . '.' . strtolower($file->getClientOriginalExtension());
+                            $file = $filed;
+                            $prof_pict = strtolower($data['request_by']) . '--' . time() . '.' . strtolower($file->getClientOriginalExtension());
                             $file->storeAs('HR/Log/MedicStaff/', $prof_pict);
                         } else {
                             $prof_pict = null;
@@ -3032,8 +2941,8 @@ class LeaveController extends Controller
                         }
 
                         $sick = [
-                            'user_id'   => $data['user_id'],
-                            'image'     => $prof_pict
+                            'user_id' => $data['user_id'],
+                            'image' => $prof_pict
                         ];
 
                         Log_MedicalStaff::create($sick);
@@ -3116,7 +3025,7 @@ class LeaveController extends Controller
         $email_spv = $ruleForm['email_spv'];
         $email_pm = $ruleForm['email_pm'];
         $email_producer = $ruleForm['email_producer'];
-        $ap_gm      = $ruleForm['ap_gm'];
+        $ap_gm = $ruleForm['ap_gm'];
         $date_ap_gm = $ruleForm['date_ap_gm'];
         $ap_pipeline = $ruleForm['ap_pipeline'];
         $date_ap_pipeline = $ruleForm['date_ap_pipeline'];
@@ -3127,7 +3036,7 @@ class LeaveController extends Controller
         $ap_pm = $ruleForm['ap_pm'];
         $date_ap_pm = $ruleForm['date_ap_pm'];
         $ap_producer = $ruleForm['ap_producer'];
-        $date_producer  = $ruleForm['date_producer'];
+        $date_producer = $ruleForm['date_producer'];
         $ap_hd = $ruleForm['ap_hd'];
         $date_ap_hd = $ruleForm['date_ap_hd'];
         // ---------------------
@@ -3150,9 +3059,9 @@ class LeaveController extends Controller
             }
         }
 
-        $start_leaved       = $request->input('leave_date');
-        $end_leaved         = $request->input('end_leave_date');
-        $back_work_leaved   = $request->input('back_work');
+        $start_leaved = $request->input('leave_date');
+        $end_leaved = $request->input('end_leave_date');
+        $back_work_leaved = $request->input('back_work');
 
         if ($start_leaved <= $end_leaved) {
             $get_end_leaved = $end_leaved;
@@ -3169,55 +3078,55 @@ class LeaveController extends Controller
         $nama_provins = $this->namaPronvisi($request->input('nama_provin'));
 
         $rules = [
-            'leave_date'        => 'required|date',
-            'end_leave_date'    => 'required|date',
-            'back_work'         => 'required|date',
-            'reason'            => 'required|max:50'
+            'leave_date' => 'required|date',
+            'end_leave_date' => 'required|date',
+            'back_work' => 'required|date',
+            'reason' => 'required|max:50'
         ];
 
         $data = [
-            'user_id'                    => auth()->user()->id,
-            'leave_category_id'          => '1',
-            'request_by'                 => Auth::user()->first_name . ' ' . Auth::user()->last_name,
-            'request_nik'                => Auth::user()->nik,
-            'request_position'           => Auth::user()->position,
-            'request_join_date'          => Auth::user()->join_date,
+            'user_id' => auth()->user()->id,
+            'leave_category_id' => '1',
+            'request_by' => Auth::user()->first_name . ' ' . Auth::user()->last_name,
+            'request_nik' => Auth::user()->nik,
+            'request_position' => Auth::user()->position,
+            'request_join_date' => Auth::user()->join_date,
             'request_dept_category_name' => dept_category::where(['id' => Auth::user()->dept_category_id])->value('dept_category_name'),
-            'period'                     => date('Y'),
-            'leave_date'                 => $request->input('leave_date'),
-            'end_leave_date'             => $request->input('end_leave_date'),
-            'back_work'                  => $request->input('back_work'),
-            'total_day'                  => $request->input('perhitungan'),
-            'taken'                      => $taken->leavetaken,
-            'entitlement'                => $ent_annual->entitle_ann,
-            'pending'                    => $ent_annual->entitle_ann - $taken->leavetaken,
-            'remain'                     => $ent_annual->entitle_ann - $taken->leavetaken - $request->input('perhitungan'),
-            'ap_hd'                      => $ap_hd,
-            'ap_gm'                      => $ap_gm,
-            'date_ap_hd'                 => $date_ap_hd,
-            'date_ap_gm'                 => $date_ap_gm,
-            'ver_hr'                     => '0',
-            'ap_koor'                    => $ap_koor,
-            'ap_spv'                     => $ap_spv,
-            'ap_pm'                     => $ap_pm,
-            'ap_producer'               => $ap_producer,
-            'ap_pipeline'               => $ap_pipeline,
-            'ap_Infinite'               => $ap_infinite,
-            'date_ap_Infinite'          => $date_ap_infinite,
-            'date_ap_koor'              => $date_ap_koor,
-            'date_ap_spv'               => $date_ap_spv,
-            'date_ap_pm'                => $date_ap_pm,
-            'date_ap_pipeline'          => $date_ap_pipeline,
-            'email_koor'                => $email_koor,
-            'email_spv'                 => $email_spv,
-            'email_pm'                  => $email_pm,
-            'email_producer'            => $email_producer,
-            'reason_leave'              => strtolower($request->input('reason')),
-            'r_departure'               => $nama_provins,
-            'r_after_leaving'           => $request->input('nama_city'),
-            'plan_leave'                => $request->input('rencana'),
-            'agreement'                 => $request->input('agree'),
-            'resendmail'                => 2,
+            'period' => date('Y'),
+            'leave_date' => $request->input('leave_date'),
+            'end_leave_date' => $request->input('end_leave_date'),
+            'back_work' => $request->input('back_work'),
+            'total_day' => $request->input('perhitungan'),
+            'taken' => $taken->leavetaken,
+            'entitlement' => $ent_annual->entitle_ann,
+            'pending' => $ent_annual->entitle_ann - $taken->leavetaken,
+            'remain' => $ent_annual->entitle_ann - $taken->leavetaken - $request->input('perhitungan'),
+            'ap_hd' => $ap_hd,
+            'ap_gm' => $ap_gm,
+            'date_ap_hd' => $date_ap_hd,
+            'date_ap_gm' => $date_ap_gm,
+            'ver_hr' => '0',
+            'ap_koor' => $ap_koor,
+            'ap_spv' => $ap_spv,
+            'ap_pm' => $ap_pm,
+            'ap_producer' => $ap_producer,
+            'ap_pipeline' => $ap_pipeline,
+            'ap_Infinite' => $ap_infinite,
+            'date_ap_Infinite' => $date_ap_infinite,
+            'date_ap_koor' => $date_ap_koor,
+            'date_ap_spv' => $date_ap_spv,
+            'date_ap_pm' => $date_ap_pm,
+            'date_ap_pipeline' => $date_ap_pipeline,
+            'email_koor' => $email_koor,
+            'email_spv' => $email_spv,
+            'email_pm' => $email_pm,
+            'email_producer' => $email_producer,
+            'reason_leave' => strtolower($request->input('reason')),
+            'r_departure' => $nama_provins,
+            'r_after_leaving' => $request->input('nama_city'),
+            'plan_leave' => $request->input('rencana'),
+            'agreement' => $request->input('agree'),
+            'resendmail' => 2,
         ];
 
         if ($request->input('remaining') < 0) {
@@ -3258,7 +3167,7 @@ class LeaveController extends Controller
 
     public function DetailStoreLeaveETC(Request $request)
     {
-        $return   = "
+        $return = "
             <div class='modal-header'>
                 <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
                 <h4 class='modal-title' id='showModalLabel'>Detail  </h4>
@@ -3335,15 +3244,15 @@ class LeaveController extends Controller
             ->add_column(
                 'actions',
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                    '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@endif'
+                '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@endif'
             )
             ->add_column(
                 'sendmails',
                 '@if($resendmail <= 2 and $resendmail > 0)'
-                    . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
-                    . '@endif'
+                . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
+                . '@endif'
             )
 
             ->make();
@@ -3372,17 +3281,17 @@ class LeaveController extends Controller
             ->add_column(
                 'actions',
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail/hod\', [$id]) }}', 'class' => 'file']) .
-                    '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@else'
-                    . Lang::get('messages.btn_delete_custom', ['title' => 'Delete', 'url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'class' => 'trash'])
-                    . '@endif'
+                '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@else'
+                . Lang::get('messages.btn_delete_custom', ['title' => 'Delete', 'url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'class' => 'trash'])
+                . '@endif'
             )
             ->add_column(
                 'sendmails',
                 '@if($resendmail <= 2 and $ap_hrd == 0)'
-                    . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave/hod\', [$id]) }}'])
-                    . '@endif'
+                . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave/hod\', [$id]) }}'])
+                . '@endif'
             )
             // ->rawColumns(['actions'])
             ->make();
@@ -3414,17 +3323,17 @@ class LeaveController extends Controller
             ->add_column(
                 'actions',
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail/hod\', [$id]) }}', 'class' => 'file']) .
-                    '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@else'
-                    . Lang::get('messages.btn_delete_custom', ['title' => 'Delete', 'url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'class' => 'trash'])
-                    . '@endif'
+                '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@else'
+                . Lang::get('messages.btn_delete_custom', ['title' => 'Delete', 'url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'class' => 'trash'])
+                . '@endif'
             )
             ->add_column(
                 'sendmails',
                 '@if($resendmail <= 2 and $ap_hrd == 0)'
-                    . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave/hod\', [$id]) }}'])
-                    . '@endif'
+                . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave/hod\', [$id]) }}'])
+                . '@endif'
             )
             // ->rawColumns(['actions'])
             ->make();
@@ -3463,15 +3372,15 @@ class LeaveController extends Controller
             ->add_column(
                 'actions',
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                    '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@endif'
+                '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@endif'
             )
             ->add_column(
                 'sendmails',
                 '@if($resendmail <= 2 and $resendmail > 0)'
-                    . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
-                    . '@endif'
+                . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
+                . '@endif'
             )
             ->make();
     }
@@ -3510,9 +3419,9 @@ class LeaveController extends Controller
                     ->add_column(
                         'actions',
                         Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                            '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
-                            . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                            . '@endif'
+                        '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
+                        . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                        . '@endif'
                     )
                     ->make();
             }
@@ -3548,9 +3457,9 @@ class LeaveController extends Controller
                         ->add_column(
                             'actions',
                             Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                                '@if ( $ap_hrd === 1 && $ap_gm === 1 )'
-                                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                                . '@endif'
+                            '@if ( $ap_hrd === 1 && $ap_gm === 1 )'
+                            . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                            . '@endif'
                         )
                         ->make();
                 } else {
@@ -3577,9 +3486,9 @@ class LeaveController extends Controller
                         ->add_column(
                             'actions',
                             Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                                '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
-                                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                                . '@endif'
+                            '@if ( $ap_hrd === 1 && $ver_hr === 1 )'
+                            . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                            . '@endif'
                         )
                         ->make();
                 }
@@ -3611,21 +3520,21 @@ class LeaveController extends Controller
                     ->add_column(
                         'actions',
                         Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file'])
-                            . '@if ( $ap_hrd === 1 && $ap_hd === 1 )'
-                            . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                            . '@endif'
+                        . '@if ( $ap_hrd === 1 && $ap_hd === 1 )'
+                        . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                        . '@endif'
                     )
                     ->add_column(
                         'sendmails',
                         '@if($resendmail <= 2 and $resendmail > 0)'
-                            . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
-                            . '@endif'
+                        . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
+                        . '@endif'
                     )
                     ->add_column(
                         'frase',
                         '@if ($ap_hd === 0)'
-                            . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
-                            . '@endif'
+                        . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
+                        . '@endif'
 
                     )
                     ->setRowClass('@if ($req_advance !== 0){{ "danger" }}@endif')
@@ -3664,9 +3573,9 @@ class LeaveController extends Controller
                 ->add_column(
                     'actions',
                     Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                        '@if ( $ap_hrd === 1  )'
-                        . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                        . '@endif'
+                    '@if ( $ap_hrd === 1  )'
+                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                    . '@endif'
                 )
                 ->make();
         }
@@ -3701,21 +3610,21 @@ class LeaveController extends Controller
             ->add_column(
                 'actions',
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file'])
-                    . '@if ( $ap_hrd === 1 && $ap_hd === 1 )'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@endif'
+                . '@if ( $ap_hrd === 1 && $ap_hd === 1 )'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@endif'
             )
             ->add_column(
                 'sendmails',
                 '@if($resendmail <= 2 and $resendmail > 0)'
-                    . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
-                    . '@endif'
+                . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
+                . '@endif'
             )
             ->add_column(
                 'frase',
                 '@if ($ap_hd === 0)'
-                    . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
-                    . '@endif'
+                . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
+                . '@endif'
 
             )
             ->make();
@@ -3763,21 +3672,21 @@ class LeaveController extends Controller
             ->add_column(
                 'actions',
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                    '@if ( $ap_hrd === 1  )'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@endif'
+                '@if ( $ap_hrd === 1  )'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@endif'
             )
             ->add_column(
                 'sendmails',
                 '@if($resendmail <= 2 and $resendmail > 0)'
-                    . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
-                    . '@endif'
+                . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
+                . '@endif'
             )
             ->add_column(
                 'frase',
                 '@if ($ap_hd === 0)'
-                    . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
-                    . '@endif'
+                . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
+                . '@endif'
 
             )
             ->make();
@@ -3813,22 +3722,22 @@ class LeaveController extends Controller
             ->add_column(
                 'actions',
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                    '@if ( $ap_hrd === 1  )'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@endif'
+                '@if ( $ap_hrd === 1  )'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@endif'
             )
 
             ->add_column(
                 'sendmails',
                 '@if($resendmail <= 2 and $resendmail > 0)'
-                    . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
-                    . '@endif'
+                . Lang::get('messages.btn_resendmail', ['title' => 'send back email notification x{{ $resendmail }}', 'url' => '{{ URL::route(\'leave/reSendMailLeave\', [$id]) }}'])
+                . '@endif'
             )
             ->add_column(
                 'frase',
                 '@if ($ap_hd === 0)'
-                    . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
-                    . '@endif'
+                . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
+                . '@endif'
 
             )
             ->make();
@@ -3867,9 +3776,9 @@ class LeaveController extends Controller
                 'actions',
 
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                    '@if ($ap_hd === 1 && $ap_gm === 1 && $ver_hr === 1)'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@endif'
+                '@if ($ap_hd === 1 && $ap_gm === 1 && $ver_hr === 1)'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@endif'
 
             )
 
@@ -3905,9 +3814,9 @@ class LeaveController extends Controller
             $pm = User::where('email', $leave->email_pm)->first();
 
             if ($pm->hd === 1) {
-                $pmM =  "<strong>Head of Deparment :</strong>" . $pm->first_name . ' ' . $pm->last_name;
+                $pmM = "<strong>Head of Deparment :</strong>" . $pm->first_name . ' ' . $pm->last_name;
             } else {
-                $pmM =  "<strong>Project Manager / Producer :</strong>" . $pm->first_name . ' ' . $pm->last_name;
+                $pmM = "<strong>Project Manager / Producer :</strong>" . $pm->first_name . ' ' . $pm->last_name;
             }
         }
 
@@ -3922,7 +3831,7 @@ class LeaveController extends Controller
             $rem = 0;
         }
 
-        $return   = "
+        $return = "
             <div class='modal-header'>
                 <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
                 <h4 class='modal-title' id='showModalLabel'>Detail</h4>
@@ -3986,7 +3895,7 @@ class LeaveController extends Controller
         }
 
 
-        $return   = "
+        $return = "
             <div class='modal-header'>
                 <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
                 <h4 class='modal-title' id='showModalLabel'>Detail</h4>
@@ -4150,7 +4059,13 @@ class LeaveController extends Controller
     public function getINdexMeetingAudit()
     {
         $meeting = DB::Table("meeting")->select([
-            'id', 'Project', 'request_by', 'start_time', 'end_time', 'date', 'status'
+            'id',
+            'Project',
+            'request_by',
+            'start_time',
+            'end_time',
+            'date',
+            'status'
         ])->get();
 
         return Datatables::of($meeting)
@@ -4170,7 +4085,7 @@ class LeaveController extends Controller
         $meeting = Meeting::find($id);
         $t = DB::table('meeting')->where('id', $id)->first();
 
-        $return   = "
+        $return = "
             <div class='modal-header'>
                 <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
             </div>
@@ -4244,7 +4159,7 @@ class LeaveController extends Controller
 
     public function reSendMailLeave($id)
     {
-        $email      = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->find($id);
+        $email = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->find($id);
 
         $hd = User::where('dept_category_id', auth::user()->dept_category_id)->where('hd', 1)->where('active', 1)->first();
 
@@ -4427,9 +4342,9 @@ class LeaveController extends Controller
             ->add_column(
                 'actions',
                 Lang::get('messages.btn_success', ['title' => 'Detail', 'url' => '{{ URL::route(\'leave/detail\', [$id]) }}', 'class' => 'file']) .
-                    '@if ($ap_hrd === 1 && $ver_hr === 1)'
-                    . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
-                    . '@endif'
+                '@if ($ap_hrd === 1 && $ver_hr === 1)'
+                . Lang::get('messages.btn_print', ['title' => 'Print', 'url' => '{{ URL::route(\'leave/print1\', [$id]) }}', 'class' => 'print'])
+                . '@endif'
             )
             ->add_column(
                 'sendmails',
@@ -4438,8 +4353,8 @@ class LeaveController extends Controller
             ->add_column(
                 'frase',
                 '@if ($ver_hr === 0)'
-                    . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
-                    . '@endif'
+                . Lang::get('messages.btn_danger', ['url' => '{{ URL::route(\'leave/delete/form/Officer\', [$id]) }}', 'data' => 'this eform'])
+                . '@endif'
 
             )
             ->make();

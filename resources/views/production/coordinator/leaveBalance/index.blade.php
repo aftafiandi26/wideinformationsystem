@@ -71,6 +71,25 @@
             color: #dc3545 !important;
             font-weight: bold;
         }
+
+        /* Warna untuk baris berdasarkan kategori leave */
+        .row-annual {
+            background-color: #f8f9fa !important;
+            /* Light gray background for Annual */
+            color: black !important;
+        }
+
+        .row-exdo {
+            background-color: #e3f2fd !important;
+            /* Light blue background for Exdo */
+            color: blue !important;
+        }
+
+        .row-other {
+            background-color: #e8f5e8 !important;
+            /* Light green background for other categories */
+            color: green !important;
+        }
     </style>
 @endpush
 
@@ -107,6 +126,33 @@
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">
+                Leave Status Form
+            </h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <table class="table table-stripped table-bordered table-hover table-condensed" id="tablesForm" width="100%">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Leave Status</th>
+                        <th>NIK</th>
+                        <th>Employee</th>
+                        <th>Position</th>
+                        <th>Department</th>
+                        <th>Start Leave</th>
+                        <th>End Leave</th>
+                        <th>Total Day</th>
+                        <th>Status Form</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
 
 @stop
 
@@ -207,6 +253,40 @@
                     'excel'
                 ],
             });
+
+            $('table#tablesForm').DataTable({
+                processing: true,
+                responsive: true,
+                ajax: "{{ route('coordinator/leave-balance/data/form') }}",
+                columns: [{
+                    data: 'DT_Row_Index',
+                    orderable: false,
+                    searchable: false
+                }, {
+                    data: 'leave_category_id'
+                }, {
+                    data: 'request_nik'
+                }, {
+                    data: 'request_by'
+                }, {
+                    data: 'request_position'
+                }, {
+                    data: 'request_dept_category_name'
+                }, {
+                    data: 'leave_date'
+                }, {
+                    data: 'end_leave_date'
+                }, {
+                    data: 'total_day'
+                }, {
+                    data: 'statusForm'
+                }],
+                dom: 'lBfrtip',
+                buttons: [
+                    'excel'
+                ],
+            });
+
         });
     </script>
 @endpush

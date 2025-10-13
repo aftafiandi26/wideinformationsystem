@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
+        'App\Console\Commands\MakeServiceCommand',
         'App\Console\Commands\cronBirthdayEmail',
         'App\Console\Commands\cronReminderSotfware',
         'App\Console\Commands\cronFinanceTracking',

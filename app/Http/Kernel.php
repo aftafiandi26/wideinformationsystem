@@ -6,6 +6,7 @@ use App\Http\Middleware\AccessForWeekend;
 use App\Http\Middleware\AccessForWeekend2;
 use App\Http\Middleware\AccessOvertimeRemote;
 use App\Http\Middleware\AttendnaceAccess;
+use App\Http\Middleware\AuthLeaveBalance;
 use App\Http\Middleware\AuthOutsource;
 use App\Http\Middleware\AuthProductions;
 use App\Http\Middleware\AuthProductionTechnology;
@@ -98,6 +99,7 @@ class Kernel extends HttpKernel
         'attendance' => AttendnaceAccess::class,
         'outsource' => AuthOutsource::class,
         'prodTech' => AuthProductionTechnology::class,
+        'leaveBalance' => AuthLeaveBalance::class,
 
 
     ];

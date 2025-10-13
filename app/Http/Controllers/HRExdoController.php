@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Initial_Leave;
 use App\Leave;
+use App\Services\StatusFormServices;
 use App\User;
 use Illuminate\Http\Request;
 use Yajra\Datatables\Facades\Datatables;
@@ -72,5 +73,48 @@ class HRExdoController extends Controller
                 return $remains;
             })
             ->make(true);
+    }
+
+    public function dataTablesLimit()
+    {
+        $query = Initial_Leave::whereDATE('expired', '>=', date('Y-m-d'))->whereDATE('expired', '<=', date('Y-m-d', strtotime('+2 weeks')))->get();
+
+        return Datatables::of($query)
+        ->addIndexColumn()
+        ->addColumn('fullname', function(Initial_leave $initial_leave) {
+            $user = User::find($initial_leave->user_id);
+            $initial_leave->fullname = $user->fullname;
+            return $user->getFullName();
+        })
+        ->addColumn('nik', function (Initial_leave $initial_leave) {
+            $user = User::find($initial_leave->user_id);
+            $initial_leave->nik = $user->nik;
+            return $user->nik;
+        })
+        ->addColumn('department', function (Initial_leave $initial_leave) {
+            $user = User::find($initial_leave->user_id);
+            $initial_leave->department = $user->getDepartment();
+            return $initial_leave->department;
+        })
+        ->addColumn('position', function (Initial_leave $initial_leave) {
+            $user = User::find($initial_leave->user_id);
+            $initial_leave->position = $user->position;
+            return $initial_leave->position;
+        })
+        ->make(true);
+    }
+
+    public function dataTablesFormExdo()
+    {
+        $query = Leave::where('leave_category_id', 2)->where('ap_hrd', 0)->orderBy('leave_date', 'asc')->whereYEAR('leave_date', date('Y'))->get();
+     
+        return Datatables::of($query)
+        ->addIndexColumn()
+        ->addColumn('statusForm', function (Leave $leave) {
+            $status = new StatusFormServices();
+            $return = $status->statusForm($leave);
+            return $return;
+        })
+        ->make(true);
     }
 }

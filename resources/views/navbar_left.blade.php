@@ -228,6 +228,58 @@
             </a>
         </li>
     @endif
+
+    @if (auth()->user()->dept_category_id === 6)
+        @if (auth()->user()->koor === 1)
+            <li>
+                <a class="{!! $c30001 or '' !!}" href=""><i class="fa fa-fw fa fa-soundcloud"></i>
+                    Management Leave<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level {!! $c30001 or '' !!}">
+                    <li>
+                        <a class="{!! $c30002 or '' !!}" href="{{ route('coordinator/leave-balance/index') }}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Leave Balance </a>
+                    </li>
+                </ul>
+            </li>
+        @endif
+        @if (auth()->user()->pm === 1)
+            <li>
+                <a class="{!! $c30001 or '' !!}" href=""><i class="fa fa-fw fa fa-soundcloud"></i>
+                    Management Leave<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level {!! $c30001 or '' !!}">
+                    <li>
+                        <a class="{!! $c30002 or '' !!}" href="{{ route('coordinator/leave-balance/index') }}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Leave Balance </a>
+                    </li>
+                </ul>
+            </li>
+        @endif
+        @if (auth()->user()->producer === 1)
+            <li>
+                <a class="{!! $c30001 or '' !!}" href=""><i class="fa fa-fw fa fa-soundcloud"></i>
+                    Management Leave<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level {!! $c30001 or '' !!}">
+                    <li>
+                        <a class="{!! $c30002 or '' !!}" href="{{ route('coordinator/leave-balance/index') }}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Leave Balance </a>
+                    </li>
+                </ul>
+            </li>
+        @endif
+    @else
+        @if (auth()->user()->hr === 0)
+            <li>
+                <a class="{!! $c30001 or '' !!}" href=""><i class="fa fa-fw fa fa-soundcloud"></i>
+                    Management Leave<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level {!! $c30001asd or '' !!}">
+                    <li>
+                        <a class="{!! $c30002 or '' !!}" href="{{ route('coordinator/leave-balance/index') }}"><i
+                                class="fa fa-fw fa fa-genderless"></i> Leave Balance </a>
+                    </li>
+                </ul>
+            </li>
+        @endif
+    @endif
     @if (auth()->user()->hd == true || auth()->user()->gm == true)
         <li>
             <a class="{!! $c30001 or '' !!}" href=""><i class="fa fa-fw fa fa-soundcloud"></i>
@@ -326,7 +378,8 @@
                 Access<span class="fa arrow"></span></a>
             <ul class="nav nav-second-level {!! $c1u or '' !!}">
                 <li>
-                    <a class="{!! $c16 or '' !!}" href="{{ route('it/registration/form/overtimes/index') }}"><i
+                    <a class="{!! $c16 or '' !!}"
+                        href="{{ route('it/registration/form/overtimes/index') }}"><i
                             class="fa fa-fw fa fa-genderless"></i> List Request Remote Access</a>
                 </li>
                 <li>
@@ -806,6 +859,11 @@
             <a class="{!! $c17 or '' !!}" href="#"><i class="fa fa-fw fa-cogs"></i> Management Leave
                 <i>(hr)</i><span class="fa arrow"></span></a>
             <ul class="nav nav-second-level {!! $c1u or '' !!}">
+                <li>
+                    <a class="{!! $c17 or '' !!}" href="{{ route('coordinator/leave-balance/index') }}"><i
+                            class="fa fa-fw fa fa-genderless"></i>
+                        Annual Leave <i>(report)</i></a>
+                </li>
                 <li>
                     <a class="{!! $c17 or '' !!}" href="{{ route('hrd/exdo-leave/index') }}"><i
                             class="fa fa-fw fa fa-genderless"></i>

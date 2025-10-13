@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Dept_Category;
 use App\Initial_Leave;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Leave;
+use App\Leave_Category;
 use App\User;
 use App\Services\LeaveBalanceService;
+use App\Services\StatusFormServices;
 use Yajra\Datatables\Facades\Datatables;
 
 class CoordinatorLeaveBalanceController extends Controller
@@ -16,8 +19,51 @@ class CoordinatorLeaveBalanceController extends Controller
 
     public function __construct(LeaveBalanceService $leaveBalanceService)
     {
-        $this->middleware(['auth', 'active']);
+        $this->middleware(['auth', 'active', 'leaveBalance']);
         $this->leaveBalanceService = $leaveBalanceService;
+    }
+
+    private function deptID()
+    {
+        $deptID = auth()->user()->dept_category_id;
+
+        if ($deptID === 1) {
+            $return = [1, 10, 11];
+        }
+        if ($deptID === 2) {
+            $return = [2];
+        }
+        if ($deptID === 3) {
+            $return = [3];
+        }
+        if ($deptID === 4) {
+            $return = [4, 6];
+        }
+        if ($deptID === 5) {
+            $return = [5];
+        }
+        if ($deptID === 6) {
+            $return = [4, 6];
+        }
+        if ($deptID === 7) {
+            $return = [7];
+        }
+        if ($deptID === 8) {
+            $return = [8];
+        }
+        if ($deptID === 9) {
+            $return = [9];
+        }
+        if ($deptID === 10) {
+            $return = [1, 10, 11];
+        }
+        if ($deptID === 11) {
+            $return = [1, 10, 11];
+        }
+        if (auth()->user()->hr === 1) {
+            $return = [1,2,3,4,5,6,7,8,9,10,11];
+        }
+        return $return;
     }
 
     public function index()
@@ -27,10 +73,13 @@ class CoordinatorLeaveBalanceController extends Controller
     
     public function dataTables()
     {
+        $deptID = $this->deptID();
+
         $query = User::select(['id', 'username', 'nik', 'first_name', 'last_name', 'position', 'emp_status', 'dept_category_id', 'initial_annual', 'join_date', 'end_date'])
             ->where('active', 1)
             ->whereNotIn('nik', ["", "123456789", "D0002"])
             ->whereNotIn('emp_status', ["Outsource"])
+            ->whereIn('dept_category_id', $deptID)
             ->orderBy('first_name', 'asc')
             ->get();
 
@@ -124,6 +173,53 @@ class CoordinatorLeaveBalanceController extends Controller
                 return $user->final_annual_balance + $user->exdo_balance;
             })
             ->make(true);
+    }
+
+    public function dataTablesForm()
+    {
+        $deptID = $this->deptID();
+        $changeDeptID = Dept_Category::whereIN('id', $deptID)->pluck('dept_category_name');
+     
+        $query = Leave::whereIN('request_dept_category_name', $changeDeptID)->where('ap_hrd', 0)->where('formStat', 1)->whereYEAR('leave_date', date('Y'))->get();
+
+        return Datatables::of($query)
+        ->addIndexColumn()
+        ->editColumn('leave_category_id', function (Leave $leave) {
+            $return = Leave_Category::find($leave->leave_category_id);
+            $categoryName = $return->leave_category_name;
+            
+            // Tentukan warna berdasarkan kategori
+            $color = '';
+            if ($categoryName == 'Annual') {
+                $color = 'color: black;';
+            } elseif ($categoryName == 'Exdo') {
+                $color = 'color: blue;';
+            } else {
+                $color = 'color: green;';
+            }
+            
+            $html = "<span class='nameCategory' style='{$color}'>". $categoryName."</span>";
+            return $html;
+        })
+        ->setRowClass(function (Leave $leave) {
+            $return = Leave_Category::find($leave->leave_category_id);
+            $categoryName = $return->leave_category_name;
+            
+            // Tentukan class CSS untuk baris berdasarkan kategori
+            if ($categoryName == 'Annual') {
+                return 'row-annual';
+            } elseif ($categoryName == 'Exdo') {
+                return 'row-exdo';
+            } else {
+                return 'row-other';
+            }
+        })
+        ->addColumn('statusForm', function (Leave $leave) {
+            $status = new StatusFormServices();
+            $return = $status->statusForm($leave);
+            return $return;
+        })
+        ->make(true);
     }
 
 }

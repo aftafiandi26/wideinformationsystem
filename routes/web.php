@@ -1641,6 +1641,8 @@ Route::prefix('hr-admin')->group(function () {
     //Management Leave > Exdo Leave (Report)
     Route::get('exdo-leave', 'HRExdoController@index')->name('hrd/exdo-leave/index');
     Route::get('exdo-leave/data', 'HRExdoController@dataTables')->name('hrd/exdo-leave/data');
+    Route::get('exdo-leave/data/limit', 'HRExdoController@dataTablesLimit')->name('hrd/exdo-leave/data/limit');
+    Route::get('exdo-leave/data/formProgress', 'HRExdoController@dataTablesFormExdo')->name('hrd/exdo-leave/data/formProgress');
 });
 
 //Outside
@@ -1791,9 +1793,10 @@ Route::prefix('network')->group(function () {
     Route::options('speedtest/upload', 'NetworkSpeedTestController@optionsUpload');
 });
 
-Route::prefix('coordinator')->group(function () {
+Route::prefix('leave')->group(function () {
     Route::get('leave-balance', 'CoordinatorLeaveBalanceController@index')->name('coordinator/leave-balance/index');
     Route::get('leave-balance/data', 'CoordinatorLeaveBalanceController@dataTables')->name('coordinator/leave-balance/data');
+    Route::get('leave-balance/data/form', 'CoordinatorLeaveBalanceController@dataTablesForm')->name('coordinator/leave-balance/data/form');
 });
 
 Route::prefix('outsource')->group(function () {

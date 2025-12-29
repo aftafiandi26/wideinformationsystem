@@ -19,6 +19,7 @@ use App\ForfeitedCounts;
 use App\Log_Leave_Transaction;
 use App\Mail\HRD\RescheduleLeave\Approved;
 use App\Mail\HRD\RescheduleLeave\sendMailReschedule;
+use App\Services\StatusFormServices;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -54,8 +55,14 @@ class HRLeaveRescheduleControoler extends Controller
         $date2 = date('m', strtotime('+1 month'));
 
         $modal = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work',
-            'users.nik', 'users.first_name', 'users.last_name', 'users.position',
+            'leave_transaction.id',
+            'leave_transaction.leave_date',
+            'leave_transaction.end_leave_date',
+            'leave_transaction.back_work',
+            'users.nik',
+            'users.first_name',
+            'users.last_name',
+            'users.position',
             'dept_category.dept_category_name',
             'leave_category.leave_category_name'
         ])
@@ -88,19 +95,20 @@ class HRLeaveRescheduleControoler extends Controller
                 $stat = Leave::find($leave->id);
                 $user = User::where('nik', $leave->nik)->first();
 
-                $status = $this->returnStatus($stat);
+                // $status = $this->returnStatus($stat);
+                $status = StatusFormServices::StatusForm($stat);
 
-                if ($user->hd === 1) {
-                    if ($stat->ap_gm === 0) {
-                        $status = "Pending GM";
-                    }
-                }
+                // if ($user->hd === 1) {
+                //     if ($stat->ap_gm === 0) {
+                //         $status = "Pending GM";
+                //     }
+                // }
 
-                if ($user->gm === 1) {
-                    if ($stat->ver_hr === 0) {
-                        $status = "Checking Verify";
-                    }
-                }
+                // if ($user->gm === 1) {
+                //     if ($stat->ver_hr === 0) {
+                //         $status = "Checking Verify";
+                //     }
+                // }
 
                 return $status;
             })

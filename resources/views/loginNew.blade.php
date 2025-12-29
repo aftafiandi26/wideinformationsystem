@@ -10,7 +10,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="shortcut icon" href="{{ asset('assets/WIS_LOGO_2025_V2.png') }}">
     <title>Login - WIS</title>
-    <meta name="color-scheme" content="light">
     @include('assets_css_1')
 </head>
 
@@ -424,8 +423,6 @@
             font-size: 14px;
         }
     }
-
-    /* Removed dark-mode CSS so page always renders in light appearance */
 </style>
 
 <body>

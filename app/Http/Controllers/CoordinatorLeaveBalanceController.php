@@ -60,8 +60,8 @@ class CoordinatorLeaveBalanceController extends Controller
         if ($deptID === 11) {
             $return = [1, 10, 11];
         }
-        if (auth()->user()->hr === 1) {
-            $return = [1,2,3,4,5,6,7,8,9,10,11];
+        if (auth()->user()->hr === 1 || auth()->user()->gm == true) {
+            $return = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
         }
         return $return;
     }
@@ -70,7 +70,7 @@ class CoordinatorLeaveBalanceController extends Controller
     {
         return view('production.coordinator.leaveBalance.index');
     }
-    
+
     public function dataTables()
     {
         $deptID = $this->deptID();
@@ -105,34 +105,34 @@ class CoordinatorLeaveBalanceController extends Controller
             ->addColumn('annual_available', function (User $user) {
                 // Use LeaveBalanceService for consistent calculation
                 $annual_available = $this->leaveBalanceService->calculateAnnualLeaveBalance($user, $user->annual_taken);
-                
+
                 // Get the appropriate balance based on employment status
                 if ($user->emp_status === 'Permanent') {
                     $balance = $annual_available['total_annual_permanent'];
                 } else {
                     $balance = $annual_available['total_annual'];
                 }
-                
+
                 $user->annual_available  = $balance;
                 return $balance;
-            })         
+            })
             ->addColumn('final_annual_balance', function (User $user) {
                 // Get annual leave taken               
-                
+
                 $annualTaken = $this->leaveBalanceService->getAnnualLeaveTaken($user->id);
                 $annual = (object)['transactionAnnual' => $annualTaken];
-                
+
                 // Calculate annual leave balance
                 $annualBalance = $this->leaveBalanceService->calculateAnnualLeaveBalance($user, $annualTaken);
-                
+
                 // Calculate forfeited leave
-                $forfeitedData = $this->leaveBalanceService->calculateForfeitedLeave($user->id);              
- 
-                if ($user->forfeitcase === 1) {                    
-                    $result = $user->initial_annual - $annual->transactionAnnual;                   
+                $forfeitedData = $this->leaveBalanceService->calculateForfeitedLeave($user->id);
+
+                if ($user->forfeitcase === 1) {
+                    $result = $user->initial_annual - $annual->transactionAnnual;
                 } else {
-                    $result = $user->initial_annual - $annual->transactionAnnual - $forfeitedData['valid_forfeited'];                    
-                }   
+                    $result = $user->initial_annual - $annual->transactionAnnual - $forfeitedData['valid_forfeited'];
+                }
                 $user->final_annual_balance = $result;
                 return $result;
             })
@@ -143,13 +143,6 @@ class CoordinatorLeaveBalanceController extends Controller
                 $user->total_exdo = $exdo;
                 return $exdo;
             })
-            ->addColumn('exdo_expired', function (User $user) {
-                // Use LeaveBalanceService for consistent calculation
-                $exdoBalance = $this->leaveBalanceService->calculateExdoBalance($user->id);
-                $expired = $exdoBalance['expired_exdo']->sum();
-                $user->exdo_expired = $expired;
-                return $expired;
-            })
             ->addColumn('exdo_taken', function (User $user) {
                 // Use LeaveBalanceService for consistent calculation
                 $exdoBalance = $this->leaveBalanceService->calculateExdoBalance($user->id);
@@ -157,16 +150,24 @@ class CoordinatorLeaveBalanceController extends Controller
                 $user->exdo_taken = $taken;
                 return $taken;
             })
+            ->addColumn('exdo_expired', function (User $user) {
+                // Use LeaveBalanceService for consistent calculation
+                $exdoBalance = $this->leaveBalanceService->calculateExdoBalance($user->id);
+                $expired = $exdoBalance['expired_exdo']->sum();
+                $user->exdo_expired = $expired - $user->exdo_taken;
+
+                return $user->exdo_expired;
+            })
             ->addColumn('exdo_balance', function (User $user) {
                 // Use LeaveBalanceService for consistent calculation
                 $exdoBalance = $this->leaveBalanceService->calculateExdoBalance($user->id);
                 $balance = $exdoBalance['remaining_exdo'];
-                
+
                 // Store for debugging
                 $user->exdo_valid = $exdoBalance['total_exdo']->sum();
                 $user->exdo_expired = $exdoBalance['expired_exdo']->sum();
                 $user->exdo_balance = $balance;
-                
+
                 return $balance;
             })
             ->addColumn('total_balance', function (User $user) {
@@ -179,47 +180,46 @@ class CoordinatorLeaveBalanceController extends Controller
     {
         $deptID = $this->deptID();
         $changeDeptID = Dept_Category::whereIN('id', $deptID)->pluck('dept_category_name');
-     
+
         $query = Leave::whereIN('request_dept_category_name', $changeDeptID)->where('ap_hrd', 0)->where('formStat', 1)->whereYEAR('leave_date', date('Y'))->get();
 
         return Datatables::of($query)
-        ->addIndexColumn()
-        ->editColumn('leave_category_id', function (Leave $leave) {
-            $return = Leave_Category::find($leave->leave_category_id);
-            $categoryName = $return->leave_category_name;
-            
-            // Tentukan warna berdasarkan kategori
-            $color = '';
-            if ($categoryName == 'Annual') {
-                $color = 'color: black;';
-            } elseif ($categoryName == 'Exdo') {
-                $color = 'color: blue;';
-            } else {
-                $color = 'color: green;';
-            }
-            
-            $html = "<span class='nameCategory' style='{$color}'>". $categoryName."</span>";
-            return $html;
-        })
-        ->setRowClass(function (Leave $leave) {
-            $return = Leave_Category::find($leave->leave_category_id);
-            $categoryName = $return->leave_category_name;
-            
-            // Tentukan class CSS untuk baris berdasarkan kategori
-            if ($categoryName == 'Annual') {
-                return 'row-annual';
-            } elseif ($categoryName == 'Exdo') {
-                return 'row-exdo';
-            } else {
-                return 'row-other';
-            }
-        })
-        ->addColumn('statusForm', function (Leave $leave) {
-            $status = new StatusFormServices();
-            $return = $status->statusForm($leave);
-            return $return;
-        })
-        ->make(true);
-    }
+            ->addIndexColumn()
+            ->editColumn('leave_category_id', function (Leave $leave) {
+                $return = Leave_Category::find($leave->leave_category_id);
+                $categoryName = $return->leave_category_name;
 
+                // Tentukan warna berdasarkan kategori
+                $color = '';
+                if ($categoryName == 'Annual') {
+                    $color = 'color: black;';
+                } elseif ($categoryName == 'Exdo') {
+                    $color = 'color: blue;';
+                } else {
+                    $color = 'color: green;';
+                }
+
+                $html = "<span class='nameCategory' style='{$color}'>" . $categoryName . "</span>";
+                return $html;
+            })
+            ->setRowClass(function (Leave $leave) {
+                $return = Leave_Category::find($leave->leave_category_id);
+                $categoryName = $return->leave_category_name;
+
+                // Tentukan class CSS untuk baris berdasarkan kategori
+                if ($categoryName == 'Annual') {
+                    return 'row-annual';
+                } elseif ($categoryName == 'Exdo') {
+                    return 'row-exdo';
+                } else {
+                    return 'row-other';
+                }
+            })
+            ->addColumn('statusForm', function (Leave $leave) {
+                $status = new StatusFormServices();
+                $return = $status->statusForm($leave);
+                return $return;
+            })
+            ->make(true);
+    }
 }

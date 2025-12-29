@@ -642,6 +642,11 @@ Route::prefix('HRD')->group(function () {
             Route::get('detail/employee', 'HRLeaveSummaryController@indexSummaryEmpoyeByEmploye')->name('detail/employee/summary/hr');
             Route::post('download/employee/excel', 'HRLeaveSummaryController@downloadDetailSummaryExdo')->name('hr/summary/leave/download/excel/employee');
 
+            //detail edit employee leave summary
+            Route::get('detail/leave/employee/edit/{id}', 'HRLeaveSummaryController@editDetailSummaryOfLeave')->name('detail/edit/employee/leave/detail/summary');
+            Route::post('detail/leave/employee/post/{id}', 'HRLeaveSummaryController@updateDetailSummaryOfLeave')->name('detail/post/employee/leave/detail/summary');
+          
+
             // chart leave summary
 
             Route::get('chart-of-summary', 'HRLeaveSummaryChartController@index')->name('hr/summary/leave/chart/index');
@@ -1814,4 +1819,3 @@ Route::prefix('outsource')->group(function () {
     Route::post('leave/validate', 'Outsources\\LeaveController@validateLeaveRequest')->name('outsource/leave/validate');
     Route::get('leave/requirements/{id}', 'Outsources\\LeaveController@getLeaveRequirements')->name('outsource/leave/requirements');
 });
-

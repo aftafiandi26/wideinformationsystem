@@ -1,5 +1,5 @@
 <nav class="navbar navbar-top">
-    <div class="navbar-toggle-area" id="navbarToggleArea"></div>
+    {{-- <div class="navbar-toggle-area" id="navbarToggleArea"></div> --}}
     <div class="branding-navbar-top">
         <a href="{{ route('index') }}">
             Wide Information System

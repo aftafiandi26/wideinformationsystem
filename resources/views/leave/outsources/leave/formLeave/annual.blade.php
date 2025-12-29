@@ -1420,12 +1420,6 @@
                 }
             });
 
-            // Set minimum date to today
-            var today = new Date().toISOString().split('T')[0];
-            $('#leave_date').attr('min', today);
-            $('#end_leave_date').attr('min', today);
-            $('#back_work').attr('min', today);
-
             // Handle review button
             $('#reviewBtn').off('click').on('click', function() {
                 if (validateFormForReview()) {

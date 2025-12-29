@@ -19,43 +19,6 @@
 
 @push('style')
     <style>
-        #preloader {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            z-index: 999;
-            background: linear-gradient(135deg, #5f5f5f 0%, #424852 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        #preloader::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('{{ asset('assets/preloader/1.gif') }}') center no-repeat;
-            background-size: 80px 80px;
-            animation: pulse 2s infinite;
-        }
-
-        #preloader::after {
-            content: 'Loading...';
-            position: absolute;
-            bottom: 30%;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 18px;
-            font-weight: 500;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            animation: fadeInOut 2s infinite;
-        }
-
         @keyframes pulse {
 
             0%,
@@ -86,8 +49,8 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            width: 100%;
-            height: 100%;
+            width: 110% !important;
+            height: 100% !important;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -162,11 +125,7 @@
 @endpush
 
 @section('body')
-    <div id="preloader"></div>
-    <div class="container-fluid bg-img">
-
-    </div>
-
+    <div class="container-fluid bg-img"></div>
 @stop
 
 @section('bottom')
@@ -177,18 +136,7 @@
 @push('js')
     <script>
         $(document).ready(function() {
-            $(window).on('load', function() {
-                if ($("#preloader").length) {
-                    $("#preloader").css({
-                        'opacity': '0',
-                        'visibility': 'hidden'
-                    });
 
-                    setTimeout(function() {
-                        $("#preloader").remove();
-                    }, 500);
-                }
-            });
         });
     </script>
 @endpush

@@ -26,6 +26,12 @@ class AuthLeaveBalance
             if (auth()->user()->producer === 1) {
                 return $next($request);
             }
+            if (auth()->user()->hd === 1) {
+                return $next($request);
+            }
+            if (auth()->user()->gm === 1) {
+                return $next($request);
+            }
         } else {
             return $next($request);
         }

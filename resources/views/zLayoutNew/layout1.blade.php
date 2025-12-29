@@ -24,6 +24,15 @@
             overflow: hidden !important;
         }
 
+        body .content-headline {
+            background: #ffffff !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+            margin: 10px !important;
+            position: relative !important;
+            overflow: hidden !important;
+        }
+
         body .container {
             background: transparent !important;
             padding: 0 !important;
@@ -82,6 +91,13 @@
             min-height: 200px !important;
         }
 
+        body .content-headline {
+            position: relative !important;
+            z-index: 1 !important;
+            background: #ffffff !important;
+            min-height: 200px !important;
+        }
+
         body .container {
             position: relative !important;
             z-index: 1 !important;
@@ -132,6 +148,12 @@
                 border-radius: 8px !important;
             }
 
+            body .content-headline {
+                margin: 5px !important;
+                padding: 15px !important;
+                border-radius: 8px !important;
+            }
+
             body .container {
                 padding: 0 !important;
                 margin: 0 !important;
@@ -172,11 +194,14 @@
             <!-- Session Alerts Container -->
             @include('zLayoutNew.alerts')
 
+            {{-- <div class="content-headline">
+                <h1>ttes</h1>
+            </div> --}}
+
             <!-- Main Content Wrapper -->
             <div class="content-wrapper">
                 @yield('body')
             </div>
-
         </div>
 </body>
 

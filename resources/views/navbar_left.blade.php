@@ -221,6 +221,7 @@
             </ul>
         </li>
     @endif
+
     @if (auth()->user()->hd == false && auth()->user()->gm == false)
         <li>
             <a class="{!! $c30001 or '' !!}" href="{!! URL::route('attendance/index') !!}"><i
@@ -280,6 +281,7 @@
             </li>
         @endif
     @endif
+
     @if (auth()->user()->hd == true || auth()->user()->gm == true)
         <li>
             <a class="{!! $c30001 or '' !!}" href=""><i class="fa fa-fw fa fa-soundcloud"></i>
@@ -321,6 +323,8 @@
             </ul>
         </li>
     @endif
+
+    {{-- dede1 --}}
     <!-- IT Menu -->
     @if (auth::user()->dept_category_id === 1 or auth::user()->dept_category_id === 10 and auth::user()->hd === 1)
         <!-- WS Availability -->
@@ -518,6 +522,7 @@
         </li>
     @endif
 
+
     @if (Auth::user()->level_hrd === 'Senior Pipeline' or Auth::user()->level_hrd === 'Technical Director')
         <li>
             <a class="{!! $c3 or '' !!}" href="#"><i class="fa fa-fw fa-home"></i> WS
@@ -546,6 +551,7 @@
             </ul>
         </li>
     @endif
+
     @if (auth::user()->dept_category_id === 6 and auth::user()->hd === 1)
         <li>
             <a class="{!! $c3 or '' !!}" href="#"><i class="fa fa-fw fa-home"></i> WS
@@ -574,6 +580,7 @@
             </ul>
         </li>
     @endif
+    {{-- dede1 --}}
     @if (auth::user()->hr === 1)
         <li>
             <a class="{!! $c3 or '' !!}" href="#"><i class="fa fa-fw fa fa-pencil"></i>

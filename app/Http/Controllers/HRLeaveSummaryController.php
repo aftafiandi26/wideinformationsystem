@@ -2,37 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Entitled_leave_view;
-
 use App;
-use App\Dept_Category;
-use App\Http\Controllers\Controller;
-use App\Initial_Leave;
+
+use App\User;
 use App\Leave;
 use App\Meeting;
-use App\Leave_backup;
-use App\Leave_Category;
 use App\NewUser;
-use App\Project_Category;
 use App\Forfeited;
-use App\ForfeitedCounts;
-use App\Log_Leave_Transaction;
-use App\User;
 use Carbon\Carbon;
+use App\Leave_backup;
+use App\Dept_Category;
+use App\Initial_Leave;
+use App\Leave_Category;
+use App\ForfeitedCounts;
+use App\Project_Category;
+use App\Entitled_leave_view;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Log_Leave_Transaction;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
-use Yajra\Datatables\Facades\Datatables;
-use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redirect;
+use Yajra\Datatables\Facades\Datatables;
+use Illuminate\Support\Facades\Validator;
 
 class HRLeaveSummaryController extends Controller
 {
@@ -46,8 +47,8 @@ class HRLeaveSummaryController extends Controller
         // $provinsi = file_get_contents('https://dev.farizdotid.com/api/daerahindonesia/provinsi', 200);
         $provinsi = file_get_contents('https://ibnux.github.io/data-indonesia/provinsi.json', 200);
         $provinsi = json_decode($provinsi, true);
-        $provinsi = $provinsi['provinsi'];
 
+        // $provinsi = $provinsi['provinsi'];
         return $provinsi;
     }
 
@@ -233,7 +234,10 @@ class HRLeaveSummaryController extends Controller
         $modal = Leave::joinUsers()->joinDeptCategory()->select([
             'leave_transaction.id',
             'leave_transaction.leave_category_id',
-            'users.nik', 'users.last_name', 'users.first_name', 'users.position',
+            'users.nik',
+            'users.last_name',
+            'users.first_name',
+            'users.position',
             'dept_category.dept_category_name',
             'leave_transaction.leave_date',
             'leave_transaction.end_leave_date',
@@ -278,10 +282,23 @@ class HRLeaveSummaryController extends Controller
     public function viewSummaryLeave($id)
     {
         $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-            'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+            'leave_transaction.id',
+            'leave_transaction.leave_date',
+            'leave_transaction.end_leave_date',
+            'leave_transaction.back_work',
+            'leave_transaction.leave_category_id',
+            'leave_transaction.period',
+            'leave_transaction.pending',
+            'leave_transaction.total_day',
+            'leave_transaction.remain',
+            'leave_transaction.r_departure',
             'leave_transaction.r_after_leaving',
-            'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+            'users.first_name',
+            'users.last_name',
+            'users.nik',
+            'users.join_date',
+            'users.position',
+            'users.address',
             'dept_category.dept_category_name',
             'leave_category.leave_category_name',
         ])->where('leave_transaction.id', $id)->first();
@@ -352,11 +369,24 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                'leave_transaction.id',
+                'leave_transaction.leave_date',
+                'leave_transaction.end_leave_date',
+                'leave_transaction.back_work',
+                'leave_transaction.leave_category_id',
+                'leave_transaction.period',
+                'leave_transaction.pending',
+                'leave_transaction.total_day',
+                'leave_transaction.remain',
+                'leave_transaction.r_departure',
                 'leave_transaction.ap_hrd',
                 'leave_transaction.r_after_leaving',
-                'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                'users.first_name',
+                'users.last_name',
+                'users.nik',
+                'users.join_date',
+                'users.position',
+                'users.address',
                 'dept_category.dept_category_name',
                 'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -367,11 +397,24 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                    'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                    'leave_transaction.id',
+                    'leave_transaction.leave_date',
+                    'leave_transaction.end_leave_date',
+                    'leave_transaction.back_work',
+                    'leave_transaction.leave_category_id',
+                    'leave_transaction.period',
+                    'leave_transaction.pending',
+                    'leave_transaction.total_day',
+                    'leave_transaction.remain',
+                    'leave_transaction.r_departure',
                     'leave_transaction.ap_hrd',
                     'leave_transaction.r_after_leaving',
-                    'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.nik',
+                    'users.join_date',
+                    'users.position',
+                    'users.address',
                     'dept_category.dept_category_name',
                     'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -382,11 +425,24 @@ class HRLeaveSummaryController extends Controller
                     ->paginate(10);
             } else {
                 $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                    'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                    'leave_transaction.id',
+                    'leave_transaction.leave_date',
+                    'leave_transaction.end_leave_date',
+                    'leave_transaction.back_work',
+                    'leave_transaction.leave_category_id',
+                    'leave_transaction.period',
+                    'leave_transaction.pending',
+                    'leave_transaction.total_day',
+                    'leave_transaction.remain',
+                    'leave_transaction.r_departure',
                     'leave_transaction.ap_hrd',
                     'leave_transaction.r_after_leaving',
-                    'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.nik',
+                    'users.join_date',
+                    'users.position',
+                    'users.address',
                     'dept_category.dept_category_name',
                     'leave_category.leave_category_name',
                 ])
@@ -401,7 +457,9 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $etc = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
+                'leave_transaction.leave_date',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -411,7 +469,9 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $etc = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
+                    'leave_transaction.leave_date',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -421,7 +481,9 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $etc = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
+                    'leave_transaction.leave_date',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -435,7 +497,9 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $annual = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
+                'leave_transaction.leave_date',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -445,7 +509,9 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $annual = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
+                    'leave_transaction.leave_date',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -455,7 +521,9 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $annual = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
+                    'leave_transaction.leave_date',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -469,7 +537,9 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $exdo = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
+                'leave_transaction.leave_date',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -479,7 +549,9 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $exdo = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
+                    'leave_transaction.leave_date',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -489,7 +561,9 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $exdo = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.leave_date',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
+                    'leave_transaction.leave_date',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -505,7 +579,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $sick = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -515,7 +590,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $sick = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -525,7 +601,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $sick = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -539,7 +616,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $wedding = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -549,7 +627,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $wedding = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -559,7 +638,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $wedding = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -573,7 +653,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $bod = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -583,7 +664,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $bod = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -593,7 +675,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $bod = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -607,7 +690,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $unpaid = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -617,7 +701,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $unpaid = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -627,7 +712,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $unpaid = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -641,7 +727,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $son = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -651,7 +738,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $son = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -661,7 +749,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $son = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -675,7 +764,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $dof = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -685,7 +775,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $dof = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -695,7 +786,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $dof = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -709,7 +801,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $dofl = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -719,7 +812,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $dofl = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -729,7 +823,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $dofl = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -743,7 +838,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $matermity = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -753,7 +849,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $matermity = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -763,7 +860,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $matermity = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -777,7 +875,8 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $other = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_category.leave_category_name',
+                'leave_transaction.id',
+                'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                 ->where('leave_transaction.leave_date', '<=', $dateToo)
                 ->where('leave_transaction.ap_hrd', 1)
@@ -787,7 +886,8 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $other = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -797,7 +897,8 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $other = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_category.leave_category_name',
+                    'leave_transaction.id',
+                    'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
                     ->where('leave_transaction.leave_date', '<=', $dateToo)
                     ->where('leave_transaction.ap_hrd', 1)
@@ -815,8 +916,26 @@ class HRLeaveSummaryController extends Controller
         }
 
         return view('HRDLevelAcces.leave.summary.detail.indexAll', compact([
-            'leave', 'dateFrom', 'dateToo', 'category', 'hometown', 'townn', 'annual', 'exdo', 'etc', 'total',
-            'sick', 'wedding', 'bod', 'unpaid', 'son', 'dof', 'dofl', 'matermity', 'other', 'totalEtc',
+            'leave',
+            'dateFrom',
+            'dateToo',
+            'category',
+            'hometown',
+            'townn',
+            'annual',
+            'exdo',
+            'etc',
+            'total',
+            'sick',
+            'wedding',
+            'bod',
+            'unpaid',
+            'son',
+            'dof',
+            'dofl',
+            'matermity',
+            'other',
+            'totalEtc',
         ]));
     }
 
@@ -834,11 +953,24 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                'leave_transaction.id',
+                'leave_transaction.leave_date',
+                'leave_transaction.end_leave_date',
+                'leave_transaction.back_work',
+                'leave_transaction.leave_category_id',
+                'leave_transaction.period',
+                'leave_transaction.pending',
+                'leave_transaction.total_day',
+                'leave_transaction.remain',
+                'leave_transaction.r_departure',
                 'leave_transaction.ap_hrd',
                 'leave_transaction.r_after_leaving',
-                'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                'users.first_name',
+                'users.last_name',
+                'users.nik',
+                'users.join_date',
+                'users.position',
+                'users.address',
                 'dept_category.dept_category_name',
                 'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -849,11 +981,24 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                    'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                    'leave_transaction.id',
+                    'leave_transaction.leave_date',
+                    'leave_transaction.end_leave_date',
+                    'leave_transaction.back_work',
+                    'leave_transaction.leave_category_id',
+                    'leave_transaction.period',
+                    'leave_transaction.pending',
+                    'leave_transaction.total_day',
+                    'leave_transaction.remain',
+                    'leave_transaction.r_departure',
                     'leave_transaction.ap_hrd',
                     'leave_transaction.r_after_leaving',
-                    'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.nik',
+                    'users.join_date',
+                    'users.position',
+                    'users.address',
                     'dept_category.dept_category_name',
                     'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -864,11 +1009,24 @@ class HRLeaveSummaryController extends Controller
                     ->get();
             } else {
                 $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                    'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                    'leave_transaction.id',
+                    'leave_transaction.leave_date',
+                    'leave_transaction.end_leave_date',
+                    'leave_transaction.back_work',
+                    'leave_transaction.leave_category_id',
+                    'leave_transaction.period',
+                    'leave_transaction.pending',
+                    'leave_transaction.total_day',
+                    'leave_transaction.remain',
+                    'leave_transaction.r_departure',
                     'leave_transaction.ap_hrd',
                     'leave_transaction.r_after_leaving',
-                    'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.nik',
+                    'users.join_date',
+                    'users.position',
+                    'users.address',
                     'dept_category.dept_category_name',
                     'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -908,11 +1066,24 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                'leave_transaction.id',
+                'leave_transaction.leave_date',
+                'leave_transaction.end_leave_date',
+                'leave_transaction.back_work',
+                'leave_transaction.leave_category_id',
+                'leave_transaction.period',
+                'leave_transaction.pending',
+                'leave_transaction.total_day',
+                'leave_transaction.remain',
+                'leave_transaction.r_departure',
                 'leave_transaction.ap_hrd',
                 'leave_transaction.r_after_leaving',
-                'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                'users.first_name',
+                'users.last_name',
+                'users.nik',
+                'users.join_date',
+                'users.position',
+                'users.address',
                 'dept_category.dept_category_name',
                 'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -924,11 +1095,24 @@ class HRLeaveSummaryController extends Controller
         } else {
             if ($townn === 'all') {
                 $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                    'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                    'leave_transaction.id',
+                    'leave_transaction.leave_date',
+                    'leave_transaction.end_leave_date',
+                    'leave_transaction.back_work',
+                    'leave_transaction.leave_category_id',
+                    'leave_transaction.period',
+                    'leave_transaction.pending',
+                    'leave_transaction.total_day',
+                    'leave_transaction.remain',
+                    'leave_transaction.r_departure',
                     'leave_transaction.ap_hrd',
                     'leave_transaction.r_after_leaving',
-                    'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.nik',
+                    'users.join_date',
+                    'users.position',
+                    'users.address',
                     'dept_category.dept_category_name',
                     'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -940,11 +1124,24 @@ class HRLeaveSummaryController extends Controller
                     ->paginate(10);
             } else {
                 $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                    'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                    'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                    'leave_transaction.id',
+                    'leave_transaction.leave_date',
+                    'leave_transaction.end_leave_date',
+                    'leave_transaction.back_work',
+                    'leave_transaction.leave_category_id',
+                    'leave_transaction.period',
+                    'leave_transaction.pending',
+                    'leave_transaction.total_day',
+                    'leave_transaction.remain',
+                    'leave_transaction.r_departure',
                     'leave_transaction.ap_hrd',
                     'leave_transaction.r_after_leaving',
-                    'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                    'users.first_name',
+                    'users.last_name',
+                    'users.nik',
+                    'users.join_date',
+                    'users.position',
+                    'users.address',
                     'dept_category.dept_category_name',
                     'leave_category.leave_category_name',
                 ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -974,11 +1171,24 @@ class HRLeaveSummaryController extends Controller
 
         if ($hometown === 'all') {
             $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                'leave_transaction.id',
+                'leave_transaction.leave_date',
+                'leave_transaction.end_leave_date',
+                'leave_transaction.back_work',
+                'leave_transaction.leave_category_id',
+                'leave_transaction.period',
+                'leave_transaction.pending',
+                'leave_transaction.total_day',
+                'leave_transaction.remain',
+                'leave_transaction.r_departure',
                 'leave_transaction.ap_hrd',
                 'leave_transaction.r_after_leaving',
-                'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                'users.first_name',
+                'users.last_name',
+                'users.nik',
+                'users.join_date',
+                'users.position',
+                'users.address',
                 'dept_category.dept_category_name',
                 'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -989,11 +1199,24 @@ class HRLeaveSummaryController extends Controller
                 ->get();
         } else {
             $leave = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-                'leave_transaction.id', 'leave_transaction.leave_date', 'leave_transaction.end_leave_date', 'leave_transaction.back_work', 'leave_transaction.leave_category_id',
-                'leave_transaction.period', 'leave_transaction.pending', 'leave_transaction.total_day', 'leave_transaction.remain', 'leave_transaction.r_departure',
+                'leave_transaction.id',
+                'leave_transaction.leave_date',
+                'leave_transaction.end_leave_date',
+                'leave_transaction.back_work',
+                'leave_transaction.leave_category_id',
+                'leave_transaction.period',
+                'leave_transaction.pending',
+                'leave_transaction.total_day',
+                'leave_transaction.remain',
+                'leave_transaction.r_departure',
                 'leave_transaction.ap_hrd',
                 'leave_transaction.r_after_leaving',
-                'users.first_name', 'users.last_name', 'users.nik', 'users.join_date', 'users.position', 'users.address',
+                'users.first_name',
+                'users.last_name',
+                'users.nik',
+                'users.join_date',
+                'users.position',
+                'users.address',
                 'dept_category.dept_category_name',
                 'leave_category.leave_category_name',
             ])->where('leave_transaction.leave_date', '>=', $dateFrom)
@@ -1027,7 +1250,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[0]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1044,7 +1269,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[1]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1061,7 +1288,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[2]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1078,7 +1307,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[3]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1095,7 +1326,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[4]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1112,7 +1345,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[5]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1129,7 +1364,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[6]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1146,7 +1383,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[7]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1163,7 +1402,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[8]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1180,7 +1421,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[9]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1197,7 +1440,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[10]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1214,7 +1459,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[11]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1231,7 +1478,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[12]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1248,7 +1497,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[13]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1265,7 +1516,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[14]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1282,7 +1535,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[15]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1299,7 +1554,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[16]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1316,7 +1573,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[17]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1333,7 +1592,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[18]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1350,7 +1611,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[19]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1367,7 +1630,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[20]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1384,7 +1649,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[21]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1401,7 +1668,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[22]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1418,7 +1687,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[23]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1435,7 +1706,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[24]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1452,7 +1725,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[25]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1469,7 +1744,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[26]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1486,7 +1763,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[27]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1503,7 +1782,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[28]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1520,7 +1801,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[30]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1537,7 +1820,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[31]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1554,7 +1839,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[32]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1571,7 +1858,9 @@ class HRLeaveSummaryController extends Controller
         $provinsi = $provinsi[33]['nama'];
 
         $query = Leave::joinUsers()->joinDeptCategory()->joinLeaveCategory()->select([
-            'leave_transaction.id', 'leave_category.leave_category_name', 'leave_transaction.r_departure'
+            'leave_transaction.id',
+            'leave_category.leave_category_name',
+            'leave_transaction.r_departure'
         ])->where('leave_transaction.leave_date', '>=', $dateFrom)
             ->where('leave_transaction.leave_date', '<=', $dateToo)
             ->where('leave_transaction.ap_hrd', 1)
@@ -1588,7 +1877,14 @@ class HRLeaveSummaryController extends Controller
         $year = $request->input('year');
         $category = $request->input('category');
 
-        $try = [$id, $year, $category];
+        $try = [
+            'id' => $id,
+            'year' => $year,
+            'category' => $category
+        ];
+
+        $tryJson = json_encode($try);
+        Cookie::queue('detailEmp', $tryJson, 120);
 
         $user = User::findOrFail($id);
         $leaveCategory = Leave_Category::findOrFail($category);
@@ -1596,7 +1892,12 @@ class HRLeaveSummaryController extends Controller
         $data = Leave::where('user_id', $request->input('employee'))->where('period', $request->input('year'))->where('leave_category_id', $request->input('category'))->get();
 
         return view('HRDLevelAcces.leave.summary.detail.byEmployee', compact([
-            'data', 'user', 'leaveCategory', 'id', 'year', 'category'
+            'data',
+            'user',
+            'leaveCategory',
+            'id',
+            'year',
+            'category'
         ]));
     }
 
@@ -1607,9 +1908,6 @@ class HRLeaveSummaryController extends Controller
         $category = Leave_Category::all();
 
         $provinsi = $this->dataProvinsi();
-
-        // dd($pro);
-
         // $provinsi = file_get_contents('https://dev.farizdotid.com/api/daerahindonesia/provinsi');
         // $provinsi = json_decode($provinsi, true);
         // $provinsi = $provinsi['provinsi'];
@@ -1737,16 +2035,16 @@ class HRLeaveSummaryController extends Controller
                 Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Something Worng!!, remains value is  null. Please call administrator system!!']));
                 return redirect()->back();
             }
+
+            $remain = $lastLeave->remain - $totalDay;
+            $pending = $lastLeave->remain;
+            $taken = $lastLeave->taken + $totalDay;
         }
 
-        $remain = $lastLeave->remain - $totalDay;
-        $pending = $lastLeave->remain;
-        $taken = $lastLeave->taken + $totalDay;
-
         if ($category >= 3) {
-            $pending = null;
-            $remain = null;
-            $taken = null;
+            $pending = 0;
+            $remain = 0;
+            $taken = $totalDay;
         }
 
         $rule = [
@@ -1802,7 +2100,7 @@ class HRLeaveSummaryController extends Controller
 
         Leave::where('id', $id)->update($data);
         Session::flash('message', Lang::get('messages.data_updated', ['data' => 'eForm']));
-        return redirect()->route('hrd/summary/leave/index');
+        return redirect()->back();
     }
 
     public function destroyDataSummaryLeave($id)
@@ -1913,4 +2211,136 @@ class HRLeaveSummaryController extends Controller
         Session::flash('message', Lang::get('messages.data_custom', ['data' => 'Downloaded Successfully !!']));
         return redirect()->back();
     }
+
+    public function editDetailSummaryOfLeave(Request $request, $id)
+    {
+        $data = Leave::JoinUsers()->joinDeptCategory()->findOrFail($id);
+
+        $cookies = Cookie::get('detailEmp');
+        
+        if ($cookies) {
+            $detailEmp = json_decode($cookies, true);
+        
+        } else {
+            return redirect()->route('hrd/summary/leave/index');
+        }
+
+        $category = Leave_Category::all();
+
+        $provinsi = $this->dataProvinsi();
+        // $provinsi = file_get_contents('https://dev.farizdotid.com/api/daerahindonesia/provinsi');
+        // $provinsi = json_decode($provinsi, true);
+        // $provinsi = $provinsi['provinsi'];
+
+        $exdo = Initial_Leave::where('user_id', $data->user_id)->pluck('initial')->sum();
+        $advanceExdo = $this->exdo($id, $exdo);
+        $advancedLeaveAnnual = $this->advancedLeaveAnnual($data->user_id);
+
+        $annualCount = Leave::find($id);
+        $urll = route('detail/employee/summary/hr') . '?' . csrf_token(). '=' . csrf_token() . '&employee=' . $detailEmp['id'] . '&year=' . $detailEmp['year'] . '&category=' . $detailEmp['category'];
+     
+        return view('HRDLevelAcces.leave.summary.detail.editDetailEmploye', compact(['data', 'category', 'provinsi', 'advancedLeaveAnnual', 'advanceExdo', 'id', 'annualCount', 'urll']));
+    }
+
+    public function updateDetailSummaryOfLeave(Request $request, $id)
+    {
+        $leave = Leave::find($id);
+       
+         $cookies = Cookie::get('detailEmp');
+        
+        if ($cookies) {
+            $detailEmp = json_decode($cookies, true);
+        
+        } else {
+            return redirect()->route('hrd/summary/leave/index');
+        }
+      
+        $category = $request->input('category');
+        $totalDay = $request->input('request_day');
+
+        $lastLeave = Leave::where('leave_category_id', $category)->where('user_id', $leave->user_id)->latest()->first();
+
+        if ($category <= 2) {
+            if ($lastLeave->remain == null) {
+                Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Something Worng!!, remains value is  null. Please call administrator system!!']));
+                return redirect()->back();
+            }
+        }
+
+        $remain = $lastLeave->remain - $totalDay;
+        $pending = $lastLeave->remain;
+        $taken = $lastLeave->taken + $totalDay;
+
+        if ($category >= 3) {
+            $pending = null;
+            $remain = null;
+            $taken = null;
+        }
+
+        $rule = [
+            'startLeaveDate'    => 'required',
+            'endLeaveDate'      => 'required',
+            'backWork'          => 'required',
+            'request_day'       => 'required|numeric',
+            'reason'            => 'required|max:100',
+        ];
+
+        $data = [
+            'leave_category_id' => $category,
+            'leave_date'        => $request->input('startLeaveDate'),
+            'end_leave_date'    => $request->input('endLeaveDate'),
+            'back_work'         => $request->input('backWork'),
+            'total_day'         => $totalDay,
+            'reason_leave'      => $request->input('reason'),
+            'ap_koor'           => 1,
+            'ap_spv'            => 1,
+            'ap_pm'             => 1,
+            'ap_producer'       => 1,
+            'ap_hd'             => 1,
+            'ver_hr'            => 1,
+            'ap_hrd'            => 1,
+            'ap_infinite'       => 0,
+            'pending'           => $pending,
+            'remain'            => $remain,
+            'taken'             => $taken,
+        ];
+
+
+        $validator = Validator::make($request->all(), $rule);
+
+        if ($validator->fails()) {
+            return Redirect::route('hrd/summary/leave/edit', $id)
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        if ($request->input('category') == 1) {
+            if ($request->input('request_day') > $request->input('available')) {
+                Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, your leave balance is not enough!!']));
+                return Redirect::route('detail/edit/employee/leave/detail/summary', $id);
+            }
+        }
+
+        if ($request->input('category') == 2) {
+            if ($request->input('request_day') > $request->input('exdo')) {
+                Session::flash('getError', Lang::get('messages.data_custom', ['data' => 'Sorry, your leave balance is not enough!!']));
+                return Redirect::route('detail/edit/employee/leave/detail/summary', $id);
+            }
+        }   
+        
+        $queryParams = [
+            '_token'   => csrf_token(),
+            'employee' => $detailEmp['id'],
+            'year'     => $detailEmp['year'],
+            'category' => $detailEmp['category']
+        ];
+      
+        Leave::where('id', $id)->update($data);
+        Session::flash('message', Lang::get('messages.data_updated', ['data' => 'eForm']));
+        $url = route('detail/employee/summary/hr') . '?' . csrf_token(). '=' . csrf_token() . '&employee=' . $detailEmp['id'] . '&year=' . $detailEmp['year'] . '&category=' . $detailEmp['category'];
+        return redirect()->to($url);
+
+    }
 }
+
+

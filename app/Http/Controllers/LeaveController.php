@@ -787,8 +787,14 @@ class LeaveController extends Controller
             $pmm[$value->email] = $value->first_name . ' ' . $value->last_name;
 
         $level_hrd = User::where('level_hrd', '=', 'Senior Pipeline')->where('dept_category_id', 6)->where('active', 1)->get();
-        foreach ($level_hrd as $value)
+       
+       if ($level_hrd->isNotEmpty()) {
+             foreach ($level_hrd as $value)
             $level[$value->email] = $value->first_name . ' ' . $value->last_name;
+        } else {
+            $level = null;
+        }
+       
 
         $ricky = null;
 
@@ -876,6 +882,8 @@ class LeaveController extends Controller
         if (auth()->user()->dept_category_id === 4) {
             $level = Null;
         }
+
+     
 
         foreach ($emailHoD as $Hod)
             $emailHOD[$Hod->email] = $Hod->first_name . ' ' . $Hod->last_name;
